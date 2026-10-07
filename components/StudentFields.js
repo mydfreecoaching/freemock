@@ -25,8 +25,8 @@ export default function StudentFields({ s = {} }) {
         ))}
       </div>
       <input name="priority_other" maxLength={80} defaultValue={s.priority_other || ''} placeholder='"பிற" எனில் விவரம் / If "Any other", specify' />
-      <label>கல்வித் தகுதி / Qualification</label>
-      <input name="qualification" maxLength={60} defaultValue={s.qualification || ''} placeholder="எ.கா. B.Sc., 12th" />
+      <label>கல்வித் தகுதி / Qualification <span className="req">*</span></label>
+      <input name="qualification" required minLength={2} maxLength={60} defaultValue={s.qualification || ''} placeholder="எ.கா. B.Sc., 12th" />
     </>
   );
 }

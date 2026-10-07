@@ -24,7 +24,7 @@ export default async function TestPage({ params }) {
   }
   const [{ n }] = await sql`SELECT count(*)::int AS n FROM questions WHERE test_id=${id}`;
   if (!a) {
-    const [me] = await sql`SELECT gender, community, email FROM students WHERE id=${sid}`;
+    const [me] = await sql`SELECT gender, community, email, qualification FROM students WHERE id=${sid}`;
     if (!profileComplete(me)) redirect(`/profile?next=/test/${id}`);
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
     return (
