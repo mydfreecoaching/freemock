@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { ensureSchema } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
-import { testStatus, secLabel, secSort, catName, fmt } from '@/lib/util';
+import { testStatus, secLabel, secSort, catName, fmt, DISTRICT_EN } from '@/lib/util';
 import { testAnalysis } from '@/lib/analysis';
 import { mmss } from '@/lib/rank';
 import CopyButton from '@/components/CopyButton';
@@ -28,6 +28,7 @@ export default async function Analysis({ params }) {
   const easyMisses = me ? items.filter((it) => it.pct >= 60 && me.answers?.[it.qno] !== it.answer).sort((a, b) => b.pct - a.pct).slice(0, 15) : [];
   const byDistrict = {};
   for (const r of rows) (byDistrict[r.district] ??= []).push(r);
+  const distList = Object.entries(byDistrict).sort((a, b) => b[1].length - a[1].length || (DISTRICT_EN[a[0]] || a[0]).localeCompare(DISTRICT_EN[b[0]] || b[0]));
   const back = adm ? `/admin/test/${id}` : `/dashboard?c=${test.category}`;
 
   const share = [
@@ -35,7 +36,8 @@ export default async function Analysis({ params }) {
     `${catName(test.category)} · எழுதியோர்: ${S.n} · சராசரி: ${S.mean}/${max} · அதிகபட்சம்: ${S.top}`,
     '', '*முதல் 10 இடங்கள்:*',
     ...rows.slice(0, 10).map((r) => `${r.rank}. ${r.name} (${r.district}) – ${r.score}`),
-    ...Object.entries(byDistrict).map(([d, a]) => `\n*${d} முதலிடம்:* ${a[0].name} – ${a[0].score}`),
+    '', '*மாவட்ட முதலிடங்கள்:*',
+    ...distList.map(([d, a]) => `${d}: ${a[0].name} – ${a[0].score}`),
   ].join('\n');
 
   return (
@@ -124,12 +126,14 @@ export default async function Analysis({ params }) {
         </div>
         <div className="card">
           <h2>மாவட்ட வாரியாக முதல் 5</h2>
-          {Object.entries(byDistrict).map(([d, a]) => (
+          <div style={{ maxHeight: 460, overflow: 'auto' }}>
+          {distList.map(([d, a]) => (
             <div key={d} style={{ marginBottom: 10 }}>
-              <h3>{d}</h3>
+              <h3>{d} <span className="small muted">({a.length} பேர்)</span></h3>
               <ol className="small" style={{ margin: 0, paddingLeft: 20 }}>{a.slice(0, 5).map((r) => <li key={r.id}>{r.name} – <b>{r.score}</b></li>)}</ol>
             </div>
           ))}
+          </div>
           {adm && <div className="noprint" style={{ marginTop: 10 }}><CopyButton text={share} label="WhatsApp-க்கு முடிவுச் சுருக்கம் நகலெடு" /></div>}
         </div>
       </div>
