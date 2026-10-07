@@ -37,7 +37,6 @@ export default async function Admin({ searchParams }) {
         <div className="row">
           <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
           <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
-          <a className="btn alt" href="/admin/classes">பயிற்சி வகுப்புகள்</a>
           <a className="btn alt" href={`/weekly?c=${cat || 'TNPSC_G2'}`}>வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
           <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>

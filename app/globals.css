@@ -113,6 +113,3 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 
 .ktabs .tab{font-size:13px;padding:7px 12px}
 .ktabs{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
-details.classes summary{cursor:pointer;list-style:revert}
-.cls{border-top:1px solid var(--line);padding:10px 0}
-.cls.today{background:#f3fbf5;margin:0 -16px;padding:10px 16px}
