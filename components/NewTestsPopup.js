@@ -70,12 +70,11 @@ export default function NewTestsPopup({ items, classes = [], day = '' }) {
           <h2 id="pop-h" style={{ marginTop: 0 }}>📚 இன்றைய பயிற்சி வகுப்புகள் / Today's Classes</h2>
           {classes.map((c) => (
             <div className="pop-item" key={c.id}>
-              <div>{c.subject ? <><b>{c.subject}</b>{c.faculty && <span className="small"> · {c.faculty}</span>}<div className="small">{c.title}</div></> : <b>{c.title}</b>}
+              <div><b>{c.title}</b>
                 <div className="small muted">📍 {c.venue}{c.time ? ` · 🕓 ${c.time}` : ''}</div>
                 {c.note && <div className="small">{c.note}</div>}</div>
             </div>
           ))}
-          <div className="small" style={{ textAlign: 'right' }}><a href="/classes">முழுக் கால அட்டவணை →</a></div>
         </>}
         {show.length > 0 && <h2 id={showCls ? undefined : 'pop-h'} style={{ marginTop: showCls ? 16 : 0 }}>📢 புதிய மாதிரித் தேர்வுகள் / New Mock Tests</h2>}
         {open.length > 0 && <><div className="pop-sub">இப்போது எழுதலாம் / Open now</div>{open.map((t) => <Item key={t.id} t={t} />)}</>}

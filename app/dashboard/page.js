@@ -5,7 +5,6 @@ import { profileComplete } from '@/lib/profile';
 import { fmt, fmtDate, testStatus, CATEGORIES, CAT, KIND_SHORT, KINDS, KIND_TAB, istWeekday, daysLabel, classTime } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import NewTestsPopup from '@/components/NewTestsPopup';
-import { classesOn, istToday } from '@/lib/classes';
 export const dynamic = 'force-dynamic';
 
 const STATUS = { open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'நிறைவடைந்தது' };
@@ -58,10 +57,9 @@ export default async function Dashboard({ searchParams }) {
 
   const classes = await sql`SELECT * FROM classes WHERE active ORDER BY sort, id`;
   const wd = istWeekday();
-  const day = istToday();
-  const todayCls = await classesOn(day);
-  const todayBy = {};
-  for (const x of todayCls) (todayBy[x.class_id] ??= []).push(x);
+  const day = new Date(Date.now() + 19800000).toISOString().slice(0, 10);
+  const todayCls = classes.filter((c) => (c.days || []).map(Number).includes(wd))
+    .map((c) => ({ id: c.id, title: c.title, venue: c.venue, time: classTime(c), note: c.note }));
 
   const counts = {};
   for (const t of tests) {
@@ -122,16 +120,14 @@ export default async function Dashboard({ searchParams }) {
       {closed.map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} />)}
       {classes.length > 0 && <details className="card classes" open={todayCls.length > 0}>
         <summary><b>📚 பயிற்சி வகுப்புகள் / Coaching Classes</b>{todayCls.length > 0 && <span className="small muted"> · இன்று {todayCls.length}</span>}</summary>
-        <p className="small" style={{ margin: '6px 0' }}><a href="/classes">வாராந்திரக் கால அட்டவணை / Weekly timetable →</a></p>
         {classes.map((c) => {
-          const today = !!todayBy[c.id];
+          const today = (c.days || []).map(Number).includes(wd);
           return (
             <div key={c.id} className={`cls ${today ? 'today' : ''}`}>
               <b>{c.title}</b>{today && <span className="pop-new">இன்று</span>}
               <div className="small muted">📍 {c.venue}</div>
               <div className="small">📅 {daysLabel(c.days)}{classTime(c) && ` · 🕓 ${classTime(c)}`}{c.scheme && ` · ${c.scheme}`}</div>
               {c.note && <div className="small">{c.note}</div>}
-              {(todayBy[c.id] || []).filter((x) => x.subject).map((x) => <div key={x.id} className="small"><b>இன்று: {x.subject}</b>{x.faculty && ` · ${x.faculty}`}{x.time && ` · ${x.time}`}</div>)}
             </div>
           );
         })}
