@@ -39,7 +39,11 @@ export default async function TestPage({ params }) {
           <li>நேரம் முடிந்ததும் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும்.</li>
           <li>வேறு tab / app-க்கு மாறுவது பதிவு செய்யப்படும். நேர்மையாக எழுதவும்.</li>
         </ul>
-        <StartButton testId={id} />
+        {t.syllabus && <>
+          <h2 style={{ marginBottom: 6 }}>பாடத்திட்டம் / Syllabus</h2>
+          <div className="syllabus">{t.syllabus}</div>
+        </>}
+        <StartButton testId={id} needAck={!!t.syllabus} />
       </div>
     );
   }

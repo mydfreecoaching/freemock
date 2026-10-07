@@ -36,6 +36,7 @@ export default async function AdminTest({ params, searchParams }) {
         <div className="card">
           <h2>வினாக்கள் பதிவேற்றம்</h2>
           <p className="small">தற்போது: <b>{qs.length}</b> வினாக்கள் {Object.entries(by).map(([k, v]) => `· ${k} ${v} `)}</p>
+          {!t.syllabus && <div className="err">படி 1: இடப்புறம் பாடத்திட்டத்தை (Syllabus) உள்ளிட்டுச் சேமிக்கவும். படி 2: பிறகு வினாக்களைப் பதிவேற்றவும்.</div>}
           <Form action="/api/admin/upload" submit="பதிவேற்று" confirm={rows.length ? 'ஏற்கனவே விடைத்தாள்கள் உள்ளன. வினாக்களை மாற்றவா?' : undefined}>
             <input type="hidden" name="test_id" value={id} />
             <label>Excel (.xlsx) அல்லது JSON கோப்பு</label>

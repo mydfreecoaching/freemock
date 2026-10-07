@@ -40,6 +40,8 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
       </div>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />
+      <label>பாடத்திட்டம் / Syllabus <span className="req">*</span> <span className="small muted">(தேர்வர்கள் தேர்வு தொடங்கும் முன் இதைப் படித்து "சரி" கொடுப்பார்கள்)</span></label>
+      <textarea name="syllabus" required rows={6} maxLength={5000} defaultValue={v.syllabus || ''} placeholder={'எ.கா.\nபொதுத்தமிழ்: இலக்கணம் – எழுத்து, சொல்; திருக்குறள் 1–50\nபொது அறிவு: இந்திய அரசியலமைப்பு – அடிப்படை உரிமைகள்\nதிறனறிவு: சதவீதம், விகிதம்'} />
       <div className="grid2">
         <div><label>தொடக்கம் (IST)</label><input type="datetime-local" name="start_at" required defaultValue={v.start_at ? toISTInput(v.start_at) : ''} /></div>
         <div><label>முடிவு (IST) – இதற்குப் பின் யாரும் எழுத இயலாது</label><input type="datetime-local" name="end_at" required defaultValue={v.end_at ? toISTInput(v.end_at) : ''} /></div>

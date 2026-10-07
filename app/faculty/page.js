@@ -37,6 +37,7 @@ export default async function Faculty() {
               <div><label>வகை</label><select name="kind" defaultValue="daily"><option value="daily">தினசரித் தேர்வு (எ.கா. 20 வினாக்கள்)</option><option value="full">முழு மாதிரித் தேர்வு</option></select></div>
             </div>
             <label>தலைப்பு</label><input name="title" required maxLength={150} placeholder="எ.கா. Daily Test – Indian Polity – 08.10.2026" />
+            <label>பாடத்திட்டம் / Syllabus <span className="req">*</span></label><textarea name="syllabus" required rows={5} maxLength={5000} placeholder="இத்தேர்வில் இடம்பெறும் பாடப்பகுதிகள் – தேர்வர்களுக்குத் தேர்வு தொடங்கும் முன் காட்டப்படும்" />
             <label>Admin-க்குக் குறிப்பு (விருப்பம்)</label><textarea name="note" maxLength={1000} placeholder="எந்த நாளில் நடத்த வேண்டும், பாடப்பகுதி போன்றவை" />
             <label>Excel கோப்பு (.xlsx)</label><input type="file" name="file" accept=".xlsx" required />
           </Form>

@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
-import { fromIST, CAT } from '@/lib/util';
+import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
 
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -21,7 +21,9 @@ export async function POST(req) {
     kind: b.kind === 'daily' ? 'daily' : 'full',
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),
     allow_e: b.allow_e === 'on' || b.allow_e === true || b.allow_e === 'true',
+    syllabus: cleanSyllabus(b.syllabus),
   };
+  if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   if (b.id) {
     await sql`UPDATE tests SET ${sql(v)} WHERE id=${Number(b.id)}`;
     // if the window was shortened, nobody may write past the new end time
@@ -29,5 +31,5 @@ export async function POST(req) {
     return Response.json({ message: 'சேமிக்கப்பட்டது.', reload: true });
   }
   const [t] = await sql`INSERT INTO tests ${sql(v)} RETURNING id`;
-  return Response.json({ redirect: `/admin/test/${t.id}` });
+  return Response.json({ redirect: `/admin/test/${t.id}?new=1` });
 }

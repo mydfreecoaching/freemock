@@ -16,7 +16,7 @@ export default async function Submission({ params }) {
   if (!s) redirect('/admin/submissions');
   const qs = s.questions || [];
   const p = CAT[s.category]?.preset || {};
-  const defaults = { title: s.title, category: s.category, kind: s.kind, duration_min: s.kind === 'daily' ? 20 : 180, ...p };
+  const defaults = { title: s.title, category: s.category, kind: s.kind, syllabus: s.syllabus || '', duration_min: s.kind === 'daily' ? 20 : 180, ...p };
   return (
     <>
       <div className="card">

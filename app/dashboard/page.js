@@ -22,6 +22,7 @@ function TestCard({ t, a }) {
         </span>
       </div>
       <div className="small muted">{fmt(t.start_at)} முதல் {fmt(t.end_at)} வரை · {t.nq} வினாக்கள் · {t.duration_min} நிமிடம்</div>
+      {t.syllabus && <details className="syl"><summary>பாடத்திட்டம் / Syllabus</summary><div className="syllabus">{t.syllabus}</div></details>}
       <div className="row" style={{ marginTop: 10 }}>
         {st === 'open' && !a && <a className="btn" href={`/test/${t.id}`}>தேர்வைத் தொடங்கு</a>}
         {st === 'open' && a && !a.submitted_at && <a className="btn" href={`/test/${t.id}`}>தேர்வைத் தொடர்</a>}
