@@ -68,3 +68,8 @@ th{background:#f3ece1}
 .review .opt{cursor:default}
 .opt.correct{border-color:var(--ok);background:#e5f4ea} .opt.wrongsel{border-color:var(--bad);background:#fde8e6}
 .desk-pal{display:none} @media(min-width:900px){.desk-pal{display:block}.mobile-pal{display:none}}
+
+.req{color:var(--bad)}
+.choices{display:flex;flex-wrap:wrap;gap:6px 14px;margin:2px 0 6px}
+.choice{display:inline-flex;gap:6px;align-items:center;font-weight:400;font-size:14px;margin:0}
+.choice input{width:auto;margin:0}

@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus } from '@/lib/util';
+import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
 export const dynamic = 'force-dynamic';
@@ -19,12 +19,17 @@ export default async function Admin() {
      (SELECT count(*) FROM attempts a WHERE a.test_id=t.id)::int na,
      (SELECT count(*) FROM attempts a WHERE a.test_id=t.id AND a.submitted_at IS NULL)::int live
      FROM tests t ORDER BY start_at`;
-  const st = await sql`SELECT district, count(*)::int n FROM students GROUP BY district`;
+  const st = await sql`SELECT district, count(*)::int n FROM students GROUP BY district ORDER BY n DESC`;
+  const gst = await sql`SELECT COALESCE(gender,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
+  const cst = await sql`SELECT COALESCE(community,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
+  const pst = await sql`SELECT p k, count(*)::int n FROM students, jsonb_array_elements_text(priority) p GROUP BY 1 ORDER BY n DESC`;
+  const total = st.reduce((a, x) => a + x.n, 0);
   return (
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <div><h1 style={{ margin: 0 }}>Admin</h1>
-          <div className="small muted">பதிவு செய்த தேர்வர்கள்: {st.map((s) => `${s.district} ${s.n}`).join(' · ') || '0'}</div></div>
+          <div className="small muted">பதிவு செய்த தேர்வர்கள்: <b>{total}</b> · {st.slice(0, 8).map((s) => `${s.district} ${s.n}`).join(' · ')}{st.length > 8 ? ` · +${st.length - 8} மாவட்டங்கள்` : ''}</div>
+          <div className="small muted">பாலினம்: {gst.map((x) => `${GENDER_LABEL[x.k] || 'விவரம் இல்லை'} ${x.n}`).join(' · ')} | சமூகம்: {cst.map((x) => `${x.k === '?' ? 'விவரம் இல்லை' : x.k} ${x.n}`).join(' · ')}{pst.length > 0 && <> | முன்னுரிமை: {pst.map((x) => `${PRIORITY_LABEL[x.k] || x.k} ${x.n}`).join(' · ')}</>}</div></div>
         <div className="row">
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
           <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>

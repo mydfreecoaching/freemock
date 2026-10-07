@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
+import { profileComplete } from '@/lib/profile';
 import { fmt, fmtDate, testStatus } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 export const dynamic = 'force-dynamic';
@@ -20,13 +21,14 @@ export default async function Dashboard({ searchParams }) {
   const byTest = Object.fromEntries(atts.map((a) => [a.test_id, a]));
   return (
     <>
+      {!profileComplete(me) && <div className="err">உங்கள் விவரங்கள் (பாலினம், சமூகப் பிரிவு, மின்னஞ்சல்) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ margin: 0 }}>வணக்கம், {me.name}</h1>
           <div className="small muted">பதிவு எண்: <b>{me.reg_no}</b> · {me.district} · பிறந்த தேதி {fmtDate(me.dob)}</div>
         </div>
-        <a className="btn alt" href="/api/logout">வெளியேறு</a>
+        <div className="row"><a className="btn alt" href="/profile">என் விவரங்கள்</a><a className="btn alt" href="/api/logout">வெளியேறு</a></div>
       </div>
       <h2>மாதிரித் தேர்வுகள்</h2>
       {tests.length === 0 && <div className="card muted">தேர்வுகள் விரைவில் அறிவிக்கப்படும்.</div>}

@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
+import { GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { ranking } from '@/lib/rank';
 
 const csvCell = (v) => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -11,8 +12,10 @@ export async function GET(req) {
   const type = u.searchParams.get('type');
   let rows, name;
   if (type === 'students') {
-    const s = await sql`SELECT reg_no,name,mobile,to_char(dob,'DD.MM.YYYY') dob,district,qualification,to_char(created_at AT TIME ZONE 'Asia/Kolkata','DD.MM.YYYY HH24:MI') reg_at FROM students ORDER BY reg_no`;
-    rows = [['Reg No', 'Name', 'Mobile', 'DOB', 'District', 'Qualification', 'Registered at'], ...s.map((r) => Object.values(r))];
+    const s = await sql`SELECT reg_no,name,mobile,email,to_char(dob,'DD.MM.YYYY') dob,gender,community,priority,priority_other,district,qualification,to_char(created_at AT TIME ZONE 'Asia/Kolkata','DD.MM.YYYY HH24:MI') reg_at FROM students ORDER BY reg_no`;
+    rows = [['Reg No', 'Name', 'Mobile', 'Email', 'DOB', 'Gender', 'Community', 'Priority', 'District', 'Qualification', 'Registered at'],
+      ...s.map((r) => [r.reg_no, r.name, r.mobile, r.email || '', r.dob, GENDER_LABEL[r.gender] || '', r.community || '',
+        (r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; '), r.district, r.qualification || '', r.reg_at])];
     name = 'students';
   } else {
     const id = Number(u.searchParams.get('test'));

@@ -2,6 +2,14 @@
 import { useState } from 'react';
 
 /** Small helper: posts form fields as JSON and redirects/shows message. */
+function toObj(fd) {
+  const o = {};
+  for (const [k, v] of fd.entries()) {
+    if (k in o) o[k] = [].concat(o[k], v); else o[k] = v;
+  }
+  return o;
+}
+
 export default function Form({ action, children, submit = 'சமர்ப்பி', redirect, onDone, confirm: confirmMsg, className }) {
   const [err, setErr] = useState('');
   const [ok, setOk] = useState('');
@@ -14,7 +22,7 @@ export default function Form({ action, children, submit = 'சமர்ப்ப
     const hasFile = [...fd.values()].some((v) => typeof v === 'object' && v && v.size !== undefined);
     try {
       const res = await fetch(action, hasFile ? { method: 'POST', body: fd } : {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.fromEntries(fd)),
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(toObj(fd)),
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || 'பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.');

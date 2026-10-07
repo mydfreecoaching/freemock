@@ -3,6 +3,7 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt, testStatus } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
+import { profileComplete } from '@/lib/profile';
 import Exam from './Exam';
 import StartButton from './StartButton';
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,8 @@ export default async function TestPage({ params }) {
   }
   const [{ n }] = await sql`SELECT count(*)::int AS n FROM questions WHERE test_id=${id}`;
   if (!a) {
+    const [me] = await sql`SELECT gender, community, email FROM students WHERE id=${sid}`;
+    if (!profileComplete(me)) redirect(`/profile?next=/test/${id}`);
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
     return (
       <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
