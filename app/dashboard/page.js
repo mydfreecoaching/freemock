@@ -4,6 +4,7 @@ import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
 import { fmt, fmtDate, testStatus } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
+import NewTestsPopup from '@/components/NewTestsPopup';
 export const dynamic = 'force-dynamic';
 
 export default async function Dashboard({ searchParams }) {
@@ -19,8 +20,13 @@ export default async function Dashboard({ searchParams }) {
   for (const a of atts) if (!a.submitted_at && new Date(a.deadline) < new Date(Date.now() - 30000)) await finalize(a.id);
   atts = await sql`SELECT * FROM attempts WHERE student_id=${sid}`;
   const byTest = Object.fromEntries(atts.map((a) => [a.test_id, a]));
+  const popItems = tests.filter((t) => !byTest[t.id] && t.nq > 0 && ['open', 'upcoming'].includes(testStatus(t))).map((t) => ({
+    id: t.id, title: t.title, status: testStatus(t), href: `/test/${t.id}`,
+    when: testStatus(t) === 'open' ? `${fmt(t.end_at)} வரை எழுதலாம்` : `${fmt(t.start_at)} முதல்`,
+  }));
   return (
     <>
+      <NewTestsPopup items={popItems} />
       {!profileComplete(me) && <div className="err">உங்கள் விவரங்கள் (பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
