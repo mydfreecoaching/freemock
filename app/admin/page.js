@@ -1,11 +1,11 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
 export const dynamic = 'force-dynamic';
 
-export default async function Admin() {
+export default async function Admin({ searchParams }) {
   await ensureSchema();
   if (!(await isAdmin())) {
     return (
@@ -20,6 +20,10 @@ export default async function Admin() {
      (SELECT count(*) FROM attempts a WHERE a.test_id=t.id AND a.submitted_at IS NULL)::int live
      FROM tests t ORDER BY start_at`;
   const st = await sql`SELECT district, count(*)::int n FROM students GROUP BY district ORDER BY n DESC`;
+  const [{ pending }] = await sql`SELECT count(*)::int pending FROM submissions WHERE status='pending'`;
+  const sp = await searchParams;
+  const cat = CAT[sp?.c] ? sp.c : null;
+  const shown = (cat ? tests.filter((t) => t.category === cat) : tests).sort((a, b) => new Date(b.start_at) - new Date(a.start_at));
   const gst = await sql`SELECT COALESCE(gender,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const cst = await sql`SELECT COALESCE(community,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const pst = await sql`SELECT p k, count(*)::int n FROM students, jsonb_array_elements_text(priority) p GROUP BY 1 ORDER BY n DESC`;
@@ -31,6 +35,9 @@ export default async function Admin() {
           <div className="small muted">பதிவு செய்த தேர்வர்கள்: <b>{total}</b> · {st.slice(0, 8).map((s) => `${s.district} ${s.n}`).join(' · ')}{st.length > 8 ? ` · +${st.length - 8} மாவட்டங்கள்` : ''}</div>
           <div className="small muted">பாலினம்: {gst.map((x) => `${GENDER_LABEL[x.k] || 'விவரம் இல்லை'} ${x.n}`).join(' · ')} | சமூகம்: {cst.map((x) => `${x.k === '?' ? 'விவரம் இல்லை' : x.k} ${x.n}`).join(' · ')}{pst.length > 0 && <> | முன்னுரிமை: {pst.map((x) => `${PRIORITY_LABEL[x.k] || x.k} ${x.n}`).join(' · ')}</>}</div></div>
         <div className="row">
+          <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
+          <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
+          <a className="btn alt" href={`/weekly?c=${cat || 'TNPSC_G2'}`}>வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
           <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>
           <a className="btn alt" href="/api/logout">வெளியேறு</a>
@@ -38,11 +45,16 @@ export default async function Admin() {
       </div>
       <div className="card">
         <h2>தேர்வுகள்</h2>
+        <nav className="tabs">
+          <a className={`tab ${!cat ? 'on' : ''}`} href="/admin">அனைத்தும்</a>
+          {CATEGORIES.map((c) => <a key={c.id} className={`tab ${cat === c.id ? 'on' : ''}`} href={`/admin?c=${c.id}`}>{c.name}</a>)}
+        </nav>
         <div className="tablewrap"><table>
-          <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
-          <tbody>{tests.map((t) => (
+          <thead><tr><th>தேர்வு</th><th>பிரிவு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
+          <tbody>{shown.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
+              <td className="small">{catName(t.category)}<br />{t.kind === 'daily' ? 'தினசரி' : 'முழு'}</td>
               <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{testStatus(t)}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
@@ -50,7 +62,7 @@ export default async function Admin() {
           </tbody>
         </table></div>
       </div>
-      <div className="card"><h2>புதிய தேர்வு</h2><TestForm /></div>
+      <div className="card"><h2>புதிய தேர்வு</h2><TestForm defaults={cat ? { category: cat, ...CAT[cat].preset } : {}} /></div>
     </>
   );
 }

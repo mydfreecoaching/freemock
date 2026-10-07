@@ -29,7 +29,7 @@ export default async function AdminTest({ params, searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>{t.title}</h1>
-        <div className="row"><a className="btn alt" href="/admin">← Admin</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
+        <div className="row"><a className="btn alt" href={`/admin?c=${t.category}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
       </div>
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} /></div>

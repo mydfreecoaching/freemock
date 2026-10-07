@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import QText from '@/components/QText';
 
-const L = ['A', 'B', 'C', 'D'];
+const letters = (q) => (Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']);
 const pad = (n) => String(n).padStart(2, '0');
 
 export default function Exam({ test, questions, saved, tabs: tabs0, deadline, serverNow }) {
@@ -92,9 +92,10 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   }
 
   const q = questions[i];
+  const bilingual = useMemo(() => questions.some((x) => x.en_q) && questions.some((x) => x.ta_q), [questions]);
   const counts = useMemo(() => {
     let ans = 0, e = 0;
-    for (const qq of questions) { const v = answers[qq.qno]; if (v === 'E') e++; else if (v) ans++; }
+    for (const qq of questions) { const v = answers[qq.qno]; if (v === 'E' && Number(qq.nopts) !== 5) e++; else if (v) ans++; }
     return { ans, e, un: questions.length - ans - e };
   }, [answers, questions]);
   const secs = Math.max(0, Math.floor(left / 1000));
@@ -108,11 +109,11 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   const Palette = (
     <div className="palette">
       <div className="small"><b>{counts.ans}</b> விடையளித்தவை · <b>{counts.e}</b> E · <b>{counts.un}</b> விடுபட்டவை</div>
-      <div className="legend"><span><i style={{ background: '#1e7a3c' }} />விடை</span><span><i style={{ background: '#8a8a8a' }} />E</span><span><i style={{ background: '#eee' }} />இல்லை</span><span><i style={{ outline: '2px solid #a86b00' }} />மீண்டும் பார்</span></div>
+      <div className="legend"><span><i style={{ background: '#1e7a3c' }} />விடை</span>{test.allowE && <span><i style={{ background: '#8a8a8a' }} />E</span>}<span><i style={{ background: '#eee' }} />இல்லை</span><span><i style={{ outline: '2px solid #a86b00' }} />மீண்டும் பார்</span></div>
       <div className="pgrid">
         {questions.map((qq, k) => {
           const v = answers[qq.qno];
-          return <button key={qq.qno} className={`pb ${v === 'E' ? 'e' : v ? 'ans' : ''} ${review.has(qq.qno) ? 'rev' : ''} ${k === i ? 'cur' : ''}`} onClick={() => go(k)}>{qq.qno}</button>;
+          return <button key={qq.qno} className={`pb ${v === 'E' && Number(qq.nopts) !== 5 ? 'e' : v ? 'ans' : ''} ${review.has(qq.qno) ? 'rev' : ''} ${k === i ? 'cur' : ''}`} onClick={() => go(k)}>{qq.qno}</button>;
         })}
       </div>
       <div style={{ marginTop: 12 }}><button className="danger" style={{ width: '100%' }} onClick={() => setConfirm(true)}>விடைத்தாளைச் சமர்ப்பி</button></div>
@@ -124,9 +125,9 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
       <div className="bar">
         <div><b>{test.title}</b><div className="small" style={{ opacity: .85 }}>{status}</div></div>
         <div className="row">
-          <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ width: 'auto', padding: '4px 8px' }} aria-label="மொழி">
+          {bilingual && <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ width: 'auto', padding: '4px 8px' }} aria-label="மொழி">
             <option value="both">தமிழ் + English</option><option value="ta">தமிழ்</option><option value="en">English</option>
-          </select>
+          </select>}
           <span className={`timer ${secs < 600 ? 'low' : ''}`}>⏱ {time}</span>
         </div>
       </div>
@@ -144,7 +145,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
             {showEn && <div className="lang"><QText text={q.en_q} /></div>}
             {showTa && <div className="lang"><QText text={q.ta_q} /></div>}
             <div className="opts">
-              {L.map((l, k) => {
+              {letters(q).map((l, k) => {
                 const en = showEn ? q.en_opts?.[k] : '', ta = showTa ? q.ta_opts?.[k] : '';
                 return (
                   <button key={l} className={`opt ${answers[q.qno] === l ? 'on' : ''}`} onClick={() => pick(q.qno, l)}>
@@ -153,9 +154,11 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
                   </button>
                 );
               })}
-              <button className={`opt e ${answers[q.qno] === 'E' ? 'on' : ''}`} onClick={() => pick(q.qno, 'E')}>
-                <span className="l">E</span><span className="t"><span>விடை தெரியவில்லை</span><span>Answer not known</span></span>
-              </button>
+              {test.allowE && Number(q.nopts) !== 5 && (
+                <button className={`opt e ${answers[q.qno] === 'E' ? 'on' : ''}`} onClick={() => pick(q.qno, 'E')}>
+                  <span className="l">E</span><span className="t"><span>விடை தெரியவில்லை</span><span>Answer not known</span></span>
+                </button>
+              )}
             </div>
             <div className="nav">
               <button className="alt" onClick={() => go(i - 1)} disabled={i === 0}>← முந்தைய</button>
@@ -176,7 +179,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
           <div className="card" onClick={(e) => e.stopPropagation()}>
             <h2>விடைத்தாளைச் சமர்ப்பிக்கவா?</h2>
             <p>விடையளித்தவை: <b>{counts.ans}</b> · E: <b>{counts.e}</b> · எதுவும் தேர்வு செய்யாதவை: <b style={{ color: counts.un ? '#b3261e' : undefined }}>{counts.un}</b></p>
-            {counts.un > 0 && <p className="err small">எதுவும் தேர்வு செய்யாத வினாக்கள் உள்ளன – மதிப்பெண் குறைக்கப்படும். விடை தெரியாவிடில் E தேர்வு செய்யவும்.</p>}
+            {counts.un > 0 && test.penalty && <p className="err small">எதுவும் தேர்வு செய்யாத வினாக்கள் உள்ளன – மதிப்பெண் குறைக்கப்படும்.{test.allowE ? ' விடை தெரியாவிடில் E தேர்வு செய்யவும்.' : ''}</p>}
             <p className="small muted">சமர்ப்பித்த பின் மாற்ற இயலாது.</p>
             <div className="row"><button className="danger" onClick={submit} disabled={busy}>{busy ? 'சமர்ப்பிக்கிறது…' : 'ஆம், சமர்ப்பி'}</button><button className="alt" onClick={() => setConfirm(false)} disabled={busy}>இல்லை</button></div>
           </div>
