@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
-import { fmt, fmtDate, testStatus, CATEGORIES, CAT, KIND_SHORT, KINDS, KIND_TAB } from '@/lib/util';
+import { fmt, fmtDate, testStatus, CATEGORIES, CAT, KIND_SHORT, KINDS, KIND_TAB, DAILY_KINDS } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import NewTestsPopup from '@/components/NewTestsPopup';
 export const dynamic = 'force-dynamic';
@@ -66,14 +66,14 @@ export default async function Dashboard({ searchParams }) {
   const kc = {};
   for (const t of inCat) { const k = (kc[t.kind] ??= { open: 0, all: 0 }); k.all++; if (testStatus(t) === 'open') k.open++; }
   const kinds = Object.keys(KINDS);
-  const kind = KINDS[sp?.k] ? sp.k : kinds.find((k) => kc[k]?.open) || kinds.find((k) => kc[k]?.all) || 'daily';
+  const kind = KINDS[sp?.k] ? sp.k : kinds.find((k) => kc[k]?.open) || kinds.find((k) => kc[k]?.all) || 'g2_daily';
   const mine = inCat.filter((t) => t.kind === kind);
   const open = mine.filter((t) => testStatus(t) === 'open').sort((a, b) => new Date(a.end_at) - new Date(b.end_at));
   const upcoming = mine.filter((t) => testStatus(t) === 'upcoming').sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
   const closed = mine.filter((t) => testStatus(t) === 'closed').slice(0, 30);
   const done = inCat.map((t) => [t, byTest[t.id]]).filter(([, a]) => a?.submitted_at);
   const pct = done.length ? Math.round(done.reduce((s, [t, a]) => s + Number(a.score) / (t.nq * Number(t.marks_per_q) || 1), 0) / done.length * 100) : null;
-  const hasDaily = inCat.some((t) => t.kind === 'daily');
+  const hasDaily = DAILY_KINDS.includes(kind) && mine.length > 0;
 
   return (
     <>
@@ -96,7 +96,7 @@ export default async function Dashboard({ searchParams }) {
       </nav>
       <div className="row" style={{ justifyContent: 'space-between', margin: '6px 0 10px' }}>
         <div className="small muted">{CAT[cat].ta} · நீங்கள் எழுதியவை: <b>{done.length}</b>{pct != null && <> · சராசரி <b>{pct}%</b></>}</div>
-        {hasDaily && <a className="btn alt" href={`/weekly?c=${cat}`}>வாராந்திர பகுப்பாய்வு</a>}
+        {hasDaily && <a className="btn alt" href={`/weekly?c=${cat}&k=${kind}`}>வாராந்திர பகுப்பாய்வு</a>}
       </div>
       <nav className="tabs ktabs" aria-label="தேர்வு வகைகள்">
         {kinds.map((k) => (
