@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL, KIND_SHORT } from '@/lib/util';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
 export const dynamic = 'force-dynamic';
@@ -54,7 +54,7 @@ export default async function Admin({ searchParams }) {
           <tbody>{shown.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{catName(t.category)}<br />{t.kind === 'daily' ? 'தினசரி' : 'முழு'}</td>
+              <td className="small">{catName(t.category)}<br />{KIND_SHORT[t.kind] || t.kind}</td>
               <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{testStatus(t)}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>

@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { saveQuestions } from '@/lib/questions';
-import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError } from '@/lib/util';
 /** approve: creates a new test from the submission (fields as in the test form). reject: {id, admin_note} */
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -25,12 +25,14 @@ export async function POST(req) {
     penalty_mode: Number(b.penalty_mode) === 2 ? 2 : 1,
     published: b.published === 'on' || b.published === true,
     category: CAT[b.category] ? b.category : s.category,
-    kind: b.kind === 'full' ? 'full' : 'daily',
+    kind: normKind(b.kind, s.kind),
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),
     allow_e: b.allow_e === 'on' || b.allow_e === true,
     syllabus: cleanSyllabus(b.syllabus),
   };
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
+  const ce = countError(v.category, v.kind, s.n);
+  if (ce) return Response.json({ error: ce }, { status: 400 });
   const testId = await sql.begin(async (tx) => {
     const [t] = await tx`INSERT INTO tests ${tx(v)} RETURNING id`;
     await saveQuestions(tx, t.id, s.questions);

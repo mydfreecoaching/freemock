@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
-import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError, defaultDuration } from '@/lib/util';
 
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -12,18 +12,24 @@ export async function POST(req) {
   if (!(end > start)) return Response.json({ error: 'முடிவு நேரம் தொடக்க நேரத்துக்குப் பின் இருக்க வேண்டும்.' }, { status: 400 });
   const v = {
     title, start_at: start, end_at: end,
-    duration_min: Math.max(1, Number(b.duration_min) || 180),
+    duration_min: Math.max(1, Number(b.duration_min) || defaultDuration(normKind(b.kind))),
     marks_per_q: Number(b.marks_per_q) || 1.5,
     unanswered_penalty: Math.max(0, Number(b.unanswered_penalty ?? 2)),
     penalty_mode: Number(b.penalty_mode) === 2 ? 2 : 1,
     published: b.published === 'on' || b.published === true || b.published === 'true',
     category: CAT[b.category] ? b.category : 'TNPSC_G2',
-    kind: b.kind === 'daily' ? 'daily' : 'full',
+    kind: normKind(b.kind),
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),
     allow_e: b.allow_e === 'on' || b.allow_e === true || b.allow_e === 'true',
     syllabus: cleanSyllabus(b.syllabus),
   };
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
+  if (v.published) {
+    const [{ n }] = b.id ? await sql`SELECT count(*)::int n FROM questions WHERE test_id=${Number(b.id)}` : [{ n: 0 }];
+    if (!n) return Response.json({ error: 'வினாக்கள் பதிவேற்றிய பிறகே Published செய்யவும். இப்போது Published-ஐ நீக்கிச் சேமிக்கவும்.' }, { status: 400 });
+    const e = countError(v.category, v.kind, n);
+    if (e) return Response.json({ error: e + ' சரியான கோப்பைப் பதிவேற்றிய பிறகே Publish செய்யவும்.' }, { status: 400 });
+  }
   if (b.id) {
     await sql`UPDATE tests SET ${sql(v)} WHERE id=${Number(b.id)}`;
     // if the window was shortened, nobody may write past the new end time

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
-import { fmt, fmtDate, testStatus, CATEGORIES, CAT } from '@/lib/util';
+import { fmt, fmtDate, testStatus, CATEGORIES, CAT, KIND_SHORT } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import NewTestsPopup from '@/components/NewTestsPopup';
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ function TestCard({ t, a }) {
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <h3 style={{ margin: 0 }}>{t.title}</h3>
         <span className="row" style={{ gap: 6 }}>
-          <span className="pill">{t.kind === 'daily' ? 'தினசரி' : 'முழுத் தேர்வு'}</span>
+          <span className="pill">{KIND_SHORT[t.kind] || t.kind}</span>
           <span className={`pill ${st}`}>{STATUS[st]}</span>
         </span>
       </div>

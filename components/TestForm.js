@@ -1,7 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import Form from './Form';
-import { toISTInput, CATEGORIES, CAT, KINDS } from '@/lib/util';
+import { toISTInput, CATEGORIES, CAT, KINDS, defaultDuration } from '@/lib/util';
 
 /** Test settings form. `t` = existing test (edit) or undefined (new). `defaults` = prefill for new tests. */
 export default function TestForm({ t, defaults = {}, action = '/api/admin/test', submit, hidden = {} }) {
@@ -21,7 +21,7 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
   }
   function applyKind(e) {
     const f = ref.current?.closest('form');
-    if (f && !t) f.duration_min.value = e.target.value === 'daily' ? 20 : 180;
+    if (f && !t) f.duration_min.value = defaultDuration(e.target.value);
   }
   return (
     <Form action={action} submit={submit || (t ? 'சேமி' : 'தேர்வை உருவாக்கு')}>
@@ -38,6 +38,7 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
             {Object.entries(KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
           </select></div>
       </div>
+      <p className="small muted" style={{ margin: '2px 0 6px' }}>TNPSC தேர்வுகள்: தினசரி = 20 வினாக்கள் · வாராந்திர மாதிரி = 200 · முழு மாதிரி = 200</p>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />
       <label>பாடத்திட்டம் / Syllabus <span className="req">*</span> <span className="small muted">(தேர்வர்கள் தேர்வு தொடங்கும் முன் இதைப் படித்து "சரி" கொடுப்பார்கள்)</span></label>
@@ -47,7 +48,7 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
         <div><label>முடிவு (IST) – இதற்குப் பின் யாரும் எழுத இயலாது</label><input type="datetime-local" name="end_at" required defaultValue={v.end_at ? toISTInput(v.end_at) : ''} /></div>
       </div>
       <div className="grid2">
-        <div><label>கால அளவு (நிமிடம்)</label><input type="number" name="duration_min" min="1" defaultValue={v.duration_min ?? (kind === 'daily' ? 20 : 180)} /></div>
+        <div><label>கால அளவு (நிமிடம்)</label><input type="number" name="duration_min" min="1" defaultValue={v.duration_min ?? defaultDuration(kind)} /></div>
         <div><label>சரியான விடைக்கு மதிப்பெண்</label><input type="number" step="0.01" name="marks_per_q" defaultValue={v.marks_per_q != null ? Number(v.marks_per_q) : p.marks_per_q} /></div>
       </div>
       <div className="grid2">
