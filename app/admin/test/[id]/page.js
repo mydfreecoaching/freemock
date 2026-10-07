@@ -70,7 +70,7 @@ export default async function AdminTest({ params, searchParams }) {
           <h2>விடைத்தாளை நீக்கு (மீண்டும் எழுத அனுமதி)</h2>
           <Form action="/api/admin/reset" submit="நீக்கு" confirm="இந்தத் தேர்வரின் விடைகள் நீக்கப்படும். உறுதியா?">
             <input type="hidden" name="test_id" value={id} />
-            <label>பதிவு எண்</label><input name="reg_no" required placeholder="MYL0001" />
+            <label>பதிவு எண்</label><input name="reg_no" required placeholder="MYD2026000001" />
           </Form>
         </div>
         <div className="card">

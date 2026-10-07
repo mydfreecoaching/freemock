@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent } from '@/lib/auth';
-import { DISTRICTS, PREFIX } from '@/lib/util';
+import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { profileFields, validMobile, validDob } from '@/lib/profile';
 
 export async function POST(req) {
@@ -19,10 +19,11 @@ export async function POST(req) {
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
   const [dup] = await sql`SELECT reg_no FROM students WHERE mobile=${mobile}`;
   if (dup) return Response.json({ error: `இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது (பதிவு எண் ${dup.reg_no}). உள்நுழையவும்.` }, { status: 409 });
-  const p = PREFIX[district];
-  for (let i = 0; i < 5; i++) {
-    const [{ n }] = await sql`SELECT COALESCE(MAX(substring(reg_no from 4)::int),0)+1 AS n FROM students WHERE reg_no LIKE ${p + '%'}`;
-    const reg = p + String(n).padStart(4, '0');
+  const year = istYear();
+  const p = PREFIX[district] + year;
+  for (let i = 0; i < 8; i++) {
+    const [{ n }] = await sql`SELECT COALESCE(MAX(substring(reg_no from 8)::int),0)+1 AS n FROM students WHERE reg_no LIKE ${p + '%'} AND reg_no ~ '^[A-Z]{3}[0-9]{10}$'`;
+    const reg = regNo(PREFIX[district], year, n);
     try {
       const [s] = await sql`INSERT INTO students (reg_no,name,mobile,dob,district,qualification,gender,community,email,priority,priority_other)
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;

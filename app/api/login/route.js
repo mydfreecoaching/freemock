@@ -7,7 +7,7 @@ export async function POST(req) {
   const id = String(b.id || '').trim().toUpperCase();
   const dob = String(b.dob || '');
   if (!id || !/^\d{4}-\d{2}-\d{2}$/.test(dob)) return Response.json({ error: 'விவரங்களை முழுமையாக உள்ளிடவும்.' }, { status: 400 });
-  const [s] = await sql`SELECT id FROM students WHERE (reg_no=${id} OR mobile=${id}) AND dob=${dob}`;
+  const [s] = await sql`SELECT id FROM students WHERE (reg_no=${id} OR mobile=${id} OR old_reg_no=${id}) AND dob=${dob}`;
   if (!s) return Response.json({ error: 'பதிவு எண் / கைபேசி எண் அல்லது பிறந்த தேதி தவறு.' }, { status: 401 });
   await setStudent(s.id);
   return Response.json({ redirect: '/dashboard' });

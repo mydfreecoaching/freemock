@@ -11,7 +11,7 @@ export default async function Home() {
         <h1>உள்நுழைவு / Login</h1>
         <Form action="/api/login" submit="உள்நுழை">
           <label>பதிவு எண் அல்லது கைபேசி எண் / Reg. No. or Mobile</label>
-          <input name="id" required placeholder="எ.கா. MYL0001 அல்லது 9876543210" autoComplete="username" />
+          <input name="id" required placeholder="எ.கா. MYD2026000001 அல்லது 9876543210" autoComplete="username" />
           <label>பிறந்த தேதி / Date of Birth</label>
           <input name="dob" type="date" required />
         </Form>
