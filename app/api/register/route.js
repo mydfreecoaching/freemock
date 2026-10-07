@@ -1,7 +1,7 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent } from '@/lib/auth';
 import { DISTRICTS, PREFIX } from '@/lib/util';
-import { profileFields } from '@/lib/profile';
+import { profileFields, validMobile, validDob } from '@/lib/profile';
 
 export async function POST(req) {
   await ensureSchema();
@@ -10,10 +10,10 @@ export async function POST(req) {
   const mobile = String(b.mobile || '').trim();
   const dob = String(b.dob || '');
   const district = String(b.district || '');
-  if (name.length < 2 || name.length > 80) return Response.json({ error: 'பெயரைச் சரியாக உள்ளிடவும்.' }, { status: 400 });
-  if (!/^[6-9]\d{9}$/.test(mobile)) return Response.json({ error: '10 இலக்க கைபேசி எண்ணைச் சரியாக உள்ளிடவும்.' }, { status: 400 });
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) return Response.json({ error: 'பிறந்த தேதியைத் தேர்வு செய்யவும்.' }, { status: 400 });
-  if (!DISTRICTS.includes(district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும்.' }, { status: 400 });
+  if (name.length < 2 || name.length > 80 || !/\p{L}/u.test(name)) return Response.json({ error: 'பெயரைச் சரியாக உள்ளிடவும் / Enter your name.' }, { status: 400 });
+  if (!validMobile(mobile)) return Response.json({ error: '10 இலக்க கைபேசி எண்ணைச் சரியாக உள்ளிடவும் (6/7/8/9-இல் தொடங்க வேண்டும்) / Enter a valid 10-digit mobile number.' }, { status: 400 });
+  if (!validDob(dob)) return Response.json({ error: 'பிறந்த தேதியைச் சரியாகத் தேர்வு செய்யவும் / Select a valid date of birth.' }, { status: 400 });
+  if (!DISTRICTS.includes(district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும் / Select your district.' }, { status: 400 });
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
