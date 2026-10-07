@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL, KIND_SHORT } from '@/lib/util';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
 export const dynamic = 'force-dynamic';
@@ -37,6 +37,7 @@ export default async function Admin({ searchParams }) {
         <div className="row">
           <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
           <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
+          <a className="btn alt" href="/admin/classes">பயிற்சி வகுப்புகள்</a>
           <a className="btn alt" href={`/weekly?c=${cat || 'TNPSC_G2'}`}>வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
           <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>
@@ -54,7 +55,7 @@ export default async function Admin({ searchParams }) {
           <tbody>{shown.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{catName(t.category)}<br />{t.kind === 'daily' ? 'தினசரி' : 'முழு'}</td>
+              <td className="small">{catName(t.category)}<br />{KIND_SHORT[t.kind] || t.kind}</td>
               <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{testStatus(t)}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>

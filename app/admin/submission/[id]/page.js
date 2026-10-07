@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, catName, CAT, secLabel } from '@/lib/util';
+import { fmt, catName, CAT, secLabel, KIND_SHORT, defaultDuration } from '@/lib/util';
 import { sectionSummary } from '@/lib/questions';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
@@ -16,13 +16,13 @@ export default async function Submission({ params }) {
   if (!s) redirect('/admin/submissions');
   const qs = s.questions || [];
   const p = CAT[s.category]?.preset || {};
-  const defaults = { title: s.title, category: s.category, kind: s.kind, syllabus: s.syllabus || '', duration_min: s.kind === 'daily' ? 20 : 180, ...p };
+  const defaults = { title: s.title, category: s.category, kind: s.kind, syllabus: s.syllabus || '', duration_min: defaultDuration(s.kind), ...p };
   return (
     <>
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div><h1 style={{ margin: 0 }}>{s.title}</h1>
-            <div className="small muted">{s.name} ({s.mobile}) · {fmt(s.created_at)} · {catName(s.category)} · {s.kind === 'daily' ? 'தினசரி' : 'முழு'} · {s.n} வினாக்கள் ({sectionSummary(qs)})</div></div>
+            <div className="small muted">{s.name} ({s.mobile}) · {fmt(s.created_at)} · {catName(s.category)} · {KIND_SHORT[s.kind] || s.kind} · {s.n} வினாக்கள் ({sectionSummary(qs)})</div></div>
           <a className="btn alt" href="/admin/submissions">← பட்டியல்</a>
         </div>
         {s.note && <p className="okmsg" style={{ background: '#f8f3ea', color: 'var(--ink)' }}><b>ஆசிரியர் குறிப்பு:</b> {s.note}</p>}

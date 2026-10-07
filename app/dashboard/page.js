@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
-import { fmt, fmtDate, testStatus, CATEGORIES, CAT } from '@/lib/util';
+import { fmt, fmtDate, testStatus, CATEGORIES, CAT, KIND_SHORT, KINDS, KIND_TAB, istWeekday, daysLabel, classTime } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import NewTestsPopup from '@/components/NewTestsPopup';
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ function TestCard({ t, a }) {
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <h3 style={{ margin: 0 }}>{t.title}</h3>
         <span className="row" style={{ gap: 6 }}>
-          <span className="pill">{t.kind === 'daily' ? 'தினசரி' : 'முழுத் தேர்வு'}</span>
+          <span className="pill">{KIND_SHORT[t.kind] || t.kind}</span>
           <span className={`pill ${st}`}>{STATUS[st]}</span>
         </span>
       </div>
@@ -55,6 +55,12 @@ export default async function Dashboard({ searchParams }) {
       when: testStatus(t) === 'open' ? `${fmt(t.end_at)} வரை எழுதலாம்` : `${fmt(t.start_at)} முதல்`,
     }));
 
+  const classes = await sql`SELECT * FROM classes WHERE active ORDER BY sort, id`;
+  const wd = istWeekday();
+  const day = new Date(Date.now() + 19800000).toISOString().slice(0, 10);
+  const todayCls = classes.filter((c) => (c.days || []).map(Number).includes(wd))
+    .map((c) => ({ id: c.id, title: c.title, venue: c.venue, time: classTime(c), note: c.note }));
+
   const counts = {};
   for (const t of tests) {
     const c = (counts[t.category] ??= { open: 0, all: 0 });
@@ -62,17 +68,22 @@ export default async function Dashboard({ searchParams }) {
   }
   const firstOpen = CATEGORIES.find((c) => counts[c.id]?.open)?.id;
   const cat = CAT[sp?.c] ? sp.c : firstOpen || CATEGORIES.find((c) => counts[c.id]?.all)?.id || 'TNPSC_G2';
-  const mine = tests.filter((t) => t.category === cat);
+  const inCat = tests.filter((t) => t.category === cat);
+  const kc = {};
+  for (const t of inCat) { const k = (kc[t.kind] ??= { open: 0, all: 0 }); k.all++; if (testStatus(t) === 'open') k.open++; }
+  const kinds = Object.keys(KINDS);
+  const kind = KINDS[sp?.k] ? sp.k : kinds.find((k) => kc[k]?.open) || kinds.find((k) => kc[k]?.all) || 'daily';
+  const mine = inCat.filter((t) => t.kind === kind);
   const open = mine.filter((t) => testStatus(t) === 'open').sort((a, b) => new Date(a.end_at) - new Date(b.end_at));
   const upcoming = mine.filter((t) => testStatus(t) === 'upcoming').sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
   const closed = mine.filter((t) => testStatus(t) === 'closed').slice(0, 30);
-  const done = mine.map((t) => [t, byTest[t.id]]).filter(([, a]) => a?.submitted_at);
+  const done = inCat.map((t) => [t, byTest[t.id]]).filter(([, a]) => a?.submitted_at);
   const pct = done.length ? Math.round(done.reduce((s, [t, a]) => s + Number(a.score) / (t.nq * Number(t.marks_per_q) || 1), 0) / done.length * 100) : null;
-  const hasDaily = mine.some((t) => t.kind === 'daily');
+  const hasDaily = inCat.some((t) => t.kind === 'daily');
 
   return (
     <>
-      <NewTestsPopup items={popItems} />
+      <NewTestsPopup items={popItems} classes={todayCls} day={day} />
       {!profileComplete(me) && <div className="err">உங்கள் விவரங்கள் (பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
@@ -93,13 +104,34 @@ export default async function Dashboard({ searchParams }) {
         <div className="small muted">{CAT[cat].ta} · நீங்கள் எழுதியவை: <b>{done.length}</b>{pct != null && <> · சராசரி <b>{pct}%</b></>}</div>
         {hasDaily && <a className="btn alt" href={`/weekly?c=${cat}`}>வாராந்திர பகுப்பாய்வு</a>}
       </div>
-      {mine.length === 0 && <div className="card muted">இந்தப் பிரிவில் தேர்வுகள் விரைவில் அறிவிக்கப்படும்.</div>}
+      <nav className="tabs ktabs" aria-label="தேர்வு வகைகள்">
+        {kinds.map((k) => (
+          <a key={k} href={`/dashboard?c=${cat}&k=${k}`} className={`tab ${k === kind ? 'on' : ''}`}>
+            {KIND_TAB[k]}{kc[k]?.open ? <span className="dot" title="நடப்புத் தேர்வு உள்ளது">{kc[k].open}</span> : null}
+          </a>
+        ))}
+      </nav>
+      {mine.length === 0 && <div className="card muted">{KIND_TAB[kind]} – விரைவில் அறிவிக்கப்படும்.</div>}
       {open.length > 0 && <h2>நடப்புத் தேர்வுகள்</h2>}
       {open.map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} />)}
       {upcoming.length > 0 && <h2>வரவிருக்கும் தேர்வுகள்</h2>}
       {upcoming.map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} />)}
       {closed.length > 0 && <h2>நிறைவடைந்த தேர்வுகள்</h2>}
       {closed.map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} />)}
+      {classes.length > 0 && <details className="card classes" open={todayCls.length > 0}>
+        <summary><b>📚 பயிற்சி வகுப்புகள் / Coaching Classes</b>{todayCls.length > 0 && <span className="small muted"> · இன்று {todayCls.length}</span>}</summary>
+        {classes.map((c) => {
+          const today = (c.days || []).map(Number).includes(wd);
+          return (
+            <div key={c.id} className={`cls ${today ? 'today' : ''}`}>
+              <b>{c.title}</b>{today && <span className="pop-new">இன்று</span>}
+              <div className="small muted">📍 {c.venue}</div>
+              <div className="small">📅 {daysLabel(c.days)}{classTime(c) && ` · 🕓 ${classTime(c)}`}{c.scheme && ` · ${c.scheme}`}</div>
+              {c.note && <div className="small">{c.note}</div>}
+            </div>
+          );
+        })}
+      </details>}
     </>
   );
 }

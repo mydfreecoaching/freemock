@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, catName } from '@/lib/util';
+import { fmt, catName, KIND_SHORT } from '@/lib/util';
 export const dynamic = 'force-dynamic';
 const ST = { pending: ['காத்திருப்பு', 'upcoming'], approved: ['ஒப்புதல்', 'open'], rejected: ['நிராகரிப்பு', 'closed'] };
 
@@ -16,7 +16,7 @@ export default async function Submissions() {
       {subs.length === 0 ? <p className="muted">எதுவும் இல்லை.</p> : (
         <div className="tablewrap" style={{ marginTop: 10 }}><table>
           <thead><tr><th>நாள்</th><th>ஆசிரியர்</th><th>தலைப்பு</th><th>பிரிவு</th><th className="num">வினாக்கள்</th><th>நிலை</th><th></th></tr></thead>
-          <tbody>{subs.map((s) => <tr key={s.id}><td className="small">{fmt(s.created_at)}</td><td>{s.name}</td><td>{s.title}</td><td>{catName(s.category)} · {s.kind === 'daily' ? 'தினசரி' : 'முழு'}</td><td className="num">{s.n}</td>
+          <tbody>{subs.map((s) => <tr key={s.id}><td className="small">{fmt(s.created_at)}</td><td>{s.name}</td><td>{s.title}</td><td>{catName(s.category)} · {KIND_SHORT[s.kind] || s.kind}</td><td className="num">{s.n}</td>
             <td><span className={`pill ${ST[s.status][1]}`}>{ST[s.status][0]}</span></td>
             <td>{s.status === 'approved' && s.test_id ? <a href={`/admin/test/${s.test_id}`}>தேர்வு</a> : <a href={`/admin/submission/${s.id}`}>{s.status === 'pending' ? 'பார்வையிட்டு முடிவு செய்' : 'பார்'}</a>}</td></tr>)}</tbody>
         </table></div>
