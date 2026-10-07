@@ -95,3 +95,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .sticky-head thead th{position:sticky;top:0;z-index:1}
 @media print{.top,.foot,.noprint{display:none}.card{border:0;padding:0}}
 @media(max-width:640px){.hide-sm{display:none}}
+
+.pop-back{position:fixed;inset:0;background:rgba(30,20,10,.55);z-index:50;display:grid;place-items:center;padding:16px}
+.pop{background:#fff;border-radius:14px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.pop-sub{font-weight:700;color:var(--brand);margin:10px 0 4px;font-size:14px}
+.pop-item{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0}
+.pop-item .btn{padding:8px 14px;flex:none}
+.pop-new{background:var(--ok);color:#fff;border-radius:99px;font-size:11px;padding:1px 8px;margin-left:6px;font-weight:700}
