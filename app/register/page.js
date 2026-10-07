@@ -1,5 +1,5 @@
 import Form from '@/components/Form';
-import { DISTRICTS } from '@/lib/util';
+import { DISTRICT_LIST } from '@/lib/util';
 
 export default function Register() {
   return (
@@ -15,7 +15,7 @@ export default function Register() {
         <label>மாவட்டம் / District</label>
         <select name="district" required defaultValue="">
           <option value="" disabled>தேர்வு செய்யவும்</option>
-          {DISTRICTS.map((d) => <option key={d}>{d}</option>)}
+          {DISTRICT_LIST.map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}
         </select>
         <label>கல்வித் தகுதி / Qualification</label>
         <input name="qualification" maxLength={60} placeholder="எ.கா. B.Sc., 12th" />
