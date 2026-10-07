@@ -29,13 +29,14 @@ export default async function AdminTest({ params, searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>{t.title}</h1>
-        <div className="row"><a className="btn alt" href="/admin">← Admin</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
+        <div className="row"><a className="btn alt" href={`/admin?c=${t.category}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
       </div>
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} /></div>
         <div className="card">
           <h2>வினாக்கள் பதிவேற்றம்</h2>
           <p className="small">தற்போது: <b>{qs.length}</b> வினாக்கள் {Object.entries(by).map(([k, v]) => `· ${k} ${v} `)}</p>
+          {!t.syllabus && <div className="err">படி 1: இடப்புறம் பாடத்திட்டத்தை (Syllabus) உள்ளிட்டுச் சேமிக்கவும். படி 2: பிறகு வினாக்களைப் பதிவேற்றவும்.</div>}
           <Form action="/api/admin/upload" submit="பதிவேற்று" confirm={rows.length ? 'ஏற்கனவே விடைத்தாள்கள் உள்ளன. வினாக்களை மாற்றவா?' : undefined}>
             <input type="hidden" name="test_id" value={id} />
             <label>Excel (.xlsx) அல்லது JSON கோப்பு</label>
@@ -69,7 +70,7 @@ export default async function AdminTest({ params, searchParams }) {
           <h2>விடைத்தாளை நீக்கு (மீண்டும் எழுத அனுமதி)</h2>
           <Form action="/api/admin/reset" submit="நீக்கு" confirm="இந்தத் தேர்வரின் விடைகள் நீக்கப்படும். உறுதியா?">
             <input type="hidden" name="test_id" value={id} />
-            <label>பதிவு எண்</label><input name="reg_no" required placeholder="MYL0001" />
+            <label>பதிவு எண்</label><input name="reg_no" required placeholder="MYD2026000001" />
           </Form>
         </div>
         <div className="card">

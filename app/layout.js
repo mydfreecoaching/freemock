@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'இலவச இணைய மாதிரித் தேர்வு – DECGC மயிலாடுதுறை & திருவாரூர்',
+  title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
   description: 'TNPSC தொகுதி-II / IIA இலவச முழு மாதிரித் தேர்வுகள் – மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்கள், மயிலாடுதுறை & திருவாரூர்',
 };
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#7a1f12' };
@@ -19,8 +19,10 @@ export default function RootLayout({ children }) {
           <a href="/" className="brand">
             <span className="mark">த</span>
             <span>
-              <b>இலவச இணைய மாதிரித் தேர்வு</b>
-              <small>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்கள், மயிலாடுதுறை & திருவாரூர்</small>
+              <b>இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test</b>
+              <small>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம் / District Employment and Career Guidance Centre</small>
+              <small>தன்னார்வ பயிலும் வட்டம் / Study Circle</small>
+              <small>மயிலாடுதுறை & திருவாரூர் / Mayiladuthurai & Thiruvarur</small>
             </span>
           </a>
         </header>

@@ -29,7 +29,7 @@ export default function Form({ action, children, submit = 'சமர்ப்ப
       if (onDone) onDone(j);
       if (j.message) setOk(j.message);
       if (redirect || j.redirect) { window.location.href = j.redirect || redirect; return; }
-      if (j.reload) window.location.reload();
+      if (j.reload) { setTimeout(() => window.location.reload(), j.message ? 1500 : 0); return; }
     } catch (x) { setErr(x.message); }
     setBusy(false);
   }
