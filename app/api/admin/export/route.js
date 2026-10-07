@@ -28,10 +28,11 @@ export async function GET(req) {
   } else if (type === 'weekly') {
     const c = u.searchParams.get('c');
     const from = u.searchParams.get('w') ? new Date(`${u.searchParams.get('w')}T00:00:00+05:30`) : weekStart();
-    const W = await weeklyAnalysis(c, from);
+    const kk = u.searchParams.get('k') || 'g2_daily';
+    const W = await weeklyAnalysis(c, from, kk);
     rows = [['Rank', 'Reg No', 'Name', 'District', 'Tests', 'Score', 'Max', 'Score %', 'Correct', 'Wrong', 'Accuracy %'],
       ...W.students.map((s) => [s.rank, s.reg_no, s.name, s.district, `${s.tests}/${W.closed.length}`, s.score, W.totalMax, s.pct, s.correct, s.wrong, s.acc])];
-    name = `weekly_${c}_${u.searchParams.get('w') || 'current'}`;
+    name = `weekly_${c}_${kk}_${u.searchParams.get('w') || 'current'}`;
   } else {
     const id = Number(u.searchParams.get('test'));
     const qs = await sql`SELECT qno FROM questions WHERE test_id=${id} ORDER BY qno`;

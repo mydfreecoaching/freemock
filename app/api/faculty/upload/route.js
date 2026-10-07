@@ -7,7 +7,7 @@ export async function POST(req) {
   if (!f) return Response.json({ error: 'மீண்டும் உள்நுழையவும்.' }, { status: 401 });
   const fd = await req.formData();
   const category = String(fd.get('category') || '');
-  const kind = normKind(fd.get('kind'), 'daily');
+  const kind = normKind(fd.get('kind'), 'g2_daily');
   const title = String(fd.get('title') || '').trim().slice(0, 150);
   const note = String(fd.get('note') || '').trim().slice(0, 1000);
   const syllabus = cleanSyllabus(fd.get('syllabus'));

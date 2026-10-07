@@ -16,7 +16,6 @@ export default async function Home() {
           <input name="dob" type="date" required />
         </Form>
         <p className="small muted" style={{ marginTop: 14 }}>புதிய தேர்வரா? <a href="/register">இங்கே பதிவு செய்யவும் / Register</a></p>
-        <p className="small" style={{ marginTop: 6 }}><a href="/classes">📚 இன்றைய பயிற்சி வகுப்புகள் / Today's classes →</a></p>
       </div>
       <div className="card">
         <h2>இலவச மாதிரித் தேர்வுகள்</h2>
