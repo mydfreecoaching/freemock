@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { saveQuestions } from '@/lib/questions';
-import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError } from '@/lib/util';
+import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError, autoDuration } from '@/lib/util';
 /** approve: creates a new test from the submission (fields as in the test form). reject: {id, admin_note} */
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -32,6 +32,7 @@ export async function POST(req) {
   };
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   const ce = countError(v.category, v.kind, s.n);
+  v.duration_min = autoDuration(v.category, s.n) || v.duration_min;
   if (ce) return Response.json({ error: ce }, { status: 400 });
   const testId = await sql.begin(async (tx) => {
     const [t] = await tx`INSERT INTO tests ${tx(v)} RETURNING id`;

@@ -38,7 +38,7 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
             {Object.entries(KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
           </select></div>
       </div>
-      <p className="small muted" style={{ margin: '2px 0 6px' }}>TNPSC தேர்வுகள்: தினசரி = 20 வினாக்கள் · வாராந்திர மாதிரி = 200 · முழு மாதிரி = 200</p>
+      <p className="small muted" style={{ margin: '2px 0 6px' }}>TNPSC தேர்வுகள்: தினசரி = 20 வினாக்கள் (18 நிமிடம்) · வாராந்திர மாதிரி = 200 (180 நிமிடம்) · முழு மாதிரி = 200 (180 நிமிடம்). TNPSC தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்).</p>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />
       <label>பாடத்திட்டம் / Syllabus <span className="req">*</span> <span className="small muted">(தேர்வர்கள் தேர்வு தொடங்கும் முன் இதைப் படித்து "சரி" கொடுப்பார்கள்)</span></label>

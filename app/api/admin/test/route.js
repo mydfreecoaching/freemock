@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
-import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError, defaultDuration } from '@/lib/util';
+import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError, defaultDuration, autoDuration } from '@/lib/util';
 
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -31,6 +31,8 @@ export async function POST(req) {
     if (e) return Response.json({ error: e + ' சரியான கோப்பைப் பதிவேற்றிய பிறகே Publish செய்யவும்.' }, { status: 400 });
   }
   if (b.id) {
+    const [{ qn }] = await sql`SELECT count(*)::int qn FROM questions WHERE test_id=${Number(b.id)}`;
+    v.duration_min = autoDuration(v.category, qn) || v.duration_min;
     await sql`UPDATE tests SET ${sql(v)} WHERE id=${Number(b.id)}`;
     // if the window was shortened, nobody may write past the new end time
     await sql`UPDATE attempts SET deadline=LEAST(deadline, ${end}) WHERE test_id=${Number(b.id)} AND submitted_at IS NULL`;

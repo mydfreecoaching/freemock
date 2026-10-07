@@ -1,5 +1,5 @@
 import { sql } from '@/lib/db';
-import { countError } from '@/lib/util';
+import { countError, autoDuration } from '@/lib/util';
 import { guard } from '@/lib/adminGuard';
 import { parseUpload, saveQuestions, sectionSummary } from '@/lib/questions';
 
@@ -18,6 +18,10 @@ export async function POST(req) {
   if (!r.questions.length) return Response.json({ error: 'வினாக்கள் இல்லை.' }, { status: 400 });
   const ce = countError(t.category, t.kind, r.questions.length);
   if (ce) return Response.json({ error: ce }, { status: 400 });
-  await sql.begin((tx) => saveQuestions(tx, id, r.questions));
-  return Response.json({ message: `${r.questions.length} வினாக்கள் பதிவேற்றப்பட்டன (${sectionSummary(r.questions)}).`, reload: true });
+  const mins = autoDuration(t.category, r.questions.length);
+  await sql.begin(async (tx) => {
+    await saveQuestions(tx, id, r.questions);
+    if (mins) await tx`UPDATE tests SET duration_min=${mins} WHERE id=${id}`;
+  });
+  return Response.json({ message: `${r.questions.length} வினாக்கள் பதிவேற்றப்பட்டன (${sectionSummary(r.questions)}).${mins ? ` தேர்வு நேரம்: ${mins} நிமிடம்.` : ''}`, reload: true });
 }
