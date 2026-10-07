@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
-import { fmt, testStatus, SECTIONS } from '@/lib/util';
+import { fmt, testStatus, secLabel, secSort } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import { ranking, mmss } from '@/lib/rank';
 import QText from '@/components/QText';
@@ -34,12 +34,12 @@ export default async function Result({ params }) {
   return (
     <>
       <div className="card">
-        <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – முடிவு</h1><a className="btn alt" href="/dashboard">முகப்பு</a></div>
+        <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – முடிவு</h1><a className="btn alt" href={`/dashboard?c=${t.category}`}>முகப்பு</a></div>
         <div className="big" style={{ margin: '10px 0' }}>{Number(a.score)} / {max}</div>
         <div className="stats">
           <div className="stat"><b>{a.correct}</b>சரி</div>
           <div className="stat"><b>{a.wrong}</b>தவறு</div>
-          <div className="stat"><b>{a.e_count}</b>E (தெரியவில்லை)</div>
+          {t.allow_e && <div className="stat"><b>{a.e_count}</b>E (தெரியவில்லை)</div>}
           <div className="stat"><b>{a.unanswered}</b>விடுபட்டவை</div>
           {me && <div className="stat"><b>{me.rank} / {total}</b>ஒட்டுமொத்தத் தரம்</div>}
           {me && <div className="stat"><b>{me.drank} / {dtotal}</b>{me.district} தரம்</div>}
@@ -47,12 +47,13 @@ export default async function Result({ params }) {
         </div>
         {Object.keys(sec).length > 0 && (
           <div className="tablewrap" style={{ marginTop: 12 }}><table><thead><tr><th>பகுதி</th><th>சரி / மொத்தம்</th><th>மதிப்பெண்</th></tr></thead><tbody>
-            {Object.entries(sec).sort(([a], [b]) => ['தமிழ்', 'GS', 'APT'].indexOf(a) - ['தமிழ்', 'GS', 'APT'].indexOf(b)).map(([k, v]) => <tr key={k}><td>{SECTIONS[k] || k}</td><td>{v.correct} / {v.total}</td><td>{v.marks}</td></tr>)}
+            {Object.entries(sec).sort(([a], [b]) => secSort(a, b)).map(([k, v]) => <tr key={k}><td>{secLabel(k)}</td><td>{v.correct} / {v.total}</td><td>{v.marks}</td></tr>)}
           </tbody></table></div>
         )}
-        {a.unanswered > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
+        {Number(t.negative_mark) > 0 && a.wrong > 0 && <p className="small muted">தவறான விடைகளுக்காக {Math.round(a.wrong * Number(t.negative_mark) * 100) / 100} மதிப்பெண் குறைக்கப்பட்டது (Negative).</p>}
+        {a.unanswered > 0 && Number(t.unanswered_penalty) > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
         {!closed && <div className="okmsg">உங்கள் விடைத்தாள் சமர்ப்பிக்கப்பட்டது. விடைக்குறிப்பு, தரவரிசை {fmt(t.end_at)}-க்குப் பின் இங்கே வெளியிடப்படும்.</div>}
-        {closed && <p><a href={`/rank/${id}`}>முழுத் தரவரிசைப் பட்டியல் →</a></p>}
+        {closed && <p><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு & தரவரிசை →</a></p>}
       </div>
       {closed && (
         <div className="review">
@@ -63,12 +64,12 @@ export default async function Result({ params }) {
               <div className="qcard" key={q.qno} style={{ marginBottom: 10 }}>
                 <span className="qno">வினா {q.qno}</span>{' '}
                 <span className={`pill ${mine === q.answer ? 'open' : mine && mine !== 'E' ? '' : 'upcoming'}`} style={mine && mine !== 'E' && mine !== q.answer ? { background: '#fde8e6', color: '#b3261e' } : undefined}>
-                  {mine === q.answer ? 'சரி' : !mine ? 'விடுபட்டது' : mine === 'E' ? 'E' : 'தவறு'}
+                  {mine === q.answer ? 'சரி' : !mine ? 'விடுபட்டது' : mine === 'E' && Number(q.nopts) !== 5 ? 'E' : 'தவறு'}
                 </span>
                 {q.en_q && <div className="lang"><QText text={q.en_q} /></div>}
                 {q.ta_q && <div className="lang"><QText text={q.ta_q} /></div>}
                 <div className="opts">
-                  {['A', 'B', 'C', 'D'].map((l, k) => (
+                  {(Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']).map((l, k) => (
                     <div key={l} className={`opt ${l === q.answer ? 'correct' : mine === l ? 'wrongsel' : ''}`}>
                       <span className="l">{l}</span>
                       <span className="t">{q.en_opts?.[k] && <span>{q.en_opts[k]}</span>}{q.ta_opts?.[k] && q.ta_opts[k] !== q.en_opts?.[k] && <span>{q.ta_opts[k]}</span>}</span>
