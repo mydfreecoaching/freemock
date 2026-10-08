@@ -43,9 +43,9 @@ export default async function Weekly({ searchParams }) {
         <nav className="tabs noprint" style={{ marginTop: 10 }}>
           {CATEGORIES.map((c) => <a key={c.id} className={`tab ${c.id === cat ? 'on' : ''}`} href={`/weekly?c=${c.id}&k=${kind}&w=${ymdIST(from)}`}>{c.name}</a>)}
         </nav>
-        <nav className="tabs ktabs noprint">
+        {DAILY_KINDS.length > 1 && <nav className="tabs ktabs noprint">
           {DAILY_KINDS.map((k) => <a key={k} className={`tab ${k === kind ? 'on' : ''}`} href={`/weekly?c=${cat}&k=${k}&w=${ymdIST(from)}`}>{KIND_TAB[k]}</a>)}
-        </nav>
+        </nav>}
         <div className="row noprint">
           <a className="btn alt" href={`/weekly?c=${cat}&k=${kind}&w=${prevW}`}>← முந்தைய வாரம்</a>
           {!isCurrent && <a className="btn alt" href={`/weekly?c=${cat}&k=${kind}&w=${nextW}`}>அடுத்த வாரம் →</a>}
