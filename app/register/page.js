@@ -1,10 +1,13 @@
 import Form from '@/components/Form';
+import { redirect } from 'next/navigation';
+import { isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 import { dobRange } from '@/lib/dob';
 import StudentFields from '@/components/StudentFields';
 
 export default async function Register({ searchParams }) {
+  if (await isAdmin()) redirect('/admin');
   const next = safeNext((await searchParams)?.next);
   const [min, max] = dobRange();
   return (

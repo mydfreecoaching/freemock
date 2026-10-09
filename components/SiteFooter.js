@@ -1,5 +1,5 @@
 /** Footer: about, quick links, exams, contact. `exams` = active exams. */
-export default function SiteFooter({ exams = [] }) {
+export default function SiteFooter({ exams = [], admin = false }) {
   return (
     <footer className="site-foot">
       <div className="foot-in">
@@ -10,7 +10,7 @@ export default function SiteFooter({ exams = [] }) {
         <div>
           <b>Quick links</b>
           <a href="/">Home</a><a href="/courses">Courses</a><a href="/subjects">Subject-wise Tests</a><a href="/about">About us</a><a href="/contact">Contact us</a>
-          <a href="/register">Register</a><a href="/faculty">Faculty login</a>
+          {admin ? <a href="/admin">Admin</a> : <><a href="/register">Register</a><a href="/faculty">Faculty login</a></>}
         </div>
         <div>
           <b>Courses</b>

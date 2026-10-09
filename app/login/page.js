@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { studentId } from '@/lib/auth';
+import { studentId, isAdmin } from '@/lib/auth';
 import { ensureSchema, sql } from '@/lib/db';
 import { safeNext } from '@/lib/next';
 import LoginCard from '@/components/LoginCard';
@@ -10,6 +10,7 @@ export const metadata = { title: 'Login – இலவச இணையவழி �
 export default async function Login({ searchParams }) {
   await ensureSchema();
   const next = safeNext((await searchParams)?.next);
+  if (await isAdmin()) redirect('/admin');
   if (await studentId()) redirect(next || '/dashboard');
   let testTitle = null;
   const tm = next?.match(/^\/test\/(\d+)/);
