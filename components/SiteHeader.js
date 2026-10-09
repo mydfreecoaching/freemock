@@ -17,7 +17,7 @@ export default function SiteHeader({ loggedIn, menus = { courses: [], subjects: 
       </div></div>
       <div className="top"><div className="top-in">
         <a href="/" className="brand">
-          <span className="mark">த</span>
+          <img className="emblem" src="/tn-emblem.png" alt="தமிழ்நாடு அரசு / Government of Tamil Nadu" width="164" height="180" />
           <span>
             <b>இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test</b>
             <small>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம் / District Employment and Career Guidance Centre</small>

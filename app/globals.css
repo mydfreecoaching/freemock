@@ -275,3 +275,5 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .fbgrid{display:grid;gap:12px;grid-template-columns:1fr} @media(min-width:760px){.fbgrid{grid-template-columns:1fr 1fr}} @media(min-width:1000px){.fbgrid{grid-template-columns:1fr 1fr 1fr}}
 .fbitem{background:var(--soft);border-radius:12px;padding:12px 14px} .fbitem p{margin:6px 0;font-style:italic}
 .fbform{border:2px solid var(--brand2)}
+.emblem{width:58px;height:auto;flex:none;background:#fff;border-radius:12px;padding:4px}
+@media(max-width:640px){.emblem{width:46px;border-radius:10px;padding:3px}}
