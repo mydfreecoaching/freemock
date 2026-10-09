@@ -31,7 +31,9 @@ export async function POST(req) {
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),
     allow_e: b.allow_e === 'on' || b.allow_e === true,
     syllabus: cleanSyllabus(b.syllabus),
+    subject: String(b.subject || s.subject || '').trim().slice(0, 120) || null,
   };
+  if (ex.code === 'subject' && !v.subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   const ce = countError(ex, s.n);
   v.duration_min = examMinutes(s.n) || v.duration_min;

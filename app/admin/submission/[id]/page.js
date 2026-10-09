@@ -17,7 +17,7 @@ export default async function Submission({ params }) {
   if (!s) redirect('/admin/submissions');
   const qs = s.questions || [];
   const exams = await getExams(true); const EX = examMap(exams);
-  const defaults = { title: s.title, kind: s.kind, syllabus: s.syllabus || '', ...preset(EX[s.kind]) };
+  const defaults = { title: s.title, kind: s.kind, syllabus: s.syllabus || '', subject: s.subject || '', ...preset(EX[s.kind]) };
   return (
     <>
       <div className="card">
