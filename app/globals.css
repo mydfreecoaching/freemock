@@ -283,3 +283,6 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .idle-warn { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1000; max-width: min(560px, calc(100vw - 32px));
   background: #fff4d6; color: #5a3d00; border: 1px solid #e0b44a; border-radius: 10px; padding: 10px 14px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
 :root[data-theme=dark] .idle-warn { background: #3a2e10; color: #ffe6a8; border-color: #8a6a1d; }
+.modal .rules { max-width: 640px; max-height: 88vh; overflow: auto; }
+.modal .rules h3 { margin: 14px 0 4px; font-size: 1.02rem; }
+.modal .rules ul { margin: 4px 0; padding-left: 20px; }
