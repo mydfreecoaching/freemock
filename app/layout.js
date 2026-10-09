@@ -4,6 +4,7 @@ import SiteFooter from '@/components/SiteFooter';
 import { studentId } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
 import { getExams } from '@/lib/exams';
+import { menuTrees } from '@/lib/menu';
 
 export const metadata = {
   title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
@@ -12,8 +13,8 @@ export const metadata = {
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#7a1f12' };
 
 export default async function RootLayout({ children }) {
-  let loggedIn = false, exams = [];
-  try { loggedIn = !!(await studentId()); await ensureSchema(); exams = await getExams(); } catch {}
+  let loggedIn = false, exams = [], menus = { courses: [], subjects: [] };
+  try { loggedIn = !!(await studentId()); await ensureSchema(); exams = await getExams(); menus = await menuTrees(exams, loggedIn); } catch {}
   return (
     <html lang="ta" suppressHydrationWarning>
       <head>
@@ -23,7 +24,7 @@ export default async function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('fm_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
       <body>
-        <SiteHeader loggedIn={loggedIn} />
+        <SiteHeader loggedIn={loggedIn} menus={menus} />
         <main className="wrap">{children}</main>
         <SiteFooter exams={exams} />
       </body>

@@ -1,9 +1,13 @@
 import ThemeToggle from './ThemeToggle';
+import NavDrop from './NavDrop';
 
 const NAV = [['/', 'முகப்பு', 'Home'], ['/courses', 'தேர்வுகள்', 'Courses'], ['/subjects', 'பாட வாரியாக', 'Subject-wise Tests'], ['/about', 'எங்களைப் பற்றி', 'About us'], ['/contact', 'தொடர்புக்கு', 'Contact us']];
 
 /** Utility bar + brand + main menu (collapses to a menu button on phones). */
-export default function SiteHeader({ loggedIn }) {
+export default function SiteHeader({ loggedIn, menus = { courses: [], subjects: [] } }) {
+  const link = ([h, ta, en]) => h === '/courses' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.courses} />
+    : h === '/subjects' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.subjects} />
+    : <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>;
   const cta = loggedIn ? ['/dashboard', 'என் Dashboard'] : ['/register', 'பதிவு செய் / Register'];
   return (
     <header className="site-head">
@@ -26,13 +30,9 @@ export default function SiteHeader({ loggedIn }) {
         <div className="nav-in">
           <details className="navmenu">
             <summary aria-label="Menu">☰ Menu</summary>
-            <div className="navlinks">
-              {NAV.map(([h, ta, en]) => <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>)}
-            </div>
+            <div className="navlinks">{NAV.map(link)}</div>
           </details>
-          <div className="navlinks wide">
-            {NAV.map(([h, ta, en]) => <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>)}
-          </div>
+          <div className="navlinks wide">{NAV.map(link)}</div>
           <div className="navcta">
             {!loggedIn && <a className="btn alt" href="/#login">Login</a>}
             <a className="btn" href={cta[0]}>{cta[1]}</a>
