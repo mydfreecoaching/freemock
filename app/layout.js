@@ -1,6 +1,7 @@
 import './globals.css';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
+import IdleLogout from '@/components/IdleLogout';
 import { studentId, isAdmin } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
 import { getExams } from '@/lib/exams';
@@ -27,6 +28,7 @@ export default async function RootLayout({ children }) {
         <SiteHeader loggedIn={loggedIn} admin={admin} menus={menus} />
         <main className="wrap">{children}</main>
         <SiteFooter exams={exams} admin={admin} />
+        {loggedIn && !admin && <IdleLogout />}
       </body>
     </html>
   );

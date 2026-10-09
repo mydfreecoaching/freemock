@@ -15,7 +15,7 @@ export async function POST(req) {
   if (!t || testStatus(t) !== 'open') return Response.json({ error: 'இத்தேர்வு தற்போது திறந்திருக்கவில்லை.' }, { status: 400 });
   if (t.syllabus && ack !== true) return Response.json({ error: 'பாடத்திட்டத்தைப் படித்து "சரி" என்பதைத் தேர்வு செய்யவும்.' }, { status: 400 });
   const end = Math.min(Date.now() + t.duration_min * 60000, new Date(t.end_at).getTime());
-  await sql`INSERT INTO attempts (test_id, student_id, deadline) VALUES (${id}, ${c.sid}, ${new Date(end)})
+  await sql`INSERT INTO attempts (test_id, student_id, deadline, last_seen) VALUES (${id}, ${c.sid}, ${new Date(end)}, now())
     ON CONFLICT (test_id, student_id) DO NOTHING`;
   return Response.json({ ok: true });
 }

@@ -67,8 +67,19 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     }, 1000);
     return () => clearInterval(t);
   }, [deadline, submit]);
-  // autosave every 20 s when changed
-  useEffect(() => { const t = setInterval(() => { if (dirty.current) save(); }, 20000); return () => clearInterval(t); }, [save]);
+  // autosave every 20 s when changed; heartbeat every 60 s so the server knows the student is still writing
+  useEffect(() => {
+    let beat = Date.now();
+    const t = setInterval(() => { if (dirty.current || Date.now() - beat >= 60000) { beat = Date.now(); save(); } }, 20000);
+    return () => clearInterval(t);
+  }, [save]);
+  // tell the idle-logout watcher (in every open tab) that a test is being written
+  useEffect(() => {
+    const mark = () => { try { localStorage.setItem('fm_exam', String(Date.now())); } catch {} };
+    mark(); window.__fmExam = true;
+    const t = setInterval(mark, 15000);
+    return () => { clearInterval(t); window.__fmExam = false; try { localStorage.removeItem('fm_exam'); } catch {} };
+  }, []);
   // tab switches + save on hide
   useEffect(() => {
     const v = () => { if (document.visibilityState === 'hidden') { tabs.current += 1; save(true); } };
