@@ -1,5 +1,7 @@
+import { redirect } from 'next/navigation';
 import { studentId } from '@/lib/auth';
-import { ensureSchema } from '@/lib/db';
+import { safeNext } from '@/lib/next';
+import { ensureSchema, sql } from '@/lib/db';
 import { getExams, examMap } from '@/lib/exams';
 import { publicStats, liveTests } from '@/lib/public';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
@@ -18,9 +20,14 @@ const FEATURES = [
 ];
 const STEPS = [['1', 'பதிவு செய்யவும்', 'பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம்'], ['2', 'தேர்வைத் தேர்வு செய்யவும்', 'கிடைக்கும் தேர்வுகளில் நடப்புத் தேர்வு'], ['3', 'எழுதி சமர்ப்பிக்கவும்', 'நேரம் முடிந்ததும் தானாகச் சமர்ப்பிப்பு'], ['4', 'முடிவு & முன்னேற்றம்', 'தவறுகளைத் திருத்தி அடுத்த தேர்வில் முன்னேறுங்கள்']];
 
-export default async function Home() {
+export default async function Home({ searchParams }) {
   await ensureSchema();
   const loggedIn = !!(await studentId());
+  const next = safeNext((await searchParams)?.next);
+  if (loggedIn && next) redirect(next);
+  let testTitle = null;
+  const tm = next?.match(/^\/test\/(\d+)/);
+  if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
   const exams = await getExams(); const EX = examMap(exams);
   const [S, live, LB] = await Promise.all([publicStats(), liveTests(), leaderboards(exams)]);
   const shown = live.filter((t) => EX[t.kind] && t.nq > 0);
@@ -43,7 +50,7 @@ export default async function Home() {
         </div>
         {loggedIn ? (
           <div className="card login-card"><h2>மீண்டும் வருக!</h2><p>நடப்புத் தேர்வுகள், உங்கள் மதிப்பெண்கள், முன்னேற்றம் – அனைத்தும் உங்கள் Dashboard-இல்.</p><a className="btn" href="/dashboard">Dashboard →</a></div>
-        ) : <LoginCard />}
+        ) : <LoginCard next={next} testTitle={testTitle} />}
       </section>
 
       <section className="statband">
@@ -59,7 +66,7 @@ export default async function Home() {
         <h2 className="sec-h">📢 நடப்பு & வரவிருக்கும் தேர்வுகள்</h2>
         <div className="livelist">
           {shown.map((t) => { const st = testStatus(t); return (
-            <a key={t.id} className="liveitem" href={loggedIn ? `/test/${t.id}` : '/#login'}>
+            <a key={t.id} className="liveitem" href={`/test/${t.id}`}>
               <span className={`pill ${st}`}>{st === 'open' ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span>
               <b>{t.title}</b><span className="small muted">{EX[t.kind].name} · {st === 'open' ? `${fmt(t.end_at)} வரை` : `${fmt(t.start_at)} முதல்`}</span>
             </a>); })}

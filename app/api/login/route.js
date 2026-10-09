@@ -1,5 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent } from '@/lib/auth';
+import { safeNext } from '@/lib/next';
 
 export async function POST(req) {
   await ensureSchema();
@@ -10,5 +11,5 @@ export async function POST(req) {
   const [s] = await sql`SELECT id FROM students WHERE (reg_no=${id} OR mobile=${id} OR old_reg_no=${id}) AND dob=${dob}`;
   if (!s) return Response.json({ error: 'பதிவு எண் / கைபேசி எண் அல்லது பிறந்த தேதி தவறு.' }, { status: 401 });
   await setStudent(s.id);
-  return Response.json({ redirect: '/dashboard?login=1' });
+  return Response.json({ redirect: safeNext(b.next) || '/dashboard?login=1' });
 }

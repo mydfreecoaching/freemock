@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmtDate, secLabel, secSort } from '@/lib/util';
@@ -13,7 +14,7 @@ const pc = (x) => Math.round(x * 1000) / 10;
 export default async function Progress({ searchParams }) {
   await ensureSchema();
   const sid = await studentId();
-  if (!sid) redirect('/');
+  if (!sid) redirect(loginUrl('/progress'));
   const sp = await searchParams;
   const exams = await getExams();
   const ex = exams.find((e) => e.code === sp?.e) || exams.find((e) => e.progress) || exams[0];

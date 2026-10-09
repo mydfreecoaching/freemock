@@ -1,16 +1,18 @@
 import { redirect } from 'next/navigation';
+import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt, testStatus, secLabel, secSort } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import { ranking, mmss } from '@/lib/rank';
 import QText from '@/components/QText';
+import FeedbackForm from '@/components/FeedbackForm';
 export const dynamic = 'force-dynamic';
 
 export default async function Result({ params, searchParams }) {
   await ensureSchema();
   const sid = await studentId();
-  if (!sid) redirect('/');
+  if (!sid) redirect(loginUrl(`/result/${Number((await params).id)}`));
   const id = Number((await params).id);
   const [t] = await sql`SELECT * FROM tests WHERE id=${id} AND published`;
   if (!t) redirect('/dashboard');
@@ -29,6 +31,7 @@ export default async function Result({ params, searchParams }) {
     total = rows.length; dtotal = rows.filter((r) => r.district === me?.district).length;
     qs = await sql`SELECT * FROM questions WHERE test_id=${id} ORDER BY qno`;
   }
+  const [fb] = await sql`SELECT status FROM feedback WHERE test_id=${id} AND student_id=${sid}`;
   const f = (await searchParams)?.f;
   const isWrong = (q) => { const m = (a.answers || {})[q.qno]; return m && m !== q.answer && !(m === 'E' && Number(q.nopts) !== 5); };
   const isBlank = (q) => { const m = (a.answers || {})[q.qno]; return !m || (m === 'E' && Number(q.nopts) !== 5); };
@@ -58,9 +61,11 @@ export default async function Result({ params, searchParams }) {
         {Number(t.negative_mark) > 0 && a.wrong > 0 && <p className="small muted">தவறான விடைகளுக்காக {Math.round(a.wrong * Number(t.negative_mark) * 100) / 100} மதிப்பெண் குறைக்கப்பட்டது (Negative).</p>}
         {a.unanswered > 0 && Number(t.unanswered_penalty) > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
         {!closed && <p className="small muted">* இதுவரை சமர்ப்பித்தவர்களிடையே உங்கள் தரம். தேர்வு {fmt(t.end_at)}-க்கு நிறைவடைந்ததும் இறுதித் தரவரிசை வெளியாகும்.</p>}
-        <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>
+        {fb && <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>}
+        {fb && <p className="small muted">✔ உங்கள் கருத்துக்கு நன்றி{fb.status === 'approved' ? ' – ஒப்புதல் அளிக்கப்பட்டு Dashboard-இல் காட்டப்படுகிறது.' : fb.status === 'pending' ? ' – Admin ஒப்புதலுக்குக் காத்திருக்கிறது.' : '.'}</p>}
       </div>
-      {(
+      {!fb && <FeedbackForm testId={id} />}
+      {fb && (
         <div className="review">
           <h2>விடைகள் சரிபார்ப்பு</h2>
           <nav className="tabs noprint">

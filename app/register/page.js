@@ -1,14 +1,18 @@
 import Form from '@/components/Form';
+import { safeNext } from '@/lib/next';
 import { DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 import { dobRange } from '@/lib/dob';
 import StudentFields from '@/components/StudentFields';
 
-export default function Register() {
+export default async function Register({ searchParams }) {
+  const next = safeNext((await searchParams)?.next);
   const [min, max] = dobRange();
   return (
     <div className="card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h1>தேர்வர் பதிவு / Registration</h1>
+      {next?.startsWith('/test/') && <div className="okmsg">பதிவு செய்ததும் பகிரப்பட்ட தேர்வுக்கு நேரடியாகச் செல்வீர்கள். ஏற்கனவே பதிவு செய்தவரா? <a href={`/?next=${encodeURIComponent(next)}#login`}>உள்நுழையவும்</a></div>}
       <Form action="/api/register" submit="பதிவு செய்">
+        {next && <input type="hidden" name="next" value={next} />}
         <label>பெயர் / Name (as in certificates) <span className="req">*</span></label>
         <input name="name" required minLength={2} maxLength={80} autoComplete="name" />
         <label>கைபேசி எண் / Mobile (10 digits) <span className="req">*</span></label>

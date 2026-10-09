@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt, testStatus } from '@/lib/util';
@@ -8,10 +9,10 @@ import Exam from './Exam';
 import StartButton from './StartButton';
 export const dynamic = 'force-dynamic';
 
-export default async function TestPage({ params }) {
+export default async function TestPage({ params, searchParams }) {
   await ensureSchema();
   const sid = await studentId();
-  if (!sid) redirect('/');
+  if (!sid) redirect(loginUrl(`/test/${Number((await params).id)}`));
   const id = Number((await params).id);
   const [t] = await sql`SELECT * FROM tests WHERE id=${id} AND published`;
   if (!t) redirect('/dashboard');
@@ -29,6 +30,7 @@ export default async function TestPage({ params }) {
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
     return (
       <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
+        {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
         <h1>{t.title}</h1>
         <ul>
           <li>மொத்தம் {n} வினாக்கள்; ஒவ்வொரு சரியான விடைக்கும் {Number(t.marks_per_q)} மதிப்பெண். {Number(t.negative_mark) > 0 ? <b>ஒவ்வொரு தவறான விடைக்கும் {Number(t.negative_mark)} மதிப்பெண் குறைக்கப்படும் (Negative marking).</b> : 'தவறான விடைக்குக் குறைப்பு இல்லை.'}</li>

@@ -10,7 +10,19 @@ const f = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolka
 export default function ExamBrowser({ options, data, loggedIn, label = 'கிடைக்கும் தேர்வுகள் / Available exams', placeholder = 'தேர்வைத் தேர்வு செய்யவும் / Select an exam' }) {
   const [sel, setSel] = useState('');
   const [tab, setTab] = useState('ongoing');
-  useEffect(() => { const h = decodeURIComponent(window.location.hash.slice(1)); if (h && options.some((o) => o.value === h)) setSel(h); }, [options]);
+  useEffect(() => {
+    const read = () => {
+      const raw = decodeURIComponent(window.location.hash.slice(1));
+      const m = raw.match(/^(.*?)(?::(ongoing|completed))?$/);
+      if (m && m[1] && options.some((o) => o.value === m[1])) {
+        setSel(m[1]);
+        setTab(m[2] || ((data[m[1]]?.ongoing?.length || !data[m[1]]?.completed?.length) ? 'ongoing' : 'completed'));
+        if (m[2]) setTimeout(() => document.querySelector('.seg')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+      }
+    };
+    read(); window.addEventListener('hashchange', read);
+    return () => window.removeEventListener('hashchange', read);
+  }, [options, data]);
   const pick = (v) => { setSel(v); setTab((data[v]?.ongoing?.length || !data[v]?.completed?.length) ? 'ongoing' : 'completed'); try { history.replaceState(null, '', v ? `#${encodeURIComponent(v)}` : location.pathname); } catch {} };
   const opt = options.find((o) => o.value === sel);
   const d = data[sel] || { ongoing: [], completed: [] };
@@ -39,7 +51,7 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
               {tab === 'ongoing' ? <span className={`pill ${t.open ? 'open' : 'upcoming'}`}>{t.open ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span> : <span className="pill closed">நிறைவடைந்தது</span>}
             </div>
             <div className="small muted">{f(t.start)} – {f(t.end)} · {t.nq} வினாக்கள் · {t.mins} நிமிடம்</div>
-            {tab === 'ongoing' && t.open && <a className="btn" style={{ marginTop: 8 }} href={loggedIn ? `/test/${t.id}` : '/#login'}>{loggedIn ? 'தேர்வை எழுது →' : 'உள்நுழைந்து எழுது →'}</a>}
+            {tab === 'ongoing' && t.open && <a className="btn" style={{ marginTop: 8 }} href={`/test/${t.id}`}>{loggedIn ? 'தேர்வை எழுது →' : 'உள்நுழைந்து எழுது →'}</a>}
             {tab === 'completed' && <>
               <div className="small" style={{ marginTop: 4 }}>எழுதியோர் <b>{t.n}</b>{t.top != null && <> · அதிகபட்சம் <b>{t.top}</b> / {t.max} · சராசரி <b>{t.avgPct}%</b></>}</div>
               {t.toppers.length > 0 && <details className="small"><summary>முதல் {t.toppers.length} இடங்கள்</summary>

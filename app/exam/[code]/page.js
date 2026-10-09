@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { testStatus } from '@/lib/util';
@@ -11,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export default async function ExamPage({ params }) {
   await ensureSchema();
   const sid = await studentId();
-  if (!sid) redirect('/');
+  if (!sid) redirect(loginUrl(`/exam/${(await params).code}`));
   const ex = await getExam((await params).code);
   if (!ex || !ex.active) redirect('/dashboard');
   const { tests, byTest } = await studentTests(sid);

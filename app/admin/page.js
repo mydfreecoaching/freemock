@@ -23,6 +23,7 @@ export default async function Admin({ searchParams }) {
   const st = await sql`SELECT district, count(*)::int n FROM students GROUP BY district ORDER BY n DESC`;
   const [{ pending }] = await sql`SELECT count(*)::int pending FROM submissions WHERE status='pending'`;
   const [{ newEnq }] = await sql`SELECT count(*)::int "newEnq" FROM enquiries WHERE status='new'`;
+  const [{ fbPend }] = await sql`SELECT count(*)::int "fbPend" FROM feedback WHERE status='pending'`;
   const sp = await searchParams;
   const exams = await getExams(true); const EX = examMap(exams);
   const cat = EX[sp?.e] ? sp.e : null;
@@ -43,6 +44,7 @@ export default async function Admin({ searchParams }) {
           <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
           <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
           <a className="btn alt" href="/admin/exams">கிடைக்கும் தேர்வுகள்</a>
+          <a className="btn alt" href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? ` (${fbPend})` : ''}</a>
           <a className="btn alt" href="/admin/enquiries">கோரிக்கைகள்{newEnq ? ` (${newEnq})` : ''}</a>
           <a className="btn alt" href="/weekly">வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
