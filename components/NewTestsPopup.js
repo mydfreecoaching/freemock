@@ -23,10 +23,14 @@ export default function NewTestsPopup({ items, force = false }) {
   useEffect(() => {
     const seen = load(); const now = Date.now();
     const f = {};
+    // every new visit (browser session) and every login shows all ongoing tests
+    let first = false;
+    try { first = !sessionStorage.getItem('fm_pop'); sessionStorage.setItem('fm_pop', '1'); } catch {}
+    const all = force || first;
     const list = items.filter((t) => {
       const s = seen[t.id];
       if (!s) { f[t.id] = true; return true; }
-      if (force) return true;
+      if (all) return true;
       return t.status === 'open' && now - s > REMIND_MS;
     });
     setFresh(f); setShow(list);
