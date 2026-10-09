@@ -1,7 +1,7 @@
 import { fmt, testStatus } from '@/lib/util';
 
 const STATUS = { open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'நிறைவடைந்தது' };
-export default function TestCard({ t, a }) {
+export default function TestCard({ t, a, label }) {
   const st = testStatus(t);
   const max = t.nq * Number(t.marks_per_q);
   return (
@@ -10,6 +10,7 @@ export default function TestCard({ t, a }) {
         <h3 style={{ margin: 0 }}>{t.title}</h3>
         <span className={`pill ${st}`}>{STATUS[st]}</span>
       </div>
+      {label && <div className="small" style={{ color: 'var(--brand2)', fontWeight: 600 }}>{label}</div>}
       <div className="small muted">{fmt(t.start_at)} முதல் {fmt(t.end_at)} வரை · {t.nq} வினாக்கள் · {t.duration_min} நிமிடம்</div>
       {t.syllabus && <details className="syl"><summary>பாடத்திட்டம் / Syllabus</summary><div className="syllabus">{t.syllabus}</div></details>}
       <div className="row" style={{ marginTop: 10 }}>

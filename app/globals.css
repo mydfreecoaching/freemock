@@ -157,3 +157,11 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .top-in{display:flex;gap:10px;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto}
 .top-in .brand{margin:0}
 .theme-btn{background:transparent;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:99px;padding:6px 10px;font-size:16px;line-height:1;flex:none}
+/* student dashboard status tabs */
+.stabs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:6px 0 14px}
+@media(min-width:760px){.stabs{grid-template-columns:repeat(4,1fr)}}
+.stab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;text-align:center}
+.stab b{font-size:24px;line-height:1.1;color:var(--link)} .stab span{font-weight:600;font-size:14px} .stab .small{font-weight:400;color:var(--muted);font-size:12px}
+.stab.live{border-color:var(--ok)} .stab.live b{color:var(--ok)}
+.stab.on{background:var(--brand);border-color:var(--brand);color:#fff} .stab.on b,.stab.on .small{color:#fff}
+.tips{margin:12px 0 0;padding-left:20px} .tips li{margin:4px 0}
