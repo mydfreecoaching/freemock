@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import QText from '@/components/QText';
+import { tabWarning, TAB_LOGOUT } from '@/lib/tabs';
 
 const letters = (q) => (Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']);
 const pad = (n) => String(n).padStart(2, '0');
@@ -27,6 +28,9 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   const [showPal, setShowPal] = useState(false);
   const offset = useRef(serverNow - Date.now());
   const tabs = useRef(tabs0 || 0);
+  const shown = useRef(tabs0 || 0);   // last tab-switch count a warning was shown for
+  const leaving = useRef(false);      // page reload / navigation is not a tab switch
+  const [warn, setWarn] = useState(() => ((tabs0 || 0) >= TAB_LOGOUT ? tabWarning(tabs0) : null));
   const ansRef = useRef(answers);
   const done = useRef(false);
   ansRef.current = answers;
@@ -39,10 +43,12 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     try {
       const r = await fetch('/api/attempt/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body });
       const j = await r.json().catch(() => ({}));
-      if (r.status === 409) { done.current = true; window.location.href = `/result/${test.id}`; return; }
+      if (r.status === 409) { done.current = true; window.location.href = `/result/${test.id}`; return false; }
+      if (r.status === 401) { done.current = true; window.location.href = `/login?${j.reason === 'tabs' || tabs.current >= TAB_LOGOUT ? 'tabs=1&' : ''}next=${encodeURIComponent(`/test/${test.id}`)}`; return false; }
       if (!r.ok) throw new Error(j.error);
       setStatus('சேமிக்கப்பட்டது ✓');
-    } catch { dirty.current = true; setStatus('சேமிக்க இயலவில்லை – இணைப்பைச் சரிபார்க்கவும்'); }
+      return true;
+    } catch { dirty.current = true; setStatus('சேமிக்க இயலவில்லை – இணைப்பைச் சரிபார்க்கவும்'); return true; }
   }, [test.id]);
 
   const submit = useCallback(async () => {
@@ -67,15 +73,36 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     }, 1000);
     return () => clearInterval(t);
   }, [deadline, submit]);
-  // autosave every 20 s when changed
-  useEffect(() => { const t = setInterval(() => { if (dirty.current) save(); }, 20000); return () => clearInterval(t); }, [save]);
+  // autosave every 20 s when changed; heartbeat every 60 s so the server knows the student is still writing
+  useEffect(() => {
+    let beat = Date.now();
+    const t = setInterval(() => { if (dirty.current || Date.now() - beat >= 60000) { beat = Date.now(); save(); } }, 20000);
+    return () => clearInterval(t);
+  }, [save]);
+  // tell the idle-logout watcher (in every open tab) that a test is being written
+  useEffect(() => {
+    const mark = () => { try { localStorage.setItem('fm_exam', String(Date.now())); } catch {} };
+    mark(); window.__fmExam = true;
+    const t = setInterval(mark, 15000);
+    return () => { clearInterval(t); window.__fmExam = false; try { localStorage.removeItem('fm_exam'); } catch {} };
+  }, []);
   // tab switches + save on hide
   useEffect(() => {
-    const v = () => { if (document.visibilityState === 'hidden') { tabs.current += 1; save(true); } };
+    const v = () => {
+      if (done.current) return;
+      if (document.visibilityState === 'hidden') {
+        if (leaving.current) return;
+        tabs.current += 1; save(true);
+      } else if (tabs.current > shown.current) {
+        // back on the test: the server applies the rules (warn / logout / submit), then warn here
+        const n = tabs.current; shown.current = n;
+        save().then((ok) => { if (ok) setWarn(tabWarning(n)); });
+      }
+    };
     document.addEventListener('visibilitychange', v);
     const stop = (e) => e.preventDefault();
     document.addEventListener('copy', stop); document.addEventListener('contextmenu', stop);
-    const unload = (e) => { if (!done.current) { save(true); e.preventDefault(); e.returnValue = ''; } };
+    const unload = (e) => { if (!done.current) { leaving.current = true; setTimeout(() => { leaving.current = false; }, 4000); save(true); e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', unload);
     return () => { document.removeEventListener('visibilitychange', v); document.removeEventListener('copy', stop); document.removeEventListener('contextmenu', stop); window.removeEventListener('beforeunload', unload); };
   }, [save]);
@@ -174,6 +201,16 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
         </div>
         <div className="desk-pal">{Palette}</div>
       </div>
+      {warn && (
+        <div className="modal" onClick={() => setWarn(null)}>
+          <div className="card tabwarn" role="alertdialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <h2>{warn.title}</h2>
+            <p>{warn.ta}</p>
+            <p className="small muted">{warn.en}</p>
+            <div className="row"><button onClick={() => setWarn(null)}>புரிந்தது, தொடர்ந்து எழுதுகிறேன் / OK</button></div>
+          </div>
+        </div>
+      )}
       {confirm && (
         <div className="modal" onClick={() => !busy && setConfirm(false)}>
           <div className="card" onClick={(e) => e.stopPropagation()}>

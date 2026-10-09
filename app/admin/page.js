@@ -4,6 +4,7 @@ import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import ExamSelect from '@/components/ExamSelect';
 export const dynamic = 'force-dynamic';
 
 export default async function Admin({ searchParams }) {
@@ -26,10 +27,12 @@ export default async function Admin({ searchParams }) {
   const [{ fbPend }] = await sql`SELECT count(*)::int "fbPend" FROM feedback WHERE status='pending'`;
   const sp = await searchParams;
   const exams = await getExams(true); const EX = examMap(exams);
-  const cat = EX[sp?.e] ? sp.e : null;
   const ec = {};
   for (const t of tests) { const c = (ec[t.kind] ??= { all: 0, open: 0 }); c.all++; if (t.published && testStatus(t) === 'open') c.open++; }
-  const shown = (cat ? tests.filter((t) => t.kind === cat) : tests).sort((a, b) => new Date(b.start_at) - new Date(a.start_at));
+  const cat = EX[sp?.e] ? sp.e : (exams.find((e) => ec[e.code]?.open) || exams.find((e) => ec[e.code]?.all) || exams[0])?.code;
+  const mineT = tests.filter((t) => t.kind === cat);
+  const running = mineT.filter((t) => testStatus(t) !== 'closed').sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+  const finished = mineT.filter((t) => testStatus(t) === 'closed').sort((a, b) => new Date(b.end_at) - new Date(a.end_at));
   const gst = await sql`SELECT COALESCE(gender,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const cst = await sql`SELECT COALESCE(community,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const pst = await sql`SELECT p k, count(*)::int n FROM students, jsonb_array_elements_text(priority) p GROUP BY 1 ORDER BY n DESC`;
@@ -52,33 +55,38 @@ export default async function Admin({ searchParams }) {
           <a className="btn alt" href="/api/logout">வெளியேறு</a>
         </div>
       </div>
-      <div className="card">
+      <div className="card" id="tests">
         <div className="row" style={{ justifyContent: 'space-between' }}><h2 style={{ margin: 0 }}>கிடைக்கும் தேர்வுகள் / Available exams</h2><a className="small" href="/admin/exams">+ சேர் / திருத்து</a></div>
-        <div className="examgrid" style={{ marginTop: 10 }}>
-          <a className={`examcard ${!cat ? 'on' : ''}`} href="/admin"><b>அனைத்தும்</b><span className="small muted">{tests.length} தேர்வுகள்</span></a>
-          {exams.map((e) => (
-            <a key={e.code} className={`examcard ${cat === e.code ? 'on' : ''}`} href={`/admin?e=${e.code}`}>
-              <b>{e.name}</b>{!e.active && <span className="pill closed">மறைக்கப்பட்டது</span>}
-              {e.description && <span className="small muted">{e.description}</span>}
-              <span className="small">{ec[e.code]?.all || 0} தேர்வுகள்{ec[e.code]?.open ? <> · <b style={{ color: 'var(--ok)' }}>{ec[e.code].open} நடப்பில்</b></> : ''}</span>
-            </a>
-          ))}
-        </div>
+        <div style={{ marginTop: 10 }}><ExamSelect value={cat} exams={exams.map((e) => ({ code: e.code, name: e.name, active: e.active, count: ec[e.code]?.all || 0, open: ec[e.code]?.open || 0 }))} /></div>
+        {EX[cat]?.description && <p className="small muted" style={{ marginBottom: 0 }}>{EX[cat].description}</p>}
       </div>
       <div className="card">
-        <h2>தேர்வுகள்{cat ? ` – ${EX[cat].name}` : ''}</h2>
-        <div className="tablewrap"><table>
-          <thead><tr><th>தேர்வு</th><th>வகை</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
-          <tbody>{shown.map((t) => (
+        <h2>🟢 நடப்பு / வரவிருக்கும் தேர்வுகள் ({running.length})</h2>
+        {running.length === 0 ? <p className="muted">இல்லை.</p> : <div className="tablewrap"><table>
+          <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
+          <tbody>{running.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{EX[t.kind]?.name || t.kind}</td>
               <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
-              <td><span className={`pill ${testStatus(t)}`}>{testStatus(t)}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
+              <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
             </tr>))}
           </tbody>
-        </table></div>
+        </table></div>}
+      </div>
+      <div className="card">
+        <h2>✅ முடிவுற்ற தேர்வுகள் ({finished.length})</h2>
+        {finished.length === 0 ? <p className="muted">இல்லை.</p> : <div className="tablewrap"><table>
+          <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
+          <tbody>{finished.map((t) => (
+            <tr key={t.id}>
+              <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
+              <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
+              <td>{t.nq}</td><td>{t.na} ({t.live})</td>
+              <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
+            </tr>))}
+          </tbody>
+        </table></div>}
       </div>
       <div className="card"><h2>புதிய தேர்வு</h2><TestForm exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
     </>

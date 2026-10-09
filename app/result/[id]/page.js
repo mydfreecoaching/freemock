@@ -9,6 +9,7 @@ import QText from '@/components/QText';
 import FeedbackForm from '@/components/FeedbackForm';
 export const dynamic = 'force-dynamic';
 
+import { TAB_SUBMIT } from '@/lib/tabs';
 export default async function Result({ params, searchParams }) {
   await ensureSchema();
   const sid = await studentId();
@@ -43,6 +44,7 @@ export default async function Result({ params, searchParams }) {
     <>
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – முடிவு</h1><a className="btn alt" href={`/exam/${t.kind}`}>திரும்பு</a></div>
+        {a.tab_switches >= TAB_SUBMIT && <div className="err" style={{ marginTop: 10 }}>⛔ தேர்வின் போது {a.tab_switches} முறை வேறு tab / app-க்கு மாறியதால் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்பட்டது. / Auto-submitted for switching tabs more than 5 times.</div>}
         <div className="big" style={{ margin: '10px 0' }}>{Number(a.score)} / {max}</div>
         <div className="stats">
           <div className="stat"><b>{a.correct}</b>சரி</div>

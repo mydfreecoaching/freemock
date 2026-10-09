@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { studentId } from '@/lib/auth';
+import { studentId, isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
 import { getExams, examMap } from '@/lib/exams';
@@ -22,6 +22,7 @@ const STEPS = [['1', 'பதிவு செய்யவும்', 'பெய�
 
 export default async function Home({ searchParams }) {
   await ensureSchema();
+  if (await isAdmin()) redirect('/admin');
   const loggedIn = !!(await studentId());
   const next = safeNext((await searchParams)?.next);
   if (loggedIn && next) redirect(next);

@@ -3,7 +3,7 @@ import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt, testStatus } from '@/lib/util';
-import { finalize } from '@/lib/scoring';
+import { finalize, isStale, ABANDON_MIN } from '@/lib/scoring';
 import { profileComplete } from '@/lib/profile';
 import Exam from './Exam';
 import StartButton from './StartButton';
@@ -17,7 +17,7 @@ export default async function TestPage({ params, searchParams }) {
   const [t] = await sql`SELECT * FROM tests WHERE id=${id} AND published`;
   if (!t) redirect('/dashboard');
   let [a] = await sql`SELECT * FROM attempts WHERE test_id=${id} AND student_id=${sid}`;
-  if (a && !a.submitted_at && new Date(a.deadline) < new Date(Date.now() - 30000)) a = await finalize(a.id);
+  if (isStale(a)) a = await finalize(a.id);
   if (a?.submitted_at) redirect(`/result/${id}`);
   const st = testStatus(t);
   if (st !== 'open' && !a) {
@@ -38,8 +38,9 @@ export default async function TestPage({ params, searchParams }) {
           {t.allow_e && <li>விடை தெரியாவிடில் <b>E – விடை தெரியவில்லை</b> என்பதைத் தேர்வு செய்யவும்.</li>}
           {Number(t.unanswered_penalty) > 0 && <li>எதையும் தேர்வு செய்யாத வினா இருந்தால் {Number(t.unanswered_penalty)} மதிப்பெண் {Number(t.penalty_mode) === 2 ? 'ஒவ்வொரு வினாவுக்கும்' : ''} குறைக்கப்படும்.</li>}
           <li>ஒவ்வொரு விடையும் தானாகச் சேமிக்கப்படும். இணைப்பு துண்டிக்கப்பட்டால் மீண்டும் உள்நுழைந்து தொடரலாம் (நேரம் ஓடிக்கொண்டே இருக்கும்).</li>
+          <li><b>தேர்வைத் தொடங்கிய பின் பாதியில் விட்டுச் சென்று {ABANDON_MIN} நிமிடங்களுக்குள் திரும்பாவிட்டால், அதுவரை அளித்த விடைகளுடன் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும்.</b></li>
           <li>நேரம் முடிந்ததும் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும்.</li>
-          <li>வேறு tab / app-க்கு மாறுவது பதிவு செய்யப்படும். நேர்மையாக எழுதவும்.</li>
+          <li><b>வேறு tab / app / திரைக்கு மாறக்கூடாது.</b> முதல் முறையே எச்சரிக்கை காட்டப்படும்; <b>3 முறைக்கு மேல்</b> மாறினால் தானாக வெளியேற்றப்படுவீர்கள் (logout); <b>5 முறைக்கு மேல்</b> மாறினால் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும். கைபேசித் திரையை அணைப்பதும் (screen lock) மாறியதாகவே கணக்கிடப்படும்.</li>
         </ul>
         {t.syllabus && <>
           <h2 style={{ marginBottom: 6 }}>பாடத்திட்டம் / Syllabus</h2>
