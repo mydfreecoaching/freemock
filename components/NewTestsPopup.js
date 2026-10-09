@@ -16,7 +16,8 @@ function save(seen) {
  * A test is shown if never seen, or (when open) last dismissed more than 12 h ago.
  * items: [{ id, title, status: 'open'|'upcoming', when, label?, href }]
  */
-export default function NewTestsPopup({ items }) {
+/** force: show every listed test (right after login). */
+export default function NewTestsPopup({ items, force = false }) {
   const [show, setShow] = useState([]);
   const [fresh, setFresh] = useState({});
   useEffect(() => {
@@ -25,10 +26,12 @@ export default function NewTestsPopup({ items }) {
     const list = items.filter((t) => {
       const s = seen[t.id];
       if (!s) { f[t.id] = true; return true; }
+      if (force) return true;
       return t.status === 'open' && now - s > REMIND_MS;
     });
     setFresh(f); setShow(list);
-  }, [items]);
+    if (force) { try { const u = new URL(window.location.href); u.searchParams.delete('login'); window.history.replaceState(null, '', u.pathname + u.search); } catch {} }
+  }, [items, force]);
   const close = () => {
     const seen = load(); const now = Date.now();
     for (const t of show) seen[t.id] = now;
@@ -58,7 +61,7 @@ export default function NewTestsPopup({ items }) {
   return (
     <div className="pop-back" onClick={close}>
       <div className="pop" role="dialog" aria-modal="true" aria-labelledby="pop-h" onClick={(e) => e.stopPropagation()}>
-        <h2 id="pop-h" style={{ marginTop: 0 }}>📢 புதிய மாதிரித் தேர்வுகள் / New Mock Tests</h2>
+        <h2 id="pop-h" style={{ marginTop: 0 }}>📢 நடப்புத் தேர்வுகள் / Ongoing tests</h2>
         {open.length > 0 && <><div className="pop-sub">இப்போது எழுதலாம் / Open now</div>{open.map((t) => <Item key={t.id} t={t} />)}</>}
         {up.length > 0 && <><div className="pop-sub">வரவிருக்கும் / Upcoming</div>{up.map((t) => <Item key={t.id} t={t} />)}</>}
         <div style={{ textAlign: 'right', marginTop: 12 }}><button className="alt" onClick={close}>சரி / OK</button></div>

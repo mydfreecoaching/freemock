@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { ensureSchema, sql } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
-import { CAT, CATEGORIES, weekStart, ymdIST, fmtDate, secLabel, secSort, fmt, KINDS, KIND_TAB, DAILY_KINDS } from '@/lib/util';
+import { weekStart, ymdIST, fmtDate, secLabel, secSort, fmt } from '@/lib/util';
+import { getExams } from '@/lib/exams';
 import { weeklyAnalysis } from '@/lib/analysis';
 import CopyButton from '@/components/CopyButton';
 export const dynamic = 'force-dynamic';
@@ -11,13 +12,15 @@ export default async function Weekly({ searchParams }) {
   const sid = await studentId(); const adm = await isAdmin();
   if (!sid && !adm) redirect('/');
   const sp = await searchParams;
-  const cat = CAT[sp?.c] ? sp.c : 'TNPSC_G2';
-  const kind = DAILY_KINDS.includes(sp?.k) ? sp.k : 'g2_daily';
+  const wex = (await getExams(adm)).filter((e) => e.weekly_analysis);
+  if (!wex.length) redirect(adm ? '/admin' : '/dashboard');
+  const ex = wex.find((e) => e.code === sp?.k) || wex[0];
+  const kind = ex.code;
   const from = sp?.w && /^\d{4}-\d{2}-\d{2}$/.test(sp.w) ? weekStart(new Date(`${sp.w}T12:00:00+05:30`)) : weekStart();
   const prevW = ymdIST(new Date(from.getTime() - 7 * 864e5)), nextW = ymdIST(new Date(from.getTime() + 7 * 864e5));
   const isCurrent = ymdIST(from) === ymdIST(weekStart());
   const to = new Date(from.getTime() + 6 * 864e5);
-  const W = await weeklyAnalysis(cat, from, kind);
+  const W = await weeklyAnalysis(from, kind);
   let meReg = null;
   if (sid) { const [m] = await sql`SELECT reg_no FROM students WHERE id=${sid}`; meReg = m?.reg_no; }
   const me = W.students.find((s) => s.reg_no === meReg);
@@ -25,7 +28,7 @@ export default async function Weekly({ searchParams }) {
   const secs = [...W.sections].sort((a, b) => secSort(a.key, b.key));
   const label = `${fmtDate(from)} – ${fmtDate(to)}`;
   const share = [
-    `*${KINDS[kind]} – வாராந்திர முடிவுகள் (${CAT[cat].name})*`,
+    `*${ex.name} – வாராந்திர முடிவுகள்*`,
     `வாரம்: ${label} · தேர்வுகள்: ${W.closed.length} · பங்கேற்றோர்: ${W.students.length}`,
     '', '*முதல் 10 இடங்கள்:*',
     ...W.students.slice(0, 10).map((s) => `${s.rank}. ${s.name} (${s.district}) – ${s.score}/${W.totalMax} (${s.tests} தேர்வுகள்)`),
@@ -37,19 +40,16 @@ export default async function Weekly({ searchParams }) {
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div><h1 style={{ margin: 0 }}>வாராந்திரப் பகுப்பாய்வு – தினசரித் தேர்வுகள்</h1>
-            <div className="small muted"><b>{KINDS[kind]}</b> · {CAT[cat].name} · வாரம் {label}{isCurrent && ' (நடப்பு வாரம் – நிறைவடைந்த தேர்வுகள் மட்டும்)'}</div></div>
-          <a className="btn alt noprint" href={adm ? '/admin' : `/dashboard?c=${cat}&k=${kind}`}>திரும்பு</a>
+            <div className="small muted"><b>{ex.name}</b> · வாரம் {label}{isCurrent && ' (நடப்பு வாரம் – நிறைவடைந்த தேர்வுகள் மட்டும்)'}</div></div>
+          <a className="btn alt noprint" href={adm ? '/admin' : `/exam/${kind}`}>திரும்பு</a>
         </div>
-        <nav className="tabs noprint" style={{ marginTop: 10 }}>
-          {CATEGORIES.map((c) => <a key={c.id} className={`tab ${c.id === cat ? 'on' : ''}`} href={`/weekly?c=${c.id}&k=${kind}&w=${ymdIST(from)}`}>{c.name}</a>)}
-        </nav>
-        {DAILY_KINDS.length > 1 && <nav className="tabs ktabs noprint">
-          {DAILY_KINDS.map((k) => <a key={k} className={`tab ${k === kind ? 'on' : ''}`} href={`/weekly?c=${cat}&k=${k}&w=${ymdIST(from)}`}>{KIND_TAB[k]}</a>)}
+        {wex.length > 1 && <nav className="tabs ktabs noprint">
+          {wex.map((e) => <a key={e.code} className={`tab ${e.code === kind ? 'on' : ''}`} href={`/weekly?k=${e.code}&w=${ymdIST(from)}`}>{e.name}</a>)}
         </nav>}
         <div className="row noprint">
-          <a className="btn alt" href={`/weekly?c=${cat}&k=${kind}&w=${prevW}`}>← முந்தைய வாரம்</a>
-          {!isCurrent && <a className="btn alt" href={`/weekly?c=${cat}&k=${kind}&w=${nextW}`}>அடுத்த வாரம் →</a>}
-          {adm && <a className="btn alt" href={`/api/admin/export?type=weekly&c=${cat}&k=${kind}&w=${ymdIST(from)}`}>CSV</a>}
+          <a className="btn alt" href={`/weekly?k=${kind}&w=${prevW}`}>← முந்தைய வாரம்</a>
+          {!isCurrent && <a className="btn alt" href={`/weekly?k=${kind}&w=${nextW}`}>அடுத்த வாரம் →</a>}
+          {adm && <a className="btn alt" href={`/api/admin/export?type=weekly&k=${kind}&w=${ymdIST(from)}`}>CSV</a>}
           {adm && <CopyButton text={share} label="WhatsApp சுருக்கம் நகலெடு" />}
         </div>
       </div>

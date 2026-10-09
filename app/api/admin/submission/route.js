@@ -1,7 +1,8 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { saveQuestions } from '@/lib/questions';
-import { fromIST, CAT, cleanSyllabus, SYLLABUS_MISSING, normKind, countError, autoDuration } from '@/lib/util';
+import { fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { getExam, countError, examMinutes } from '@/lib/exams';
 /** approve: creates a new test from the submission (fields as in the test form). reject: {id, admin_note} */
 export async function POST(req) {
   const g = await guard(); if (g) return g;
@@ -17,6 +18,8 @@ export async function POST(req) {
   if (!b.start_at || !b.end_at) return Response.json({ error: 'தொடக்க / முடிவு நேரம் தேவை.' }, { status: 400 });
   const start = fromIST(b.start_at), end = fromIST(b.end_at);
   if (!(end > start)) return Response.json({ error: 'முடிவு நேரம் தொடக்க நேரத்துக்குப் பின் இருக்க வேண்டும்.' }, { status: 400 });
+  const ex = await getExam(b.kind || s.kind);
+  if (!ex) return Response.json({ error: 'தேர்வைத் (Available exam) தேர்வு செய்யவும்.' }, { status: 400 });
   const v = {
     title: String(b.title || s.title).trim(), start_at: start, end_at: end,
     duration_min: Math.max(1, Number(b.duration_min) || 20),
@@ -24,15 +27,14 @@ export async function POST(req) {
     unanswered_penalty: Math.max(0, Number(b.unanswered_penalty ?? 0)),
     penalty_mode: Number(b.penalty_mode) === 2 ? 2 : 1,
     published: b.published === 'on' || b.published === true,
-    category: CAT[b.category] ? b.category : s.category,
-    kind: normKind(b.kind, s.kind),
+    kind: ex.code,
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),
     allow_e: b.allow_e === 'on' || b.allow_e === true,
     syllabus: cleanSyllabus(b.syllabus),
   };
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
-  const ce = countError(v.category, v.kind, s.n);
-  v.duration_min = autoDuration(v.category, s.n) || v.duration_min;
+  const ce = countError(ex, s.n);
+  v.duration_min = examMinutes(s.n) || v.duration_min;
   if (ce) return Response.json({ error: ce }, { status: 400 });
   const testId = await sql.begin(async (tx) => {
     const [t] = await tx`INSERT INTO tests ${tx(v)} RETURNING id`;

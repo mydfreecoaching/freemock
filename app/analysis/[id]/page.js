@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { ensureSchema } from '@/lib/db';
+import { ensureSchema, sql } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
-import { testStatus, secLabel, secSort, catName, fmt, DISTRICT_EN } from '@/lib/util';
+import { testStatus, secLabel, secSort, fmt, DISTRICT_EN } from '@/lib/util';
 import { testAnalysis } from '@/lib/analysis';
 import { mmss } from '@/lib/rank';
 import CopyButton from '@/components/CopyButton';
@@ -17,7 +17,11 @@ export default async function Analysis({ params }) {
   const A = await testAnalysis(id);
   if (!A) redirect('/dashboard');
   const { test, rows, items, hist, secStats, districts, summary: S, max } = A;
-  if (!adm && (!test.published || testStatus(test) !== 'closed')) redirect('/dashboard');
+  const closed = testStatus(test) === 'closed';
+  if (!adm) {
+    if (!test.published) redirect('/dashboard');
+    if (!closed) { const [mine] = await sql`SELECT 1 FROM attempts WHERE test_id=${id} AND student_id=${sid} AND submitted_at IS NOT NULL`; if (!mine) redirect('/dashboard'); }
+  }
   const me = sid ? rows.find((r) => r.student_id === sid) : null;
   const below = me ? rows.filter((r) => r.score < me.score).length : 0;
   const percentile = me && S.n > 1 ? Math.round((below / (S.n - 1)) * 1000) / 10 : me ? 100 : null;
@@ -29,11 +33,11 @@ export default async function Analysis({ params }) {
   const byDistrict = {};
   for (const r of rows) (byDistrict[r.district] ??= []).push(r);
   const distList = Object.entries(byDistrict).sort((a, b) => b[1].length - a[1].length || (DISTRICT_EN[a[0]] || a[0]).localeCompare(DISTRICT_EN[b[0]] || b[0]));
-  const back = adm ? `/admin/test/${id}` : `/dashboard?c=${test.category}`;
+  const back = adm ? `/admin/test/${id}` : `/result/${id}`;
 
   const share = [
     `*${test.title}* – முடிவுகள்`,
-    `${catName(test.category)} · எழுதியோர்: ${S.n} · சராசரி: ${S.mean}/${max} · அதிகபட்சம்: ${S.top}`,
+    `எழுதியோர்: ${S.n} · சராசரி: ${S.mean}/${max} · அதிகபட்சம்: ${S.top}`,
     '', '*முதல் 10 இடங்கள்:*',
     ...rows.slice(0, 10).map((r) => `${r.rank}. ${r.name} (${r.district}) – ${r.score}`),
     '', '*மாவட்ட முதலிடங்கள்:*',
@@ -45,7 +49,8 @@ export default async function Analysis({ params }) {
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div><h1 style={{ margin: 0 }}>{test.title}</h1>
-            <div className="small muted">{catName(test.category)} · {fmt(test.start_at)} – {fmt(test.end_at)} · {items.length} வினாக்கள் · {max} மதிப்பெண்</div></div>
+            {!closed && <div className="okmsg small">தேர்வு இன்னும் நடைபெறுகிறது – இது இதுவரை சமர்ப்பித்தவர்களின் அடிப்படையிலான தற்காலிகப் பகுப்பாய்வு.</div>}
+            <div className="small muted">{fmt(test.start_at)} – {fmt(test.end_at)} · {items.length} வினாக்கள் · {max} மதிப்பெண்</div></div>
           <div className="row noprint"><a className="btn alt" href={`/rank/${id}`}>முழுத் தரவரிசை</a><a className="btn alt" href={back}>திரும்பு</a></div>
         </div>
         <div className="stats" style={{ marginTop: 12 }}>
@@ -149,7 +154,7 @@ export default async function Analysis({ params }) {
           <tbody>{items.map((it) => {
             const mine = me?.answers?.[it.qno];
             return (
-              <tr key={it.qno} style={it.flag && adm ? { background: '#fff4f2' } : undefined}>
+              <tr key={it.qno} style={it.flag && adm ? { background: 'var(--badbg)' } : undefined}>
                 <td><b>{it.qno}</b>{adm && it.flag && <> <span className="tag flag" title="விடைக்குறிப்பைச் சரிபார்க்கவும்">⚑</span></>}</td>
                 <td>{secLabel(it.section)}</td><td><b>{it.answer}</b></td>
                 {me && <td style={{ color: mine === it.answer ? 'var(--ok)' : mine ? 'var(--bad)' : 'var(--muted)', fontWeight: 700 }}>{mine || '–'}</td>}

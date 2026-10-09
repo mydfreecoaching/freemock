@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth';
 import { ranking, mmss } from '@/lib/rank';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import { getExams } from '@/lib/exams';
 import QText from '@/components/QText';
 export const dynamic = 'force-dynamic';
 
@@ -29,10 +30,10 @@ export default async function AdminTest({ params, searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>{t.title}</h1>
-        <div className="row"><a className="btn alt" href={`/admin?c=${t.category}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
+        <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
       </div>
       <div className="grid2">
-        <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} /></div>
+        <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} exams={await getExams(true)} /></div>
         <div className="card">
           <h2>வினாக்கள் பதிவேற்றம்</h2>
           <p className="small">தற்போது: <b>{qs.length}</b> வினாக்கள் {Object.entries(by).map(([k, v]) => `· ${k} ${v} `)}</p>
@@ -60,7 +61,7 @@ export default async function AdminTest({ params, searchParams }) {
         <div className="tablewrap" style={{ marginTop: 10, maxHeight: 520, overflow: 'auto' }}><table>
           <thead><tr><th>தரம்</th><th>மா.தரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>மதிப்பெண்</th><th>சரி</th><th>தவறு</th><th>E</th><th>விடுபட்டவை</th><th>நேரம்</th><th>Tab மாற்றம்</th></tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b></td><td>{r.correct}</td><td>{r.wrong}</td><td>{r.e_count}</td><td>{r.unanswered}</td><td>{mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: '#b3261e', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
+            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b></td><td>{r.correct}</td><td>{r.wrong}</td><td>{r.e_count}</td><td>{r.unanswered}</td><td>{mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: 'var(--bad)', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
           ))}</tbody>
         </table></div>
         {hardest.length > 0 && <p className="small" style={{ marginTop: 10 }}><b>அதிகம் தவறிய வினாக்கள் (சரியான %):</b> {hardest.map((h) => `${h.qno} (${h.p}%)`).join(', ')}</p>}
