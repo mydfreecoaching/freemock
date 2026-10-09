@@ -178,13 +178,13 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .navlinks a:hover{background:var(--soft);color:var(--link)}
 .navcta{display:flex;gap:8px} .navcta .btn{padding:8px 14px;font-size:14px}
 .navmenu{display:none}
-.navmenu summary{list-style:none;cursor:pointer;font-weight:700;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.navmenu summary{list-style:none;cursor:pointer;white-space:nowrap;font-weight:700;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 .navmenu summary::-webkit-details-marker{display:none}
 @media(max-width:760px){
   .navlinks.wide{display:none} .navmenu{display:block;position:relative}
   .navmenu .navlinks{position:absolute;top:44px;left:0;background:var(--card);border:1px solid var(--line);border-radius:10px;flex-direction:column;min-width:200px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
   .navmenu .navlinks a{align-items:flex-start}
-  .navcta .btn.alt{display:none}
+  .navcta{gap:6px} .navcta .btn{padding:7px 10px;font-size:13px}
 }
 .hero{display:grid;gap:22px;grid-template-columns:1fr;align-items:center;margin:8px 0 18px;padding:26px 22px;border-radius:18px;background:linear-gradient(135deg,var(--soft),var(--card));border:1px solid var(--line)}
 @media(min-width:900px){.hero{grid-template-columns:1.25fr .9fr;padding:36px}}

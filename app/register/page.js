@@ -10,7 +10,7 @@ export default async function Register({ searchParams }) {
   return (
     <div className="card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h1>தேர்வர் பதிவு / Registration</h1>
-      {next?.startsWith('/test/') && <div className="okmsg">பதிவு செய்ததும் பகிரப்பட்ட தேர்வுக்கு நேரடியாகச் செல்வீர்கள். ஏற்கனவே பதிவு செய்தவரா? <a href={`/?next=${encodeURIComponent(next)}#login`}>உள்நுழையவும்</a></div>}
+      {next?.startsWith('/test/') && <div className="okmsg">பதிவு செய்ததும் பகிரப்பட்ட தேர்வுக்கு நேரடியாகச் செல்வீர்கள். ஏற்கனவே பதிவு செய்தவரா? <a href={`/login?next=${encodeURIComponent(next)}`}>உள்நுழையவும்</a></div>}
       <Form action="/api/register" submit="பதிவு செய்">
         {next && <input type="hidden" name="next" value={next} />}
         <label>பெயர் / Name (as in certificates) <span className="req">*</span></label>
