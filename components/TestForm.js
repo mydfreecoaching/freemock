@@ -1,44 +1,36 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Form from './Form';
-import { toISTInput, CATEGORIES, CAT, KINDS, defaultDuration } from '@/lib/util';
+import { toISTInput } from '@/lib/util';
 
-/** Test settings form. `t` = existing test (edit) or undefined (new). `defaults` = prefill for new tests. */
-export default function TestForm({ t, defaults = {}, action = '/api/admin/test', submit, hidden = {} }) {
+const mins = (n) => Math.max(1, Math.ceil(n * 0.9));
+/** Test settings form. `t` = existing test (edit) or undefined (new). `exams` = available exams. */
+export default function TestForm({ t, exams = [], defaults = {}, action = '/api/admin/test', submit, hidden = {} }) {
   const ref = useRef(null);
   const v = { ...defaults, ...(t || {}) };
-  const cat = v.category || 'TNPSC_G2';
-  const p = CAT[cat]?.preset || {};
-  const kind = v.kind || 'full';
+  const byCode = Object.fromEntries(exams.map((e) => [e.code, e]));
+  const [code, setCode] = useState(v.kind && byCode[v.kind] ? v.kind : exams[0]?.code || '');
+  const ex = byCode[code];
+  const p = ex ? { marks_per_q: Number(ex.marks_per_q), negative_mark: Number(ex.negative_mark), unanswered_penalty: Number(ex.unanswered_penalty), allow_e: !!ex.allow_e } : {};
   function applyPreset(e) {
-    const f = ref.current?.closest('form');
-    const pr = CAT[e.target.value]?.preset;
-    if (!f || !pr) return;
-    f.marks_per_q.value = pr.marks_per_q;
-    f.negative_mark.value = pr.negative_mark;
-    f.unanswered_penalty.value = pr.unanswered_penalty;
-    f.allow_e.checked = pr.allow_e;
-  }
-  function applyKind(e) {
-    const f = ref.current?.closest('form');
-    if (f && !t) f.duration_min.value = defaultDuration(e.target.value);
+    setCode(e.target.value);
+    const f = ref.current?.closest('form'); const x = byCode[e.target.value];
+    if (!f || !x) return;
+    f.marks_per_q.value = Number(x.marks_per_q); f.negative_mark.value = Number(x.negative_mark);
+    f.unanswered_penalty.value = Number(x.unanswered_penalty); f.allow_e.checked = !!x.allow_e;
+    if (!t && x.qcount) f.duration_min.value = mins(x.qcount);
   }
   return (
     <Form action={action} submit={submit || (t ? 'சேமி' : 'தேர்வை உருவாக்கு')}>
       <span ref={ref} />
       {t && <input type="hidden" name="id" value={t.id} />}
       {Object.entries(hidden).map(([k, val]) => <input key={k} type="hidden" name={k} value={val} />)}
-      <div className="grid2">
-        <div><label>தேர்வுப் பிரிவு / Exam</label>
-          <select name="category" defaultValue={cat} onChange={applyPreset}>
-            {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select></div>
-        <div><label>வகை / Type</label>
-          <select name="kind" defaultValue={kind} onChange={applyKind}>
-            {Object.entries(KINDS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-          </select></div>
-      </div>
-      <p className="small muted" style={{ margin: '2px 0 6px' }}>TNPSC தேர்வுகள்: தினசரி = 20 வினாக்கள் (18 நிமிடம்) · வாராந்திரத் திருப்புதல் = 200 (180) · முழு மாதிரி = 200 (180) · வார இறுதி மாதிரி = 100 (90 நிமிடம்). TNPSC தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்).</p>
+      <label>கிடைக்கும் தேர்வுகள் / Available exams <span className="req">*</span></label>
+      <select name="kind" required value={code} onChange={applyPreset}>
+        {exams.map((e) => <option key={e.code} value={e.code}>{e.name}{e.qcount ? ` – ${e.qcount} வினாக்கள்` : ''}{e.active ? '' : ' (மறைக்கப்பட்டது)'}</option>)}
+      </select>
+      {ex?.description && <p className="small muted" style={{ margin: '4px 0 6px' }}>{ex.description}</p>}
+      <p className="small muted" style={{ margin: '2px 0 6px' }}>தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்: 200 → 180, 100 → 90, 20 → 18).</p>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />
       <label>பாடத்திட்டம் / Syllabus <span className="req">*</span> <span className="small muted">(தேர்வர்கள் தேர்வு தொடங்கும் முன் இதைப் படித்து "சரி" கொடுப்பார்கள்)</span></label>
@@ -48,7 +40,7 @@ export default function TestForm({ t, defaults = {}, action = '/api/admin/test',
         <div><label>முடிவு (IST) – இதற்குப் பின் யாரும் எழுத இயலாது</label><input type="datetime-local" name="end_at" required defaultValue={v.end_at ? toISTInput(v.end_at) : ''} /></div>
       </div>
       <div className="grid2">
-        <div><label>கால அளவு (நிமிடம்)</label><input type="number" name="duration_min" min="1" defaultValue={v.duration_min ?? defaultDuration(kind)} /></div>
+        <div><label>கால அளவு (நிமிடம்)</label><input type="number" name="duration_min" min="1" defaultValue={v.duration_min ?? (ex?.qcount ? mins(ex.qcount) : 180)} /></div>
         <div><label>சரியான விடைக்கு மதிப்பெண்</label><input type="number" step="0.01" name="marks_per_q" defaultValue={v.marks_per_q != null ? Number(v.marks_per_q) : p.marks_per_q} /></div>
       </div>
       <div className="grid2">

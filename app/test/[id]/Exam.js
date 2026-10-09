@@ -109,7 +109,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   const Palette = (
     <div className="palette">
       <div className="small"><b>{counts.ans}</b> விடையளித்தவை · <b>{counts.e}</b> E · <b>{counts.un}</b> விடுபட்டவை</div>
-      <div className="legend"><span><i style={{ background: '#1e7a3c' }} />விடை</span>{test.allowE && <span><i style={{ background: '#8a8a8a' }} />E</span>}<span><i style={{ background: '#eee' }} />இல்லை</span><span><i style={{ outline: '2px solid #a86b00' }} />மீண்டும் பார்</span></div>
+      <div className="legend"><span><i style={{ background: 'var(--ok)' }} />விடை</span>{test.allowE && <span><i style={{ background: '#8a8a8a' }} />E</span>}<span><i style={{ background: 'var(--chip)' }} />இல்லை</span><span><i style={{ outline: '2px solid #a86b00' }} />மீண்டும் பார்</span></div>
       <div className="pgrid">
         {questions.map((qq, k) => {
           const v = answers[qq.qno];
@@ -178,7 +178,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
         <div className="modal" onClick={() => !busy && setConfirm(false)}>
           <div className="card" onClick={(e) => e.stopPropagation()}>
             <h2>விடைத்தாளைச் சமர்ப்பிக்கவா?</h2>
-            <p>விடையளித்தவை: <b>{counts.ans}</b> · E: <b>{counts.e}</b> · எதுவும் தேர்வு செய்யாதவை: <b style={{ color: counts.un ? '#b3261e' : undefined }}>{counts.un}</b></p>
+            <p>விடையளித்தவை: <b>{counts.ans}</b> · E: <b>{counts.e}</b> · எதுவும் தேர்வு செய்யாதவை: <b style={{ color: counts.un ? 'var(--bad)' : undefined }}>{counts.un}</b></p>
             {counts.un > 0 && test.penalty && <p className="err small">எதுவும் தேர்வு செய்யாத வினாக்கள் உள்ளன – மதிப்பெண் குறைக்கப்படும்.{test.allowE ? ' விடை தெரியாவிடில் E தேர்வு செய்யவும்.' : ''}</p>}
             <p className="small muted">சமர்ப்பித்த பின் மாற்ற இயலாது.</p>
             <div className="row"><button className="danger" onClick={submit} disabled={busy}>{busy ? 'சமர்ப்பிக்கிறது…' : 'ஆம், சமர்ப்பி'}</button><button className="alt" onClick={() => setConfirm(false)} disabled={busy}>இல்லை</button></div>

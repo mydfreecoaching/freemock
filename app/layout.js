@@ -1,4 +1,5 @@
 import './globals.css';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export const metadata = {
   title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
@@ -8,14 +9,15 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ta">
+    <html lang="ta" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet" />
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('fm_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
       <body>
-        <header className="top">
+        <header className="top"><div className="top-in">
           <a href="/" className="brand">
             <span className="mark">த</span>
             <span>
@@ -25,7 +27,8 @@ export default function RootLayout({ children }) {
               <small>மயிலாடுதுறை & திருவாரூர் / Mayiladuthurai & Thiruvarur</small>
             </span>
           </a>
-        </header>
+          <ThemeToggle />
+        </div></header>
         <main className="wrap">{children}</main>
         <footer className="foot">
           தொடர்புக்கு WhatsApp: 9499055904 (மயிலாடுதுறை) · 9499055915 (திருவாரூர்)

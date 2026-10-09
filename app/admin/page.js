@@ -1,6 +1,7 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus, CATEGORIES, CAT, catName, GENDER_LABEL, PRIORITY_LABEL, KIND_SHORT } from '@/lib/util';
+import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
 export const dynamic = 'force-dynamic';
@@ -22,8 +23,11 @@ export default async function Admin({ searchParams }) {
   const st = await sql`SELECT district, count(*)::int n FROM students GROUP BY district ORDER BY n DESC`;
   const [{ pending }] = await sql`SELECT count(*)::int pending FROM submissions WHERE status='pending'`;
   const sp = await searchParams;
-  const cat = CAT[sp?.c] ? sp.c : null;
-  const shown = (cat ? tests.filter((t) => t.category === cat) : tests).sort((a, b) => new Date(b.start_at) - new Date(a.start_at));
+  const exams = await getExams(true); const EX = examMap(exams);
+  const cat = EX[sp?.e] ? sp.e : null;
+  const ec = {};
+  for (const t of tests) { const c = (ec[t.kind] ??= { all: 0, open: 0 }); c.all++; if (t.published && testStatus(t) === 'open') c.open++; }
+  const shown = (cat ? tests.filter((t) => t.kind === cat) : tests).sort((a, b) => new Date(b.start_at) - new Date(a.start_at));
   const gst = await sql`SELECT COALESCE(gender,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const cst = await sql`SELECT COALESCE(community,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
   const pst = await sql`SELECT p k, count(*)::int n FROM students, jsonb_array_elements_text(priority) p GROUP BY 1 ORDER BY n DESC`;
@@ -37,24 +41,34 @@ export default async function Admin({ searchParams }) {
         <div className="row">
           <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
           <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
-          <a className="btn alt" href={`/weekly?c=${cat || 'TNPSC_G2'}`}>வாராந்திரப் பகுப்பாய்வு</a>
+          <a className="btn alt" href="/admin/exams">கிடைக்கும் தேர்வுகள்</a>
+          <a className="btn alt" href="/weekly">வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/api/admin/export?type=students">தேர்வர் பட்டியல் (CSV)</a>
           <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>
           <a className="btn alt" href="/api/logout">வெளியேறு</a>
         </div>
       </div>
       <div className="card">
-        <h2>தேர்வுகள்</h2>
-        <nav className="tabs">
-          <a className={`tab ${!cat ? 'on' : ''}`} href="/admin">அனைத்தும்</a>
-          {CATEGORIES.map((c) => <a key={c.id} className={`tab ${cat === c.id ? 'on' : ''}`} href={`/admin?c=${c.id}`}>{c.name}</a>)}
-        </nav>
+        <div className="row" style={{ justifyContent: 'space-between' }}><h2 style={{ margin: 0 }}>கிடைக்கும் தேர்வுகள் / Available exams</h2><a className="small" href="/admin/exams">+ சேர் / திருத்து</a></div>
+        <div className="examgrid" style={{ marginTop: 10 }}>
+          <a className={`examcard ${!cat ? 'on' : ''}`} href="/admin"><b>அனைத்தும்</b><span className="small muted">{tests.length} தேர்வுகள்</span></a>
+          {exams.map((e) => (
+            <a key={e.code} className={`examcard ${cat === e.code ? 'on' : ''}`} href={`/admin?e=${e.code}`}>
+              <b>{e.name}</b>{!e.active && <span className="pill closed">மறைக்கப்பட்டது</span>}
+              {e.description && <span className="small muted">{e.description}</span>}
+              <span className="small">{ec[e.code]?.all || 0} தேர்வுகள்{ec[e.code]?.open ? <> · <b style={{ color: 'var(--ok)' }}>{ec[e.code].open} நடப்பில்</b></> : ''}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div className="card">
+        <h2>தேர்வுகள்{cat ? ` – ${EX[cat].name}` : ''}</h2>
         <div className="tablewrap"><table>
-          <thead><tr><th>தேர்வு</th><th>பிரிவு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
+          <thead><tr><th>தேர்வு</th><th>வகை</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
           <tbody>{shown.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{catName(t.category)}<br />{KIND_SHORT[t.kind] || t.kind}</td>
+              <td className="small">{EX[t.kind]?.name || t.kind}</td>
               <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{testStatus(t)}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
@@ -62,7 +76,7 @@ export default async function Admin({ searchParams }) {
           </tbody>
         </table></div>
       </div>
-      <div className="card"><h2>புதிய தேர்வு</h2><TestForm defaults={cat ? { category: cat, ...CAT[cat].preset } : {}} /></div>
+      <div className="card"><h2>புதிய தேர்வு</h2><TestForm exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
     </>
   );
 }

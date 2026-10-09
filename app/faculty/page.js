@@ -1,6 +1,7 @@
 import { sql } from '@/lib/db';
 import { currentFaculty } from '@/lib/facultyGuard';
-import { CATEGORIES, catName, fmt, KIND_SHORT, KINDS, TNPSC_COUNT } from '@/lib/util';
+import { fmt } from '@/lib/util';
+import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,7 @@ export default async function Faculty() {
       </div>
     );
   }
+  const exams = await getExams(true); const EX = examMap(exams);
   const subs = await sql`SELECT id, category, kind, title, n, status, admin_note, created_at, test_id FROM submissions WHERE faculty_id=${f.id} ORDER BY created_at DESC LIMIT 100`;
   return (
     <>
@@ -31,11 +33,11 @@ export default async function Faculty() {
         <div className="card">
           <h2>வினாத்தாள் பதிவேற்றம்</h2>
           <Form action="/api/faculty/upload" submit="ஒப்புதலுக்கு அனுப்பு">
-            <div className="grid2">
-              <div><label>தேர்வுப் பிரிவு</label><select name="category" required defaultValue="">
-                <option value="" disabled>தேர்வு செய்யவும்</option>{CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
-              <div><label>வகை</label><select name="kind" defaultValue="g2_daily">{Object.entries(KINDS).map(([k, l]) => <option key={k} value={k}>{l}{TNPSC_COUNT[k] ? ` (TNPSC: ${TNPSC_COUNT[k]} வினாக்கள்)` : ''}</option>)}</select></div>
-            </div>
+            <label>கிடைக்கும் தேர்வுகள் / Available exams <span className="req">*</span></label>
+            <select name="kind" required defaultValue="">
+              <option value="" disabled>தேர்வு செய்யவும்</option>
+              {exams.filter((e) => e.active).map((e) => <option key={e.code} value={e.code}>{e.name}{e.qcount ? ` – ${e.qcount} வினாக்கள்` : ''}</option>)}
+            </select>
             <label>தலைப்பு</label><input name="title" required maxLength={150} placeholder="எ.கா. Daily Test – Indian Polity – 08.10.2026" />
             <label>பாடத்திட்டம் / Syllabus <span className="req">*</span></label><textarea name="syllabus" required rows={5} maxLength={5000} placeholder="இத்தேர்வில் இடம்பெறும் பாடப்பகுதிகள் – தேர்வர்களுக்குத் தேர்வு தொடங்கும் முன் காட்டப்படும்" />
             <label>Admin-க்குக் குறிப்பு (விருப்பம்)</label><textarea name="note" maxLength={1000} placeholder="எந்த நாளில் நடத்த வேண்டும், பாடப்பகுதி போன்றவை" />
@@ -56,7 +58,7 @@ export default async function Faculty() {
         {subs.length === 0 ? <p className="muted">இன்னும் எதுவும் அனுப்பவில்லை.</p> : (
           <div className="tablewrap"><table>
             <thead><tr><th>நாள்</th><th>தலைப்பு</th><th>பிரிவு</th><th className="num">வினாக்கள்</th><th>நிலை</th><th>Admin குறிப்பு</th></tr></thead>
-            <tbody>{subs.map((s) => <tr key={s.id}><td className="small">{fmt(s.created_at)}</td><td>{s.title}</td><td>{catName(s.category)} · {KIND_SHORT[s.kind] || s.kind}</td><td className="num">{s.n}</td>
+            <tbody>{subs.map((s) => <tr key={s.id}><td className="small">{fmt(s.created_at)}</td><td>{s.title}</td><td>{EX[s.kind]?.name || s.kind}</td><td className="num">{s.n}</td>
               <td><span className={`pill ${ST[s.status]?.[1]}`}>{ST[s.status]?.[0] || s.status}</span></td><td className="small">{s.admin_note || ''}</td></tr>)}</tbody>
           </table></div>
         )}

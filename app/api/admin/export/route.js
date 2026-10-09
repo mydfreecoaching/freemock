@@ -3,7 +3,7 @@ import { guard } from '@/lib/adminGuard';
 import { GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { ranking } from '@/lib/rank';
 import { testAnalysis, weeklyAnalysis } from '@/lib/analysis';
-import { weekStart, catName } from '@/lib/util';
+import { weekStart } from '@/lib/util';
 
 const csvCell = (v) => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const csv = (rows) => '﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n');
@@ -26,13 +26,12 @@ export async function GET(req) {
       ...A.items.map((i) => [i.qno, i.section, i.answer, i.pct, i.level, i.dist.A, i.dist.B, i.dist.C, i.dist.D, i.dist.E, i.dist['-'], i.disc ?? '', i.topWrong, i.topWrongPct, i.flag ? 'YES' : '', i.text])];
     name = `test_${id}_question_analysis`;
   } else if (type === 'weekly') {
-    const c = u.searchParams.get('c');
     const from = u.searchParams.get('w') ? new Date(`${u.searchParams.get('w')}T00:00:00+05:30`) : weekStart();
     const kk = u.searchParams.get('k') || 'g2_daily';
-    const W = await weeklyAnalysis(c, from, kk);
+    const W = await weeklyAnalysis(from, kk);
     rows = [['Rank', 'Reg No', 'Name', 'District', 'Tests', 'Score', 'Max', 'Score %', 'Correct', 'Wrong', 'Accuracy %'],
       ...W.students.map((s) => [s.rank, s.reg_no, s.name, s.district, `${s.tests}/${W.closed.length}`, s.score, W.totalMax, s.pct, s.correct, s.wrong, s.acc])];
-    name = `weekly_${c}_${kk}_${u.searchParams.get('w') || 'current'}`;
+    name = `weekly_${kk}_${u.searchParams.get('w') || 'current'}`;
   } else {
     const id = Number(u.searchParams.get('test'));
     const qs = await sql`SELECT qno FROM questions WHERE test_id=${id} ORDER BY qno`;
