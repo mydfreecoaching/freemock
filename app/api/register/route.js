@@ -1,6 +1,7 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent } from '@/lib/auth';
 import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
+import { safeNext } from '@/lib/next';
 import { profileFields, validMobile, validDob } from '@/lib/profile';
 
 export async function POST(req) {
@@ -28,7 +29,8 @@ export async function POST(req) {
       const [s] = await sql`INSERT INTO students (reg_no,name,mobile,dob,district,qualification,gender,community,email,priority,priority_other)
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;
       await setStudent(s.id);
-      return Response.json({ redirect: `/dashboard?new=${s.reg_no}` });
+      const nx = safeNext(b.next);
+      return Response.json({ redirect: nx ? `${nx}${nx.includes('?') ? '&' : '?'}new=${s.reg_no}` : `/dashboard?new=${s.reg_no}` });
     } catch (e) {
       if (e.code !== '23505') throw e;
       const [d2] = await sql`SELECT reg_no FROM students WHERE mobile=${mobile}`;

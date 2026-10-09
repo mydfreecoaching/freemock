@@ -1,4 +1,7 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import CopyButton from '@/components/CopyButton';
+import { fmt } from '@/lib/util';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { ranking, mmss } from '@/lib/rank';
@@ -32,6 +35,7 @@ export default async function AdminTest({ params, searchParams }) {
         <h1 style={{ margin: 0 }}>{t.title}</h1>
         <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
       </div>
+      <ShareBox t={t} id={id} host={(await headers()).get('host')} />
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} exams={await getExams(true)} /></div>
         <div className="card">
@@ -97,5 +101,21 @@ export default async function AdminTest({ params, searchParams }) {
         </div>
       )}
     </>
+  );
+}
+
+/** Direct link for students: after login they land on this test. */
+function ShareBox({ t, id, host }) {
+  const proto = host?.startsWith('localhost') ? 'http' : 'https';
+  const url = `${proto}://${host}/test/${id}`;
+  const msg = `*${t.title}*\n${fmt(t.start_at)} முதல் ${fmt(t.end_at)} வரை எழுதலாம்.\nஉள்நுழைந்து நேரடியாக இத்தேர்வை எழுத: ${url}\n(புதியவர்கள் இதே link-இல் பதிவு செய்யலாம்)`;
+  return (
+    <div className="card">
+      <h2 style={{ marginBottom: 6 }}>🔗 தேர்வு Link – மாணவர்களுக்குப் பகிர</h2>
+      {!t.published && <p className="err small">இத்தேர்வு இன்னும் Published ஆகவில்லை – Publish செய்த பிறகே மாணவர்கள் திறக்க முடியும்.</p>}
+      <div className="row"><input readOnly value={url} style={{ flex: 1, minWidth: 220 }} /><CopyButton text={url} label="Link நகலெடு" /><CopyButton text={msg} label="WhatsApp செய்தி நகலெடு" />
+        <a className="btn alt" href={`https://wa.me/?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener">WhatsApp-இல் பகிர்</a></div>
+      <p className="small muted" style={{ marginBottom: 0 }}>மாணவர் இந்த link-ஐத் திறந்தால்: உள்நுழையவில்லை எனில் login பக்கம் → உள்நுழைந்ததும் நேரடியாக இத்தேர்வு. புதியவர் பதிவு செய்ததும் நேரடியாக இத்தேர்வு.</p>
+    </div>
   );
 }

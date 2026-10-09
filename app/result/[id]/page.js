@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt, testStatus, secLabel, secSort } from '@/lib/util';
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export default async function Result({ params, searchParams }) {
   await ensureSchema();
   const sid = await studentId();
-  if (!sid) redirect('/');
+  if (!sid) redirect(loginUrl(`/result/${Number((await params).id)}`));
   const id = Number((await params).id);
   const [t] = await sql`SELECT * FROM tests WHERE id=${id} AND published`;
   if (!t) redirect('/dashboard');

@@ -51,7 +51,7 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
               {tab === 'ongoing' ? <span className={`pill ${t.open ? 'open' : 'upcoming'}`}>{t.open ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span> : <span className="pill closed">நிறைவடைந்தது</span>}
             </div>
             <div className="small muted">{f(t.start)} – {f(t.end)} · {t.nq} வினாக்கள் · {t.mins} நிமிடம்</div>
-            {tab === 'ongoing' && t.open && <a className="btn" style={{ marginTop: 8 }} href={loggedIn ? `/test/${t.id}` : '/#login'}>{loggedIn ? 'தேர்வை எழுது →' : 'உள்நுழைந்து எழுது →'}</a>}
+            {tab === 'ongoing' && t.open && <a className="btn" style={{ marginTop: 8 }} href={`/test/${t.id}`}>{loggedIn ? 'தேர்வை எழுது →' : 'உள்நுழைந்து எழுது →'}</a>}
             {tab === 'completed' && <>
               <div className="small" style={{ marginTop: 4 }}>எழுதியோர் <b>{t.n}</b>{t.top != null && <> · அதிகபட்சம் <b>{t.top}</b> / {t.max} · சராசரி <b>{t.avgPct}%</b></>}</div>
               {t.toppers.length > 0 && <details className="small"><summary>முதல் {t.toppers.length} இடங்கள்</summary>
