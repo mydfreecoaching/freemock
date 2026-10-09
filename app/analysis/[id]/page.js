@@ -20,7 +20,9 @@ export default async function Analysis({ params }) {
   const closed = testStatus(test) === 'closed';
   if (!adm) {
     if (!test.published) redirect('/dashboard');
-    if (!closed) { const [mine] = await sql`SELECT 1 FROM attempts WHERE test_id=${id} AND student_id=${sid} AND submitted_at IS NOT NULL`; if (!mine) redirect('/dashboard'); }
+    const [mine] = await sql`SELECT 1 FROM attempts WHERE test_id=${id} AND student_id=${sid} AND submitted_at IS NOT NULL`;
+    if (!closed && !mine) redirect('/dashboard');
+    if (mine) { const [fb] = await sql`SELECT 1 FROM feedback WHERE test_id=${id} AND student_id=${sid}`; if (!fb) redirect(`/result/${id}#feedback`); }
   }
   const me = sid ? rows.find((r) => r.student_id === sid) : null;
   const below = me ? rows.filter((r) => r.score < me.score).length : 0;

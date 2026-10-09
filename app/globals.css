@@ -267,3 +267,11 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
   .dd-top{align-items:flex-start;width:100%}
   .navmenu .navlinks{max-height:75vh;overflow:auto;min-width:270px}
 }
+/* feedback */
+.stars{display:flex;align-items:center;gap:4px}
+.stars button{background:none;border:0;padding:0 2px;font-size:32px;line-height:1;color:var(--line);cursor:pointer}
+.stars button.on{color:#f5a623}
+.fbstars{color:#f5a623;letter-spacing:2px;font-size:16px} .fbstars .muted{color:var(--line)}
+.fbgrid{display:grid;gap:12px;grid-template-columns:1fr} @media(min-width:760px){.fbgrid{grid-template-columns:1fr 1fr}} @media(min-width:1000px){.fbgrid{grid-template-columns:1fr 1fr 1fr}}
+.fbitem{background:var(--soft);border-radius:12px;padding:12px 14px} .fbitem p{margin:6px 0;font-style:italic}
+.fbform{border:2px solid var(--brand2)}

@@ -28,6 +28,10 @@ export default async function Dashboard({ searchParams }) {
   const exams = await getExams(); const EX = examMap(exams);
   const { tests, byTest } = await studentTests(sid);
   const mine = tests.filter((t) => EX[t.kind] && t.nq > 0);
+  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.name, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
+    JOIN tests t ON t.id=f.test_id WHERE f.status='approved' ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 12`;
+  const noFb = await sql`SELECT a.test_id FROM attempts a WHERE a.student_id=${sid} AND a.submitted_at IS NOT NULL
+    AND NOT EXISTS (SELECT 1 FROM feedback f WHERE f.test_id=a.test_id AND f.student_id=${sid})`;
 
   const lists = {
     open: mine.filter((t) => testStatus(t) === 'open').sort((a, b) => new Date(a.end_at) - new Date(b.end_at)),
@@ -85,6 +89,7 @@ export default async function Dashboard({ searchParams }) {
         <div className="row"><a className="btn alt" href="/profile">என் விவரங்கள்</a><a className="btn alt" href="/api/logout">வெளியேறு</a></div>
       </div>
 
+      {noFb.length > 0 && <div className="okmsg">💬 நீங்கள் எழுதிய {noFb.length} தேர்வுக்குக் கருத்து அளிக்கவில்லை. கருத்து அளித்ததும் விடைகளும் பகுப்பாய்வும் காட்டப்படும் – <a href={`/result/${noFb[0].test_id}#feedback`}><b>இப்போது அளிக்க</b></a></div>}
       <div className="card">
         <h2>📊 என் செயல்திறன் / My performance</h2>
         {perf.length === 0 ? <p className="muted" style={{ margin: 0 }}>நீங்கள் இன்னும் தேர்வு எழுதவில்லை. தேர்வு எழுதியதும் உங்கள் மதிப்பெண்கள், முன்னேற்றம், மேம்படுத்த வேண்டிய பகுதிகள் இங்கே காட்டப்படும்.</p> : <>
@@ -131,6 +136,16 @@ export default async function Dashboard({ searchParams }) {
       </nav>
       {lists[tab].length === 0 && <div className="card muted">{tab === 'open' ? 'இப்போது நடப்புத் தேர்வுகள் இல்லை.' : tab === 'upcoming' ? 'வரவிருக்கும் தேர்வுகள் இல்லை.' : tab === 'done' ? 'நீங்கள் இன்னும் தேர்வு எழுதவில்லை.' : 'நிறைவடைந்த தேர்வுகள் இல்லை.'}</div>}
       {lists[tab].map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} label={EX[t.kind]?.name} />)}
+
+      {fbs.length > 0 && <div className="card fbbox">
+        <h2>💬 மாணவர் கருத்துகள் / Feedback</h2>
+        <div className="fbgrid">{fbs.map((f) => (
+          <div key={f.id} className="fbitem">
+            <div className="fbstars">{'★'.repeat(f.rating)}<span className="muted">{'★'.repeat(5 - f.rating)}</span></div>
+            <p>“{f.comment}”</p>
+            <div className="small muted"><b>{f.name}</b>, {f.district} · {f.title}</div>
+          </div>))}</div>
+      </div>}
 
       <h2 style={{ marginTop: 22 }}>கிடைக்கும் தேர்வுகள் / Available exams</h2>
       <div className="examgrid">
