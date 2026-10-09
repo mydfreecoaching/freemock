@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import Form from './Form';
-import { toISTInput } from '@/lib/util';
+import { toISTInput, SUBJECTS } from '@/lib/util';
 
 const mins = (n) => Math.max(1, Math.ceil(n * 0.9));
 /** Test settings form. `t` = existing test (edit) or undefined (new). `exams` = available exams. */
@@ -30,6 +30,9 @@ export default function TestForm({ t, exams = [], defaults = {}, action = '/api/
         {exams.map((e) => <option key={e.code} value={e.code}>{e.name}{e.qcount ? ` – ${e.qcount} வினாக்கள்` : ''}{e.active ? '' : ' (மறைக்கப்பட்டது)'}</option>)}
       </select>
       {ex?.description && <p className="small muted" style={{ margin: '4px 0 6px' }}>{ex.description}</p>}
+      <label>பாடம் / Subject {code === 'subject' ? <span className="req">*</span> : <span className="small muted">(Subject-wise Mock Test-க்குக் கட்டாயம்; மற்றவற்றுக்கு விருப்பம்)</span>}</label>
+      <input name="subject" list="subject-list" required={code === 'subject'} maxLength={120} defaultValue={v.subject || ''} placeholder="பட்டியலிலிருந்து தேர்வு செய்யவும் அல்லது எழுதவும்" />
+      <datalist id="subject-list">{SUBJECTS.map((s) => <option key={s} value={s} />)}</datalist>
       <p className="small muted" style={{ margin: '2px 0 6px' }}>தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்: 200 → 180, 100 → 90, 20 → 18).</p>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />

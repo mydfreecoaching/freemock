@@ -9,7 +9,7 @@ export default function SiteFooter({ exams = [] }) {
         </div>
         <div>
           <b>Quick links</b>
-          <a href="/">Home</a><a href="/courses">Courses</a><a href="/about">About us</a><a href="/contact">Contact us</a>
+          <a href="/">Home</a><a href="/courses">Courses</a><a href="/subjects">Subject-wise Tests</a><a href="/about">About us</a><a href="/contact">Contact us</a>
           <a href="/register">Register</a><a href="/faculty">Faculty login</a>
         </div>
         <div>

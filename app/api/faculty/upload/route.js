@@ -11,9 +11,11 @@ export async function POST(req) {
   const title = String(fd.get('title') || '').trim().slice(0, 150);
   const note = String(fd.get('note') || '').trim().slice(0, 1000);
   const syllabus = cleanSyllabus(fd.get('syllabus'));
+  const subject = String(fd.get('subject') || '').trim().slice(0, 120) || null;
   const file = fd.get('file');
   if (!ex || !ex.active) return Response.json({ error: 'தேர்வைத் (Available exam) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!title) return Response.json({ error: 'தலைப்பு தேவை.' }, { status: 400 });
+  if (ex?.code === 'subject' && !subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   if (!file || typeof file === 'string' || !file.size) return Response.json({ error: 'Excel கோப்பைத் தேர்வு செய்யவும்.' }, { status: 400 });
   if (file.size > 5 * 1024 * 1024) return Response.json({ error: 'கோப்பு 5 MB-க்குள் இருக்க வேண்டும்.' }, { status: 400 });
@@ -23,7 +25,7 @@ export async function POST(req) {
   if (!r.questions.length) return Response.json({ error: 'வினாக்கள் இல்லை.' }, { status: 400 });
   const ce = countError(ex, r.questions.length);
   if (ce) return Response.json({ error: ce }, { status: 400 });
-  await sql`INSERT INTO submissions (faculty_id, category, kind, title, note, syllabus, questions, n)
-    VALUES (${f.id}, 'TNPSC_G2', ${ex.code}, ${title}, ${note}, ${syllabus}, ${sql.json(r.questions)}, ${r.questions.length})`;
+  await sql`INSERT INTO submissions (faculty_id, category, kind, title, note, syllabus, subject, questions, n)
+    VALUES (${f.id}, 'TNPSC_G2', ${ex.code}, ${title}, ${note}, ${syllabus}, ${subject}, ${sql.json(r.questions)}, ${r.questions.length})`;
   return Response.json({ message: `${r.questions.length} வினாக்கள் (${sectionSummary(r.questions)}) Admin ஒப்புதலுக்கு அனுப்பப்பட்டன.`, reload: true });
 }

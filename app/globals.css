@@ -226,3 +226,20 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .foot-bottom{text-align:center;padding:12px;border-top:1px solid #3d2a20;color:#a8998c}
 .wa-float{position:fixed;right:16px;bottom:16px;width:52px;height:52px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;font-size:24px;text-decoration:none;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:30}
 @media print{.utilbar,.mainnav,.site-foot,.wa-float{display:none}}
+/* browser + leaderboard */
+.bigselect{font-size:16px;padding:12px;font-weight:600}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.seg button{flex:1;min-width:140px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:600}
+.seg button b{display:inline-block;margin-left:6px;background:var(--chip);border-radius:99px;padding:0 8px;font-size:13px}
+.seg button.on{background:var(--brand);border-color:var(--brand);color:#fff} .seg button.on b{background:#fff;color:#7a1f12}
+.titem{margin-bottom:10px} .toplist{margin:6px 0 4px;padding-left:22px}
+.lb-select{width:auto;max-width:100%;font-weight:600}
+.lb-list{list-style:none;padding:0;margin:8px 0}
+.lb-list li{display:grid;grid-template-columns:38px 1fr minmax(60px,30%) auto;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.lb-rank{font-size:20px;text-align:center;font-weight:700;color:var(--muted)}
+.lb-name{display:flex;flex-direction:column;line-height:1.3} .lb-name small{color:var(--muted);font-size:12px}
+.lb-bar{background:var(--track);border-radius:99px;height:10px;overflow:hidden;display:block} .lb-bar i{display:block;height:100%;background:var(--brand2);border-radius:99px}
+.lb-score{font-weight:700;white-space:nowrap} .lb-score small{color:var(--muted);font-weight:400}
+.lb-gain{color:var(--ok);font-weight:700;grid-column:3 / 5;text-align:right}
+.area{display:grid;grid-template-columns:minmax(110px,40%) 1fr 54px;gap:10px;align-items:center;padding:8px 0}
+@media(max-width:520px){.lb-list li{grid-template-columns:30px 1fr auto}.lb-list li .lb-bar{display:none}.lb-gain{grid-column:3}}

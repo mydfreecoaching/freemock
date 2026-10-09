@@ -4,6 +4,8 @@ import { getExams, examMap } from '@/lib/exams';
 import { publicStats, liveTests } from '@/lib/public';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
 import LoginCard from '@/components/LoginCard';
+import Leaderboard from '@/components/Leaderboard';
+import { leaderboards } from '@/lib/leaderboard';
 export const dynamic = 'force-dynamic';
 
 const FEATURES = [
@@ -20,7 +22,7 @@ export default async function Home() {
   await ensureSchema();
   const loggedIn = !!(await studentId());
   const exams = await getExams(); const EX = examMap(exams);
-  const [S, live] = await Promise.all([publicStats(), liveTests()]);
+  const [S, live, LB] = await Promise.all([publicStats(), liveTests(), leaderboards(exams)]);
   const shown = live.filter((t) => EX[t.kind] && t.nq > 0);
   return (
     <>
@@ -50,6 +52,8 @@ export default async function Home() {
         <div><b>{S.attempts}</b><span>எழுதப்பட்ட விடைத்தாள்கள்</span></div>
         <div><b>{S.districts}</b><span>மாவட்டங்கள்</span></div>
       </section>
+
+      <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>
 
       {shown.length > 0 && <section className="sec">
         <h2 className="sec-h">📢 நடப்பு & வரவிருக்கும் தேர்வுகள்</h2>
