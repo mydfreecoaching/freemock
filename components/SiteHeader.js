@@ -4,7 +4,7 @@ import NavDrop from './NavDrop';
 const NAV = [['/', 'முகப்பு', 'Home'], ['/courses', 'தேர்வுகள்', 'Courses'], ['/subjects', 'பாட வாரியாக', 'Subject-wise Tests'], ['/about', 'எங்களைப் பற்றி', 'About us'], ['/contact', 'தொடர்புக்கு', 'Contact us']];
 
 /** Utility bar + brand + main menu (collapses to a menu button on phones). */
-const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
+const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
   ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
 
 export default function SiteHeader({ loggedIn, admin = false, menus = { courses: [], subjects: [] } }) {

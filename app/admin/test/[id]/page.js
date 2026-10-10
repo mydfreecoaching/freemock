@@ -33,7 +33,7 @@ export default async function AdminTest({ params, searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>{t.title}</h1>
-        <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a></div>
+        <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a><a className="btn" href={`/admin/test/${id}/ranklist`}>📄 தரவரிசை PDF</a></div>
       </div>
       <ShareBox t={t} id={id} host={(await headers()).get('host')} />
       <div className="grid2">

@@ -5,13 +5,15 @@ import { fmtDate } from '@/lib/util';
 import { profileComplete } from '@/lib/profile';
 import Form from '@/components/Form';
 import StudentFields from '@/components/StudentFields';
+import PhotoInput from '@/components/PhotoInput';
+import { studentWithPhoto, photoUrl } from '@/lib/photo';
 export const dynamic = 'force-dynamic';
 
 export default async function Profile({ searchParams }) {
   await ensureSchema();
   const sid = await studentId();
   if (!sid) redirect('/');
-  const [me] = await sql`SELECT * FROM students WHERE id=${sid}`;
+  const me = await studentWithPhoto(sid);
   if (!me) redirect('/api/logout');
   const sp = await searchParams;
   const next = typeof sp?.next === 'string' && sp.next.startsWith('/') && !sp.next.startsWith('//') ? sp.next : '/dashboard';
@@ -24,6 +26,7 @@ export default async function Profile({ searchParams }) {
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
         <StudentFields s={me} />
+        <PhotoInput current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} />
       </Form>
     </div>
   );

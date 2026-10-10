@@ -3,6 +3,7 @@ import { setStudent } from '@/lib/auth';
 import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { safeNext } from '@/lib/next';
 import { profileFields, validMobile, validDob } from '@/lib/profile';
+import { parsePhoto, savePhoto } from '@/lib/photo';
 
 export async function POST(req) {
   await ensureSchema();
@@ -18,6 +19,8 @@ export async function POST(req) {
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
+  const ph = parsePhoto(b);
+  if (ph.error) return Response.json({ error: ph.error }, { status: 400 });
   const [dup] = await sql`SELECT reg_no FROM students WHERE mobile=${mobile}`;
   if (dup) return Response.json({ error: `இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது (பதிவு எண் ${dup.reg_no}). உள்நுழையவும்.` }, { status: 409 });
   const year = istYear();
@@ -28,6 +31,7 @@ export async function POST(req) {
     try {
       const [s] = await sql`INSERT INTO students (reg_no,name,mobile,dob,district,qualification,gender,community,email,priority,priority_other)
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;
+      await savePhoto(s.id, ph);
       await setStudent(s.id);
       const nx = safeNext(b.next);
       return Response.json({ redirect: nx ? `${nx}${nx.includes('?') ? '&' : '?'}new=${s.reg_no}` : `/dashboard?new=${s.reg_no}` });

@@ -5,6 +5,7 @@ import { studentId } from '@/lib/auth';
 import { fmt, testStatus } from '@/lib/util';
 import { finalize, isStale, ABANDON_MIN } from '@/lib/scoring';
 import { profileComplete } from '@/lib/profile';
+import { studentWithPhoto } from '@/lib/photo';
 import Exam from './Exam';
 import StartButton from './StartButton';
 export const dynamic = 'force-dynamic';
@@ -25,7 +26,7 @@ export default async function TestPage({ params, searchParams }) {
   }
   const [{ n }] = await sql`SELECT count(*)::int AS n FROM questions WHERE test_id=${id}`;
   if (!a) {
-    const [me] = await sql`SELECT gender, community, email, qualification FROM students WHERE id=${sid}`;
+    const me = await studentWithPhoto(sid);
     if (!profileComplete(me)) redirect(`/profile?next=/test/${id}`);
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
     return (
