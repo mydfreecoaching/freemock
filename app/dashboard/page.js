@@ -4,8 +4,6 @@ import { studentId } from '@/lib/auth';
 import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import G4Prompt from '@/components/G4Prompt';
-import GoogleEmail from '@/components/GoogleEmail';
-import { googleClientId } from '@/lib/mail';
 import { G4, g4Asking } from '@/lib/venues';
 import { fmt, fmtDate, testStatus, secLabel, secSort } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
@@ -89,12 +87,6 @@ export default async function Dashboard({ searchParams }) {
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {me.photo_waived && <div className="okmsg">📷 இந்த முறை புகைப்படம் இல்லாமல் தேர்வு எழுதலாம். <b>அடுத்த முறை உள்நுழையும்போது பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம் – தயாராக வைத்துக்கொள்ளவும்.</b> இப்போதே பதிவேற்ற: <a href="/profile">என் விவரங்கள்</a></div>}
       {missingFields(me).length > 0 && <div className="err">⚠️ தேர்வு எழுத, விடுபட்ட விவரங்களை நிறைவு செய்யவும்: <b>{missingFields(me).join(' · ')}</b> — <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
-      {googleClientId() && !me.email_verified && (
-        <div className="card email-verify"><b>📧 உங்கள் மின்னஞ்சலை Google மூலம் சரிபார்க்கவும்</b>
-          <p className="small" style={{ margin: '4px 0 8px' }}>உங்கள் மின்னஞ்சல் சரியானது என உறுதிசெய்ய, உங்கள் Google கணக்கைத் தேர்வு செய்யவும். (தற்போது: {me.email || '—'})</p>
-          <GoogleEmail clientId={googleClientId()} mode="save" />
-        </div>
-      )}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <div className="row" style={{ gap: 12 }}>
