@@ -1,7 +1,7 @@
 import ThemeToggle from './ThemeToggle';
 import NavDrop from './NavDrop';
 
-const NAV = [['/', 'முகப்பு', 'Home'], ['/courses', 'தேர்வுகள்', 'Courses'], ['/subjects', 'பாட வாரியாக', 'Subject-wise Tests'], ['/about', 'எங்களைப் பற்றி', 'About us'], ['/contact', 'தொடர்புக்கு', 'Contact us']];
+const NAV = [['/', 'முகப்பு', 'Home'], ['/courses', 'தேர்வுகள்', 'Courses'], ['/subjects', 'பாட வாரியாக', 'Subject-wise Tests'], ['/leaderboard', 'தரவரிசை', 'Leaderboard'], ['/about', 'எங்களைப் பற்றி', 'About us'], ['/contact', 'தொடர்புக்கு', 'Contact us']];
 
 /** Utility bar + brand + main menu (collapses to a menu button on phones). */
 const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
