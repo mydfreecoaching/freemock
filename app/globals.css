@@ -318,5 +318,12 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
   .paper{max-width:none;padding:0;border-radius:0;font-size:12.5px}
   .pq-opts{grid-template-columns:1fr 1fr}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  @page{size:A4;margin:12mm 11mm}
+}
+.paper-wm{display:none}
+@media print{
+  .paper-wm{display:block;position:fixed;top:50%;left:50%;width:95mm;height:auto;transform:translate(-50%,-50%);opacity:.5;z-index:0;pointer-events:none}
+  .paper > :not(.paper-wm){position:relative;z-index:1}
+  .po.right,.po.wrong,.pq-st{background-color:rgba(255,255,255,.35)}
+  .po.right{background-color:rgba(46,160,67,.18)}.po.wrong{background-color:rgba(220,40,30,.12)}
+  .paper-info td{background:transparent}
 }

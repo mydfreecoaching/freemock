@@ -36,8 +36,14 @@ export default async function ResultPdf({ params }) {
     if (m === 'E' && Number(q.nopts) !== 5) return ['E – தெரியவில்லை / Not known', 'blank'];
     return m === q.answer ? ['✔ சரி / Correct', 'ok'] : ['✘ தவறு / Wrong', 'bad'];
   };
+  // footer on every printed page: name · reg. no · page X / Y (CSS page margin boxes)
+  const css = (v) => String(v || '').replace(/[\\"]/g, ' ').replace(/[\r\n<>]/g, ' ');
+  const pageCss = `@media print{@page{size:A4;margin:12mm 11mm 16mm;
+    @bottom-center{content:"${css(s?.name)}  ·  ${css(s?.reg_no)}  ·  பக்கம் / Page " counter(page) " / " counter(pages);font:10px sans-serif;color:#333;white-space:nowrap}}}`;
   return (
     <div className="paper">
+      <style dangerouslySetInnerHTML={{ __html: pageCss }} />
+      <img className="paper-wm" src="/tn-emblem.png" alt="" aria-hidden="true" />
       <PrintBar back={`/result/${id}`} />
       <div className="paper-head">
         <img src="/tn-emblem.png" alt="" width="54" height="59" />
