@@ -9,7 +9,7 @@ export default function Leaderboard({ exams, data }) {
   const avail = exams.filter((e) => data[e.code]);
   const first = avail.find((e) => data[e.code]?.live?.length) || avail[0];
   const [code, setCode] = useState(first?.code || '');
-  const [tab, setTab] = useState(data[first?.code]?.live?.length ? 'live' : 'latest');
+  const [tab, setTab] = useState(data[first?.code]?.combined ? 'combined' : data[first?.code]?.live?.length ? 'live' : 'latest');
   const router = useRouter();
   const anyLive = avail.some((e) => data[e.code]?.live?.length);
   const [at, setAt] = useState('');
@@ -22,14 +22,16 @@ export default function Leaderboard({ exams, data }) {
   }, [anyLive, router, data]);
   if (!avail.length) return null;
   const d = data[code];
-  const TABS = [...(d.live?.length ? [['live', '🔴 நேரலை / Live']] : []),
-    ...(d.latest ? [['latest', '🏆 சமீபத்திய தேர்வு'], ['overall', '⭐ ஒட்டுமொத்தம்'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']] : [])];
+  // every exam: one combined ranking instead of separate per-test rankings
+  const TABS = d.combined ? [['combined', '🏆 ஒருங்கிணைந்த தரவரிசை'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']]
+    : [...(d.live?.length ? [['live', '🔴 நேரலை / Live']] : []),
+      ...(d.latest ? [['latest', '🏆 சமீபத்திய தேர்வு'], ['overall', '⭐ ஒட்டுமொத்தம்'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']] : [])];
   const cur = TABS.some(([k]) => k === tab) ? tab : TABS[0][0];
   return (
     <div className="card lb">
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <h2 style={{ margin: 0 }}>🏅 தரவரிசை / Leaderboard</h2>
-        <select value={code} onChange={(e) => { setCode(e.target.value); setTab(data[e.target.value]?.live?.length ? 'live' : 'latest'); }} className="lb-select" aria-label="தேர்வு">
+        <select value={code} onChange={(e) => { setCode(e.target.value); setTab(data[e.target.value]?.combined ? 'combined' : data[e.target.value]?.live?.length ? 'live' : 'latest'); }} className="lb-select" aria-label="தேர்வு">
           {avail.map((e) => <option key={e.code} value={e.code}>{e.name}</option>)}
         </select>
       </div>
@@ -54,15 +56,20 @@ export default function Leaderboard({ exams, data }) {
             <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.score}<small>/{d.latest.max}</small></span></li>))}
         </ol>
       </>}
-      {cur === 'overall' && d.combined && <>
-        <p className="small muted">ஒருங்கிணைந்த தரவரிசை – இதுவரை நடைபெற்ற {d.combined.tests} தேர்வுகளின் மொத்த மதிப்பெண் (மொத்தம் {d.combined.grand}) · தேர்வர்கள் {d.combined.n}</p>
-        <ol className="lb-list">{d.combined.top.map((p, i) => (
-          <li key={i}><span className="lb-rank">{medal(p.rank)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district} · {p.written}/{d.combined.tests} தேர்வுகள்</small></span>
-            <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.total}<small>/{d.combined.grand}</small></span></li>))}
-        </ol>
+      {cur === 'combined' && <>
+        <p className="small muted">நடைபெற்ற <b>{d.combined.tests.length}</b> தேர்வுகளையும் எழுதியவர்களில் முதல் 10 இடங்கள் – மொத்த மதிப்பெண் அடிப்படையில் · தகுதியானோர் {d.combined.n}</p>
+        {d.combined.top.length === 0 ? <p className="muted">அனைத்துத் தேர்வுகளையும் எழுதியவர்கள் இன்னும் இல்லை.</p> : (
+          <div className="tablewrap"><table className="lb-table">
+            <thead><tr><th>#</th><th>பெயர் / மாவட்டம்</th>{d.combined.tests.map((t) => <th key={t.n} className="num" title={t.title}>தேர்வு {t.n}</th>)}<th className="num">மொத்தம்<small>/{d.combined.grand}</small></th></tr></thead>
+            <tbody>{d.combined.top.map((p, i) => (
+              <tr key={i}><td className="lb-rank">{medal(p.rank)}</td><td><b>{p.name}</b><small>{p.district}</small></td>
+                {p.marks.map((m, k) => <td key={k} className="num">{m}</td>)}<td className="num"><b>{p.total}</b></td></tr>))}
+            </tbody>
+          </table></div>
+        )}
         <p className="small"><a href={`/combined/${code}`}>முழு ஒருங்கிணைந்த தரவரிசை →</a></p>
       </>}
-      {cur === 'overall' && !d.combined && <>
+      {cur === 'overall' && <>
         <p className="small muted">கடைசி {d.tests} தேர்வுகளின் சராசரி மதிப்பெண் %</p>
         <ol className="lb-list">{d.overall.map((p, i) => (
           <li key={i}><span className="lb-rank">{medal(i + 1)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district} · {p.n} தேர்வுகள்</small></span>
