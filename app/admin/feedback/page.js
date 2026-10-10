@@ -31,6 +31,7 @@ export default async function AdminFeedback({ searchParams }) {
         <div key={f.id} className="card">
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <div><b>{f.name}</b> <span className="small muted">({f.reg_no} · {f.district})</span><div className="small muted">{f.title} · {fmt(f.created_at)}</div></div>
+            {f.auto_kept && f.status === 'kept' && <span className="pill" title="பொதுவான கருத்து என்பதால் தானாக Keep-க்கு மாற்றப்பட்டது">🤖 தானாக Keep</span>}
             <span className="fbstars">{'★'.repeat(f.rating)}<span className="muted">{'★'.repeat(5 - f.rating)}</span></span>
           </div>
           <p style={{ margin: '8px 0' }}>{f.comment}</p>
