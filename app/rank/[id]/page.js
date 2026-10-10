@@ -3,6 +3,8 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
 import { testStatus, DISTRICT_EN } from '@/lib/util';
 import { ranking, mmss } from '@/lib/rank';
+import AutoRefresh from '@/components/AutoRefresh';
+import { fmt } from '@/lib/util';
 export const dynamic = 'force-dynamic';
 
 export default async function Rank({ params, searchParams }) {
@@ -12,13 +14,15 @@ export default async function Rank({ params, searchParams }) {
   const id = Number((await params).id);
   const d = (await searchParams)?.d;
   const [t] = await sql`SELECT * FROM tests WHERE id=${id}`;
-  if (!t || (!adm && (!t.published || testStatus(t) !== 'closed'))) redirect('/dashboard');
+  if (!t || (!adm && (!t.published || testStatus(t) === 'upcoming'))) redirect('/dashboard');
+  const live = testStatus(t) === 'open';
   let rows = await ranking(id);
   const present = [...new Set(rows.map((r) => r.district))].sort((a, b) => (DISTRICT_EN[a] || a).localeCompare(DISTRICT_EN[b] || b));
   if (d) rows = rows.filter((r) => r.district === d);
   return (
     <div className="card">
       <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – தரவரிசை</h1><span className="row">{adm && <a className="btn" href={`/admin/test/${id}/ranklist${d ? `?d=${encodeURIComponent(d)}` : ''}`}>📄 PDF</a>}<a className="btn alt" href={adm ? `/admin/test/${id}` : '/dashboard'}>திரும்பு</a></span></div>
+      {live && <><AutoRefresh sec={60} /><div className="okmsg"><span className="live-dot" /> <b>நேரலைத் தரவரிசை</b> – தேர்வு {fmt(t.end_at)} வரை நடைபெறுகிறது. மாணவர்கள் எழுத எழுத தரவரிசை மாறும் (ஒவ்வொரு நிமிடமும் தானாகப் புதுப்பிக்கப்படும்). இதுவரை எழுதியோர்: <b>{rows.length}</b><div className="small">Live ranking — updates every minute as more students submit.</div></div></>}
       <form className="row" style={{ margin: '10px 0' }} method="get">
         <select name="d" defaultValue={d || ''} style={{ width: 'auto', minWidth: 220 }}>
           <option value="">அனைத்து மாவட்டங்களும் / All districts</option>

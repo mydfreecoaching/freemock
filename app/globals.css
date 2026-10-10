@@ -377,3 +377,6 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .gmail{margin:6px 0 4px}.gmail-ok{color:var(--ok);font-size:14px;margin-bottom:6px}
 .email-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
 .linklike{background:none;border:0;padding:4px 0;color:var(--link);text-decoration:underline;cursor:pointer;font-weight:400}
+.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e02424;box-shadow:0 0 0 0 rgba(224,36,36,.6);animation:livepulse 1.6s infinite;vertical-align:middle}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(224,36,36,.6)}70%{box-shadow:0 0 0 8px rgba(224,36,36,0)}100%{box-shadow:0 0 0 0 rgba(224,36,36,0)}}
+.lb-live + .lb-live{border-top:1px dashed var(--line);margin-top:10px;padding-top:6px}
