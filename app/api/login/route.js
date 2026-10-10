@@ -1,6 +1,8 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
+import { studentWithPhoto } from '@/lib/photo';
+import { profileComplete } from '@/lib/profile';
 
 export async function POST(req) {
   await ensureSchema();
@@ -11,5 +13,9 @@ export async function POST(req) {
   const [s] = await sql`SELECT id FROM students WHERE (reg_no=${id} OR mobile=${id} OR old_reg_no=${id}) AND dob=${dob}`;
   if (!s) return Response.json({ error: 'பதிவு எண் / கைபேசி எண் அல்லது பிறந்த தேதி தவறு.' }, { status: 401 });
   await setStudent(s.id);
-  return Response.json({ redirect: safeNext(b.next) || '/dashboard?login=1' });
+  const to = safeNext(b.next) || '/dashboard?login=1';
+  // details added later (photo, priority, venue, Group 2/2A …) are collected before anything else
+  const me = await studentWithPhoto(s.id);
+  if (!profileComplete(me)) return Response.json({ redirect: `/profile?next=${encodeURIComponent(to)}` });
+  return Response.json({ redirect: to });
 }
