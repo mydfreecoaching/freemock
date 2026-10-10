@@ -3,22 +3,14 @@ import { G4, g4Showing } from '@/lib/venues';
 import { studentId, isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
-import { getExams, examMap } from '@/lib/exams';
-import { publicStats, liveTests } from '@/lib/public';
+import { getExams } from '@/lib/exams';
+import { publicStats } from '@/lib/public';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
 import LoginCard from '@/components/LoginCard';
 import Leaderboard from '@/components/Leaderboard';
 import { leaderboards } from '@/lib/leaderboard';
 export const dynamic = 'force-dynamic';
 
-const FEATURES = [
-  ['📝', 'TNPSC மாதிரியில் வினாத்தாள்', 'பொதுத்தமிழ், பொது அறிவு, திறனறிவு – தமிழ் & ஆங்கிலம் இருமொழியில், TNPSC மதிப்பெண் முறைப்படி.'],
-  ['⚡', 'உடனடி முடிவு', 'சமர்ப்பித்தவுடன் மதிப்பெண், சரியான விடைகள், உங்கள் தவறுகள் உடனே தெரியும்.'],
-  ['📊', 'முழுப் பகுப்பாய்வு', 'பகுதி வாரி துல்லியம், தரவரிசை, மாவட்ட வாரி தரம், கடினமான வினாக்கள்.'],
-  ['📈', 'முன்னேற்றக் கண்காணிப்பு', 'ஒவ்வொரு தேர்விலும் உங்கள் முன்னேற்றம், மேம்படுத்த வேண்டிய பகுதிகள்.'],
-  ['📱', 'கைபேசியிலேயே எழுதலாம்', 'விடைகள் தானாகச் சேமிக்கப்படும்; இணைப்பு துண்டித்தாலும் தொடரலாம்.'],
-  ['🆓', 'முற்றிலும் இலவசம்', 'அனைத்து மாவட்ட மாணவர்களுக்கும் கட்டணம் இல்லை.'],
-];
 const STEPS = [['1', 'பதிவு செய்யவும்', 'பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம்'], ['2', 'தேர்வைத் தேர்வு செய்யவும்', 'கிடைக்கும் தேர்வுகளில் நடப்புத் தேர்வு'], ['3', 'எழுதி சமர்ப்பிக்கவும்', 'நேரம் முடிந்ததும் தானாகச் சமர்ப்பிப்பு'], ['4', 'முடிவு & முன்னேற்றம்', 'தவறுகளைத் திருத்தி அடுத்த தேர்வில் முன்னேறுங்கள்']];
 
 export default async function Home({ searchParams }) {
@@ -30,11 +22,10 @@ export default async function Home({ searchParams }) {
   let testTitle = null;
   const tm = next?.match(/^\/test\/(\d+)/);
   if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
-  const exams = await getExams(); const EX = examMap(exams);
-  const [S, live, LB] = await Promise.all([publicStats(), liveTests(), leaderboards(exams)]);
+  const exams = await getExams();
+  const [S, LB] = await Promise.all([publicStats(), leaderboards(exams)]);
   const fbs = await sql`SELECT f.id, f.rating, f.comment, s.reg_no, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
     JOIN tests t ON t.id=f.test_id WHERE f.status='approved' AND length(trim(f.comment)) > 0 ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 20`;
-  const shown = live.filter((t) => EX[t.kind] && t.nq > 0);
   return (
     <>
       <section className="hero">
@@ -89,41 +80,6 @@ export default async function Home({ searchParams }) {
       </section>
 
       <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>
-
-      {shown.length > 0 && <section className="sec">
-        <h2 className="sec-h">📢 நடப்பு & வரவிருக்கும் தேர்வுகள்</h2>
-        <div className="livelist">
-          {shown.map((t) => { const st = testStatus(t); return (
-            <a key={t.id} className="liveitem" href={`/test/${t.id}`}>
-              <span className={`pill ${st}`}>{st === 'open' ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span>
-              <b>{t.title}</b><span className="small muted">{EX[t.kind].name} · {st === 'open' ? `${fmt(t.end_at)} வரை` : `${fmt(t.start_at)} முதல்`}</span>
-            </a>); })}
-        </div>
-      </section>}
-
-      <section className="sec">
-        <h2 className="sec-h">எங்கள் தேர்வுகள் / Our courses</h2>
-        <div className="coursegrid">
-          {exams.map((e) => (
-            <a key={e.code} className="course" href={`/courses#${e.code}`}>
-              <span className="course-ic">{e.progress ? '🏆' : e.weekly_analysis ? '📅' : '📝'}</span>
-              <b>{e.name}</b>
-              {e.description && <span className="small muted">{e.description}</span>}
-              <ul className="ticks small">
-                {e.qcount && <li>{e.qcount} வினாக்கள் · {tnpscMinutes(e.qcount)} நிமிடம்</li>}
-                <li>உடனடி முடிவு & பகுப்பாய்வு</li>
-                <li>முற்றிலும் இலவசம்</li>
-              </ul>
-              <span className="more">விவரம் →</span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="sec">
-        <h2 className="sec-h">ஏன் எங்கள் மாதிரித் தேர்வுகள்? / Why us</h2>
-        <div className="featgrid">{FEATURES.map(([i, h, d]) => <div key={h} className="feat"><span>{i}</span><b>{h}</b><p className="small muted">{d}</p></div>)}</div>
-      </section>
 
       <section className="sec">
         <h2 className="sec-h">எப்படிச் செயல்படுகிறது? / How it works</h2>
