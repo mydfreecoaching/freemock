@@ -393,3 +393,5 @@ body:has(.hero-side) .guest-cta{display:none}
 .fb-stars{color:#e0a800;letter-spacing:1px;font-size:14px}.fb-stars span{color:var(--line)}
 .fb-item blockquote{margin:4px 0 6px;font-size:14px;line-height:1.5}
 .fb-item figcaption{font-size:13px}.fb-item figcaption small{display:block;color:var(--muted)}
+.lb-table{width:100%;font-size:14px}.lb-table td small,.lb-table th small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.lb-table .lb-rank{width:36px;text-align:center}
