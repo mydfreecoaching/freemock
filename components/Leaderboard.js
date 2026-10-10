@@ -61,7 +61,7 @@ export default function Leaderboard({ exams, data }) {
           {d.combined.running > 0 && <><br /><span className="live-dot" /> தேர்வு நடைபெறுகிறது – மாணவர்கள் எழுத எழுத மதிப்பெண் சேர்ந்து தரவரிசை மாறும் · புதுப்பிப்பு {at}</>}</p>
         {d.combined.top.length === 0 ? <p className="muted">அனைத்துத் தேர்வுகளையும் எழுதி முடித்தவர்கள் இன்னும் இல்லை{d.combined.running > 0 ? ' – நடைபெறும் தேர்வை எழுதி முடித்ததும் இங்கு இடம்பெறுவர்' : ''}.</p> : (
           <div className="tablewrap"><table className="lb-table">
-            <thead><tr><th>#</th><th>பெயர் / மாவட்டம்</th>{d.combined.tests.map((t) => <th key={t.n} className="num" title={t.title}>தேர்வு {t.n}{t.open && <small>🔴 நேரலை</small>}</th>)}<th className="num">மொத்தம்<small>/{d.combined.grand}</small></th></tr></thead>
+            <thead><tr><th>#</th><th>பதிவு எண் / மாவட்டம்</th>{d.combined.tests.map((t) => <th key={t.n} className="num" title={t.title}>தேர்வு {t.n}{t.open && <small>🔴 நேரலை</small>}</th>)}<th className="num">மொத்தம்<small>/{d.combined.grand}</small></th></tr></thead>
             <tbody>{d.combined.top.map((p, i) => (
               <tr key={i}><td className="lb-rank">{medal(p.rank)}</td><td><b>{p.name}</b><small>{p.district}</small></td>
                 {p.marks.map((m, k) => <td key={k} className="num">{m ?? '–'}</td>)}<td className="num"><b>{p.total}</b></td></tr>))}

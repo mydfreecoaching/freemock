@@ -44,12 +44,12 @@ export default async function Combined({ params, searchParams }) {
         </form>
       </div>
       <div className="tablewrap"><table>
-        <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th>{adm && <th>பதிவு எண்</th>}<th>பெயர்</th><th>மாவட்டம்</th>
+        <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th><th>பதிவு எண்</th>{adm && <th>பெயர்</th>}<th>மாவட்டம்</th>
           {tests.map((t, i) => <th key={t.id} className="num" title={t.title}>தேர்வு {i + 1}{t.open && ' 🔴'}<div className="small muted">/{t.max}</div></th>)}
           <th className="num">மொத்தம்<div className="small muted">/{grand}</div></th><th className="num">சராசரி %</th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.student_id} style={r.student_id === sid ? { background: 'var(--sel)', fontWeight: 600 } : undefined}>
-            <td><b>{d ? r.drank : r.rank}</b></td>{adm && <td>{r.reg_no}</td>}<td>{r.name}</td><td>{r.district}</td>
+            <td><b>{d ? r.drank : r.rank}</b></td><td>{r.reg_no}</td>{adm && <td>{r.name}</td>}<td>{r.district}</td>
             {tests.map((t) => <td key={t.id} className="num">{r.scores[t.id] ?? '–'}</td>)}
             <td className="num"><b>{r.total}</b></td><td className="num">{r.avgPct}</td>
           </tr>))}
