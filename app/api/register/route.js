@@ -4,7 +4,7 @@ import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { safeNext } from '@/lib/next';
 import { profileFields, validMobile, validDob, venueFields, g4Fields, g2Fields } from '@/lib/profile';
 import { parsePhoto, savePhoto } from '@/lib/photo';
-import { verifyGoogle } from '@/lib/mail';
+import { verifyGoogle, googleClientId } from '@/lib/mail';
 
 export async function POST(req) {
   await ensureSchema();
@@ -17,6 +17,13 @@ export async function POST(req) {
   if (!validMobile(mobile)) return Response.json({ error: '10 இலக்க கைபேசி எண்ணைச் சரியாக உள்ளிடவும் (6/7/8/9-இல் தொடங்க வேண்டும்) / Enter a valid 10-digit mobile number.' }, { status: 400 });
   if (!validDob(dob)) return Response.json({ error: 'பிறந்த தேதியைச் சரியாகத் தேர்வு செய்யவும் / Select a valid date of birth.' }, { status: 400 });
   if (!DISTRICTS.includes(district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும் / Select your district.' }, { status: 400 });
+  // email only through Google sign-in (no typing) once Google sign-in is configured
+  let gEmail = null;
+  if (googleClientId()) {
+    gEmail = await verifyGoogle(b.google_cred);
+    if (!gEmail) return Response.json({ error: 'உங்கள் Google கணக்கின் மூலம் மின்னஞ்சலைச் சரிபார்க்கவும் ("Continue with Google" பொத்தான்) / Verify your email with Google.' }, { status: 400 });
+    b.email = gEmail;
+  }
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
@@ -26,8 +33,6 @@ export async function POST(req) {
   if (gf.error) return Response.json({ error: gf.error }, { status: 400 });
   const g2 = g2Fields(b);
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
-  let gEmail = null;
-  if (b.google_cred) { gEmail = await verifyGoogle(b.google_cred); if (!gEmail) return Response.json({ error: 'Google மின்னஞ்சல் சரிபார்ப்பு தோல்வியடைந்தது – மீண்டும் முயற்சிக்கவும் அல்லது மின்னஞ்சலைத் தட்டச்சு செய்யவும்.' }, { status: 400 }); }
   const later = b.photo_now === 'no';
   const ph = later ? null : parsePhoto(b);
   if (ph?.error) return Response.json({ error: ph.error }, { status: 400 });

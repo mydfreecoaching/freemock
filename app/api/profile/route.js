@@ -2,19 +2,25 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId, setPhotoSkip, photoSkipActive } from '@/lib/auth';
 import { profileFields, venueFields, g4Fields, g2Fields } from '@/lib/profile';
 import { parsePhoto, savePhoto } from '@/lib/photo';
-import { verifyGoogle } from '@/lib/mail';
+import { verifyGoogle, googleClientId } from '@/lib/mail';
 
 export async function POST(req) {
   await ensureSchema();
   const sid = await studentId();
   if (!sid) return Response.json({ error: 'மீண்டும் உள்நுழையவும்.' }, { status: 401 });
   const b = await req.json().catch(() => ({}));
+  const [st] = await sql`SELECT district, email, email_verified FROM students WHERE id=${sid}`;
+  const gEmail = b.google_cred ? await verifyGoogle(b.google_cred) : null;
+  if (b.google_cred && !gEmail) return Response.json({ error: 'Google மின்னஞ்சல் சரிபார்ப்பு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.' }, { status: 400 });
+  if (googleClientId()) {
+    // email only through Google sign-in: a new Google address, or the one already verified
+    if (gEmail) b.email = gEmail;
+    else if (st.email_verified && st.email) b.email = st.email;
+    else return Response.json({ error: 'உங்கள் Google கணக்கின் மூலம் மின்னஞ்சலைச் சரிபார்க்கவும் ("Continue with Google" பொத்தான்) / Verify your email with Google.' }, { status: 400 });
+  }
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const v = pf.values;
-  const [st] = await sql`SELECT district, email, email_verified FROM students WHERE id=${sid}`;
-  const gEmail = b.google_cred ? await verifyGoogle(b.google_cred) : null;
-  if (b.google_cred && !gEmail) return Response.json({ error: 'Google மின்னஞ்சல் சரிபார்ப்பு தோல்வியடைந்தது.' }, { status: 400 });
   const verified = gEmail ? gEmail === v.email : st.email_verified && st.email === v.email;
   const vf = venueFields(b, st?.district);
   if (vf.error) return Response.json({ error: vf.error }, { status: 400 });
