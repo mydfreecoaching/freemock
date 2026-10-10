@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
-import { profileComplete } from '@/lib/profile';
+import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import G4Prompt from '@/components/G4Prompt';
 import GoogleEmail from '@/components/GoogleEmail';
@@ -85,7 +85,7 @@ export default async function Dashboard({ searchParams }) {
     <>
       <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
-      {!profileComplete(me) && <div className="err">{me.has_photo ? '' : '📷 பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம். '}உங்கள் விவரங்கள் (புகைப்படம், பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
+      {missingFields(me).length > 0 && <div className="err">⚠️ தேர்வு எழுத, விடுபட்ட விவரங்களை நிறைவு செய்யவும்: <b>{missingFields(me).join(' · ')}</b> — <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {googleClientId() && !me.email_verified && (
         <div className="card email-verify"><b>📧 உங்கள் மின்னஞ்சலை Google மூலம் சரிபார்க்கவும்</b>
           <p className="small" style={{ margin: '4px 0 8px' }}>உங்கள் மின்னஞ்சல் சரியானது என உறுதிசெய்ய, உங்கள் Google கணக்கைத் தேர்வு செய்யவும். (தற்போது: {me.email || '—'})</p>
