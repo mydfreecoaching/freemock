@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { G4, g4Showing } from '@/lib/venues';
 import { studentId, isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
@@ -36,8 +37,19 @@ export default async function Home({ searchParams }) {
     <>
       <section className="hero">
         <div>
-          <span className="hero-tag">🎯 TNPSC Group 2 / 2A · இலவசம் / Free</span>
-          <h1>போட்டித் தேர்வுக்கு <span>இலவச இணையவழி</span> மாதிரித் தேர்வுகள்</h1>
+          <h1>அரசு போட்டித் தேர்வுகளுக்கான <span>இலவச பயிற்சி</span> மற்றும் <span>மாதிரித் தேர்வுகள்</span></h1>
+          {g4Showing() && (
+            <div className="g4note" role="note">
+              <h2>📢 {G4.title}</h2>
+              <div className="small">{G4.titleEn} · காலிப்பணியிடங்கள் / Vacancies: <b>{G4.posts}</b></div>
+              <div className="g4dates">
+                <div><small>விண்ணப்பிக்கக் கடைசி நாள்</small><b>{G4.lastDate}</b><small>Last date: {G4.lastDateEn}</small></div>
+                <div><small>விண்ணப்பத் திருத்தம்</small><b style={{ fontSize: 17 }}>{G4.correction}</b><small>Correction window</small></div>
+                <div><small>எழுத்துத் தேர்வு</small><b>{G4.examDate}</b><small>Written exam: {G4.examDateEn}</small></div>
+              </div>
+              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a>{!loggedIn && <a className="btn alt" href="/register">இலவசப் பயிற்சிக்குப் பதிவு செய்ய</a>}</div>
+            </div>
+          )}
           <p>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம் – தன்னார்வ பயிலும் வட்டம், மயிலாடுதுறை & திருவாரூர் நடத்தும் தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
           <ul className="ticks">
             <li>TNPSC மாதிரியில் 200 வினாக்கள், 3 மணி நேரம்</li>

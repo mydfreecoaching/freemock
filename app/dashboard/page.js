@@ -3,6 +3,8 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
+import G4Prompt from '@/components/G4Prompt';
+import { G4, g4Asking } from '@/lib/venues';
 import { fmt, fmtDate, testStatus, secLabel, secSort } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import { studentTests } from '@/lib/student';
@@ -80,6 +82,7 @@ export default async function Dashboard({ searchParams }) {
   return (
     <>
       <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />
+      {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {!profileComplete(me) && <div className="err">{me.has_photo ? '' : '📷 பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம். '}உங்கள் விவரங்கள் (புகைப்படம், பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>

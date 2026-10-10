@@ -6,6 +6,10 @@ import { profileComplete } from '@/lib/profile';
 import Form from '@/components/Form';
 import StudentFields from '@/components/StudentFields';
 import PhotoInput from '@/components/PhotoInput';
+import DistrictVenue from '@/components/DistrictVenue';
+import G4Fields from '@/components/G4Fields';
+import { g4Asking } from '@/lib/venues';
+import { PREFIX } from '@/lib/util';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 export const dynamic = 'force-dynamic';
 
@@ -25,8 +29,10 @@ export default async function Profile({ searchParams }) {
         (பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம் மாற்ற வேண்டுமெனில் WhatsApp-இல் தொடர்பு கொள்ளவும்.)</p>
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
+        <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} />
         <StudentFields s={me} />
         <PhotoInput current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} />
+        {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
       </Form>
     </div>
   );
