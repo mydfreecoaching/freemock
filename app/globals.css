@@ -353,3 +353,27 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
   .rep thead{display:table-header-group}.rep tr{break-inside:avoid}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* coaching venue + Group 4 */
+.venue{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--chip)}
+.venue-opt{display:flex;gap:10px;align-items:flex-start;font-weight:400;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;background:var(--card);cursor:pointer}
+.venue-opt.on{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}
+.venue-opt input{width:auto;margin-top:4px}
+.venue-opt > span{display:flex;flex-direction:column;gap:2px}
+.venue-when{display:inline-block;font-size:13px;font-weight:700;color:var(--ok)}
+.guidance{margin-top:10px}.g-day{margin:6px 0 8px}.g-date{font-weight:700;margin-bottom:2px}
+.guidance .choice{display:flex;margin:3px 0}
+.g4q{margin-top:12px;border:1px solid #e0b44a;background:#fff8e6;border-radius:10px;padding:10px 12px;color:#3d2b00}
+:root[data-theme=dark] .g4q{background:#33280f;color:#ffe9b3;border-color:#8a6a1d}
+.g4note{border:2px solid #b3261e;border-radius:14px;background:linear-gradient(135deg,#fff3e8,#ffe1d6);color:#3a0d08;padding:16px 18px;margin:14px 0 6px}
+:root[data-theme=dark] .g4note{background:linear-gradient(135deg,#3a1610,#2a0f0b);color:#ffd9cf}
+.g4note h2{margin:0 0 4px;font-size:22px;color:#b3261e}:root[data-theme=dark] .g4note h2{color:#ff8a7a}
+.g4dates{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0}
+.g4dates div{background:rgba(255,255,255,.75);border-radius:10px;padding:10px 12px;text-align:center}
+:root[data-theme=dark] .g4dates div{background:rgba(0,0,0,.25)}
+.g4dates b{display:block;font-size:24px;color:#b3261e;line-height:1.2}:root[data-theme=dark] .g4dates b{color:#ff8a7a}
+.g4dates small{display:block;font-size:12.5px}
+.g4modal{z-index:70}
+.gmail{margin:6px 0 4px}.gmail-ok{color:var(--ok);font-size:14px;margin-bottom:6px}
+.email-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.linklike{background:none;border:0;padding:4px 0;color:var(--link);text-decoration:underline;cursor:pointer;font-weight:400}
