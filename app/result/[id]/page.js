@@ -63,13 +63,14 @@ export default async function Result({ params, searchParams }) {
         {Number(t.negative_mark) > 0 && a.wrong > 0 && <p className="small muted">தவறான விடைகளுக்காக {Math.round(a.wrong * Number(t.negative_mark) * 100) / 100} மதிப்பெண் குறைக்கப்பட்டது (Negative).</p>}
         {a.unanswered > 0 && Number(t.unanswered_penalty) > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
         {!closed && <p className="small muted">* இதுவரை சமர்ப்பித்தவர்களிடையே உங்கள் தரம். தேர்வு {fmt(t.end_at)}-க்கு நிறைவடைந்ததும் இறுதித் தரவரிசை வெளியாகும்.</p>}
-        {fb && <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>}
+        {fb && <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a><a className="btn" href={`/result/${id}/pdf`}>📥 Download question with answer (PDF)</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>}
         {fb && <p className="small muted">✔ உங்கள் கருத்துக்கு நன்றி{fb.status === 'approved' ? ' – ஒப்புதல் அளிக்கப்பட்டு Dashboard-இல் காட்டப்படுகிறது.' : fb.status === 'pending' ? ' – Admin ஒப்புதலுக்குக் காத்திருக்கிறது.' : '.'}</p>}
       </div>
+      {!fb && <p className="small muted card">📥 கருத்தைச் சமர்ப்பித்த பின் விடைகளைப் பார்க்கவும், வினா-விடையை PDF ஆகப் பதிவிறக்கவும் (Download question with answer) இயலும்.</p>}
       {!fb && <FeedbackForm testId={id} />}
       {fb && (
         <div className="review">
-          <h2>விடைகள் சரிபார்ப்பு</h2>
+          <div className="row" style={{ justifyContent: 'space-between' }}><h2>விடைகள் சரிபார்ப்பு</h2><a className="btn alt noprint" href={`/result/${id}/pdf`}>📥 வினா-விடை PDF</a></div>
           <nav className="tabs noprint">
             <a className={`tab ${!f ? 'on' : ''}`} href={`/result/${id}`}>அனைத்தும் ({qs.length})</a>
             <a className={`tab ${f === 'wrong' ? 'on' : ''}`} href={`/result/${id}?f=wrong`}>தவறியவை ({nW})</a>
