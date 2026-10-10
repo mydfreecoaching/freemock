@@ -10,7 +10,6 @@ import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
 import { g4Asking } from '@/lib/venues';
-import { googleClientId } from '@/lib/mail';
 
 export const dynamic = 'force-dynamic';
 export default async function Register({ searchParams }) {
@@ -30,7 +29,7 @@ export default async function Register({ searchParams }) {
         <label>பிறந்த தேதி / Date of Birth <span className="req">*</span></label>
         <input name="dob" type="date" required min={min} max={max} />
         <DistrictVenue districts={DISTRICT_LIST} firstCount={DISTRICT_FIRST_COUNT} />
-        <StudentFields googleClientId={googleClientId()} />
+        <StudentFields />
         <PhotoChoice />
         <G2Fields />
         {g4Asking() && <G4Fields />}

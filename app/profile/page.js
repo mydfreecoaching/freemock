@@ -10,7 +10,6 @@ import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
 import { g4Asking } from '@/lib/venues';
-import { googleClientId } from '@/lib/mail';
 import { PREFIX } from '@/lib/util';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 export const dynamic = 'force-dynamic';
@@ -33,7 +32,7 @@ export default async function Profile({ searchParams }) {
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
         <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} />
-        <StudentFields s={me} googleClientId={googleClientId()} />
+        <StudentFields s={me} />
         <PhotoChoice current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} allowLater={!me.photo_skipped_at} waived={me.photo_waived} />
         <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} />
         {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
