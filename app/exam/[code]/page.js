@@ -31,7 +31,7 @@ export default async function ExamPage({ params }) {
         {ex.description && <p className="small" style={{ marginBottom: 0 }}>{ex.description}</p>}
         <div className="row" style={{ marginTop: 10 }}>
           {ex.progress && done > 0 && <a className="btn" href={`/progress?e=${ex.code}`}>📈 என் முன்னேற்றம்</a>}
-          {ex.progress && <a className="btn" href={`/combined/${ex.code}`}>🏆 ஒருங்கிணைந்த தரவரிசை</a>}
+          {<a className="btn" href={`/combined/${ex.code}`}>🏆 ஒருங்கிணைந்த தரவரிசை</a>}
           {ex.weekly_analysis && <a className="btn alt" href={`/weekly?k=${ex.code}`}>வாராந்திரப் பகுப்பாய்வு</a>}
         </div>
       </div>

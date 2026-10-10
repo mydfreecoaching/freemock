@@ -22,7 +22,7 @@ export default function Leaderboard({ exams, data }) {
   }, [anyLive, router, data]);
   if (!avail.length) return null;
   const d = data[code];
-  // Full Mock (progress exams): one combined ranking instead of separate per-test rankings
+  // every exam: one combined ranking instead of separate per-test rankings
   const TABS = d.combined ? [['combined', '🏆 ஒருங்கிணைந்த தரவரிசை'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']]
     : [...(d.live?.length ? [['live', '🔴 நேரலை / Live']] : []),
       ...(d.latest ? [['latest', '🏆 சமீபத்திய தேர்வு'], ['overall', '⭐ ஒட்டுமொத்தம்'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']] : [])];
