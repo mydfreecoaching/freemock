@@ -5,6 +5,7 @@ import { safeNext } from '@/lib/next';
 import { DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 import { dobRange } from '@/lib/dob';
 import StudentFields from '@/components/StudentFields';
+import PhotoInput from '@/components/PhotoInput';
 
 export default async function Register({ searchParams }) {
   if (await isAdmin()) redirect('/admin');
@@ -33,6 +34,7 @@ export default async function Register({ searchParams }) {
           </optgroup>
         </select>
         <StudentFields />
+        <PhotoInput />
         <p className="small muted"><span className="req">*</span> குறியிட்டவை கட்டாயம் / Mandatory. பிறந்த தேதியே உங்கள் கடவுச்சொல். பதிவு எண் அல்லது கைபேசி எண்ணுடன் அதைப் பயன்படுத்தி உள்நுழையலாம்.</p>
       </Form>
     </div>

@@ -18,7 +18,7 @@ export default async function Rank({ params, searchParams }) {
   if (d) rows = rows.filter((r) => r.district === d);
   return (
     <div className="card">
-      <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – தரவரிசை</h1><a className="btn alt" href={adm ? `/admin/test/${id}` : '/dashboard'}>திரும்பு</a></div>
+      <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – தரவரிசை</h1><span className="row">{adm && <a className="btn" href={`/admin/test/${id}/ranklist${d ? `?d=${encodeURIComponent(d)}` : ''}`}>📄 PDF</a>}<a className="btn alt" href={adm ? `/admin/test/${id}` : '/dashboard'}>திரும்பு</a></span></div>
       <form className="row" style={{ margin: '10px 0' }} method="get">
         <select name="d" defaultValue={d || ''} style={{ width: 'auto', minWidth: 220 }}>
           <option value="">அனைத்து மாவட்டங்களும் / All districts</option>
