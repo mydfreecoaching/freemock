@@ -32,7 +32,8 @@ export default async function Result({ params, searchParams }) {
     total = rows.length; dtotal = rows.filter((r) => r.district === me?.district).length;
     qs = await sql`SELECT * FROM questions WHERE test_id=${id} ORDER BY qno`;
   }
-  const [fb] = await sql`SELECT status FROM feedback WHERE test_id=${id} AND student_id=${sid}`;
+  const [fb] = await sql`SELECT id, status, rating, comment, reply, replied_at FROM feedback WHERE test_id=${id} AND student_id=${sid}`;
+  if (fb?.reply) await sql`UPDATE feedback SET reply_seen=true WHERE id=${fb.id} AND NOT reply_seen`;
   const f = (await searchParams)?.f;
   const isWrong = (q) => { const m = (a.answers || {})[q.qno]; return m && m !== q.answer && !(m === 'E' && Number(q.nopts) !== 5); };
   const isBlank = (q) => { const m = (a.answers || {})[q.qno]; return !m || (m === 'E' && Number(q.nopts) !== 5); };
@@ -64,7 +65,12 @@ export default async function Result({ params, searchParams }) {
         {a.unanswered > 0 && Number(t.unanswered_penalty) > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
         {!closed && <p className="small muted">* இதுவரை சமர்ப்பித்தவர்களிடையே உங்கள் தரம். தேர்வு {fmt(t.end_at)}-க்கு நிறைவடைந்ததும் இறுதித் தரவரிசை வெளியாகும்.</p>}
         {fb && <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a><a className="btn alt" href={`/rank/${id}`}>{closed ? 'தரவரிசை' : '🔴 நேரலைத் தரவரிசை'}</a><a className="btn" href={`/result/${id}/pdf`}>📥 Download question with answer (PDF)</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>}
-        {fb && <p className="small muted">✔ உங்கள் கருத்துக்கு நன்றி{fb.status === 'approved' ? ' – ஒப்புதல் அளிக்கப்பட்டு Dashboard-இல் காட்டப்படுகிறது.' : fb.status === 'pending' ? ' – Admin ஒப்புதலுக்குக் காத்திருக்கிறது.' : '.'}</p>}
+        {fb && <div className="fb-mine" id="feedback">
+          <div className="small"><b>உங்கள் கருத்து</b> {'★'.repeat(fb.rating)} {fb.status === 'approved' ? <span className="muted">· ஒப்புதல் அளிக்கப்பட்டு தளத்தில் காட்டப்படுகிறது</span> : fb.status === 'pending' ? <span className="muted">· Admin பரிசீலனையில்</span> : null}</div>
+          {fb.comment && <p style={{ margin: '4px 0' }}>{fb.comment}</p>}
+          {fb.reply ? <div className="fb-answer"><b>💬 Admin பதில்</b><span className="small muted"> · {fmt(fb.replied_at)}</span><p style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{fb.reply}</p></div>
+            : <div className="small muted">✔ உங்கள் கருத்துக்கு நன்றி. Admin பதில் அளித்தால் இங்கே காட்டப்படும்.</div>}
+        </div>}
       </div>
       {!fb && <p className="small muted card">📥 கருத்தைச் சமர்ப்பித்த பின் விடைகளைப் பார்க்கவும், வினா-விடையை PDF ஆகப் பதிவிறக்கவும் (Download question with answer) இயலும்.</p>}
       {!fb && <FeedbackForm testId={id} />}

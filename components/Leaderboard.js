@@ -57,18 +57,18 @@ export default function Leaderboard({ exams, data }) {
         </ol>
       </>}
       {cur === 'combined' && <>
-        <p className="small muted">{d.combined.done > 0 ? <>நிறைவடைந்த <b>{d.combined.done}</b> தேர்வுகளையும் எழுதியவர்களில்</> : 'எழுதியவர்களில்'} முதல் 10 இடங்கள் – மொத்த மதிப்பெண் அடிப்படையில் · தகுதியானோர் {d.combined.n}
+        <p className="small muted">நடைபெற்ற / நடைபெறும் <b>அனைத்து {d.combined.tests.length} தேர்வுகளையும்</b> எழுதி முடித்தவர்களில் முதல் 10 இடங்கள் – மொத்த மதிப்பெண் அடிப்படையில் · அனைத்தையும் எழுதியோர் {d.combined.n}
           {d.combined.running > 0 && <><br /><span className="live-dot" /> தேர்வு நடைபெறுகிறது – மாணவர்கள் எழுத எழுத மதிப்பெண் சேர்ந்து தரவரிசை மாறும் · புதுப்பிப்பு {at}</>}</p>
-        {d.combined.top.length === 0 ? <p className="muted">தகுதியானவர்கள் இன்னும் இல்லை.</p> : (
+        {d.combined.top.length === 0 ? <p className="muted">அனைத்துத் தேர்வுகளையும் எழுதி முடித்தவர்கள் இன்னும் இல்லை{d.combined.running > 0 ? ' – நடைபெறும் தேர்வை எழுதி முடித்ததும் இங்கு இடம்பெறுவர்' : ''}.</p> : (
           <div className="tablewrap"><table className="lb-table">
-            <thead><tr><th>#</th><th>பெயர் / மாவட்டம்</th>{d.combined.tests.map((t) => <th key={t.n} className="num" title={t.title}>தேர்வு {t.n}{t.open && <small>🔴 நேரலை</small>}</th>)}<th className="num">மொத்தம்<small>/{d.combined.grand}</small></th></tr></thead>
+            <thead><tr><th>#</th><th>பதிவு எண் / மாவட்டம்</th>{d.combined.tests.map((t) => <th key={t.n} className="num" title={t.title}>தேர்வு {t.n}{t.open && <small>🔴 நேரலை</small>}</th>)}<th className="num">மொத்தம்<small>/{d.combined.grand}</small></th></tr></thead>
             <tbody>{d.combined.top.map((p, i) => (
               <tr key={i}><td className="lb-rank">{medal(p.rank)}</td><td><b>{p.name}</b><small>{p.district}</small></td>
                 {p.marks.map((m, k) => <td key={k} className="num">{m ?? '–'}</td>)}<td className="num"><b>{p.total}</b></td></tr>))}
             </tbody>
           </table></div>
         )}
-        <p className="small"><a href={`/combined/${code}`}>முழு ஒருங்கிணைந்த தரவரிசை →</a></p>
+        <p className="small"><a href={`/combined/${code}`}><b>முழு ஒருங்கிணைந்த தரவரிசை →</b></a>{d.combined.listed > d.combined.top.length && <span className="muted"> (மொத்தம் {d.combined.listed} பேர்)</span>}</p>
       </>}
       {cur === 'overall' && <>
         <p className="small muted">கடைசி {d.tests} தேர்வுகளின் சராசரி மதிப்பெண் %</p>
