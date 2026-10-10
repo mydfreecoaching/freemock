@@ -85,11 +85,6 @@ export default async function Home({ searchParams }) {
         <h2 className="sec-h">எப்படிச் செயல்படுகிறது? / How it works</h2>
         <div className="steps">{STEPS.map(([n, h, d]) => <div key={n} className="step"><span>{n}</span><b>{h}</b><p className="small muted">{d}</p></div>)}</div>
       </section>
-
-      <section className="ctaband">
-        <div><b>அடுத்த மாதிரித் தேர்வில் கலந்துகொள்ள இப்போதே பதிவு செய்யுங்கள்</b><p className="small">சந்தேகங்களுக்கு WhatsApp: 94990 55904 / 94990 55915</p></div>
-        <a className="btn" href={loggedIn ? '/dashboard' : '/register'}>{loggedIn ? 'Dashboard →' : 'பதிவு செய் →'}</a>
-      </section>
     </>
   );
 }
