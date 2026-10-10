@@ -196,7 +196,7 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .big-btn{padding:12px 20px;font-size:16px}
 .login-card{margin:0;box-shadow:0 8px 30px rgba(0,0,0,.08)}
 .statband{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 22px}
-@media(min-width:760px){.statband{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:760px){.statband{grid-template-columns:repeat(3,1fr)}}
 .statband div{background:var(--brand);color:#fff;border-radius:14px;padding:16px;text-align:center}
 .statband b{display:block;font-size:28px} .statband span{font-size:13px;opacity:.9}
 .sec{margin:26px 0} .sec-h{font-size:22px;margin-bottom:14px}
@@ -380,3 +380,16 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e02424;box-shadow:0 0 0 0 rgba(224,36,36,.6);animation:livepulse 1.6s infinite;vertical-align:middle}
 @keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(224,36,36,.6)}70%{box-shadow:0 0 0 8px rgba(224,36,36,0)}100%{box-shadow:0 0 0 0 rgba(224,36,36,0)}}
 .lb-live + .lb-live{border-top:1px dashed var(--line);margin-top:10px;padding-top:6px}
+
+/* home: login card at the top of the hero, approved student feedback below it */
+.hero{align-items:start}
+.hero-side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.hero-side .login-card{margin:0}
+body:has(.hero-side) .guest-cta{display:none}
+.fb-wall{margin:0;padding:14px 16px}
+.fb-wall h3{margin:0 0 8px;font-size:16px}
+.fb-scroll{max-height:340px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.fb-item{margin:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--soft)}
+.fb-stars{color:#e0a800;letter-spacing:1px;font-size:14px}.fb-stars span{color:var(--line)}
+.fb-item blockquote{margin:4px 0 6px;font-size:14px;line-height:1.5}
+.fb-item figcaption{font-size:13px}.fb-item figcaption small{display:block;color:var(--muted)}
