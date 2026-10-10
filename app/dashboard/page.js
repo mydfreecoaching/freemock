@@ -88,7 +88,7 @@ export default async function Dashboard({ searchParams }) {
       {!profileComplete(me) && <div className="err">{me.has_photo ? '' : '📷 பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம். '}உங்கள் விவரங்கள் (புகைப்படம், பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {googleClientId() && !me.email_verified && (
         <div className="card email-verify"><b>📧 உங்கள் மின்னஞ்சலை Google மூலம் சரிபார்க்கவும்</b>
-          <p className="small" style={{ margin: '4px 0 8px' }}>புதிய தேர்வுகள், முடிவுகள் பற்றிய அறிவிப்புகள் சரியான மின்னஞ்சலுக்கு வர, உங்கள் Google கணக்கைத் தேர்வு செய்யவும். (தற்போது: {me.email || '—'})</p>
+          <p className="small" style={{ margin: '4px 0 8px' }}>உங்கள் மின்னஞ்சல் சரியானது என உறுதிசெய்ய, உங்கள் Google கணக்கைத் தேர்வு செய்யவும். (தற்போது: {me.email || '—'})</p>
           <GoogleEmail clientId={googleClientId()} mode="save" />
         </div>
       )}

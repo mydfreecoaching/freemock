@@ -11,7 +11,7 @@ export default function EmailField({ clientId = '', current = '', verified = fal
     <div className="email-box">
       <label style={{ marginTop: 0 }}>மின்னஞ்சல் / Email ID <span className="req">*</span></label>
       {clientId && <>
-        <p className="small muted" style={{ margin: '0 0 6px' }}>உங்கள் Google கணக்கின் மூலம் மின்னஞ்சலைச் சரிபார்க்கவும் – புதிய தேர்வுகள், முடிவுகள் பற்றிய அறிவிப்புகள் இந்த முகவரிக்கு அனுப்பப்படும்.</p>
+        <p className="small muted" style={{ margin: '0 0 6px' }}>உங்கள் Google கணக்கின் மூலம் மின்னஞ்சலைச் சரிபார்க்கவும்.</p>
         <GoogleEmail clientId={clientId} mode="form" onEmail={onEmail} verified={g} current={email} />
       </>}
       <input name="email" type="email" required maxLength={120} value={email} readOnly={g} onChange={(e) => setEmail(e.target.value)} placeholder="example@gmail.com" autoComplete="email" />

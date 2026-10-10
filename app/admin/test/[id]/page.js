@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation';
-import NotifyBox from '@/components/NotifyBox';
-import { mailReady, sentToday, DAILY_LIMIT } from '@/lib/mail';
 import { headers } from 'next/headers';
 import CopyButton from '@/components/CopyButton';
-import { fmt, testStatus } from '@/lib/util';
+import { fmt } from '@/lib/util';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { ranking, mmss } from '@/lib/rank';
@@ -38,10 +36,6 @@ export default async function AdminTest({ params, searchParams }) {
         <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a><a className="btn" href={`/admin/test/${id}/ranklist`}>📄 தரவரிசை PDF</a></div>
       </div>
       <ShareBox t={t} id={id} host={(await headers()).get('host')} />
-      <NotifyBox id={id} ready={mailReady()} closed={testStatus(t) === 'closed'} published={t.published}
-        counts={(await sql`SELECT count(DISTINCT lower(email)) FILTER (WHERE email ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$' AND NOT email_opt_out)::int "all", count(DISTINCT lower(email)) FILTER (WHERE email_verified AND NOT email_opt_out)::int verified FROM students`)[0]}
-        log={(await sql`SELECT kind, recipients, error, to_char(created_at AT TIME ZONE 'Asia/Kolkata','DD.MM HH24:MI') at FROM email_log WHERE test_id=${id} ORDER BY id DESC LIMIT 5`)}
-        today={mailReady() ? await sentToday() : 0} limit={DAILY_LIMIT} />
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} exams={await getExams(true)} /></div>
         <div className="card">

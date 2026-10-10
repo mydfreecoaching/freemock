@@ -26,7 +26,7 @@ export async function POST(req) {
   await sql`UPDATE students SET gender=${v.gender}, community=${v.community}, email=${v.email}, priority=${sql.json(v.priority)},
     priority_other=${v.priority_other}, qualification=${v.qualification} WHERE id=${sid}`;
   if (ph) await savePhoto(sid, ph);
-  await sql`UPDATE students SET email_verified=${verified}, email_opt_out=${b.email_opt_out === '1'} WHERE id=${sid}`;
+  await sql`UPDATE students SET email_verified=${verified} WHERE id=${sid}`;
   await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)} WHERE id=${sid}`;
   if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${sid}`;
   const next = typeof b.next === 'string' && b.next.startsWith('/') && !b.next.startsWith('//') ? b.next : '/dashboard';

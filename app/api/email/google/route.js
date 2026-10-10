@@ -10,6 +10,6 @@ export async function POST(req) {
   const { credential } = await req.json().catch(() => ({}));
   const email = await verifyGoogle(credential);
   if (!email) return Response.json({ error: 'Google சரிபார்ப்பு தோல்வியடைந்தது. மீண்டும் முயற்சிக்கவும்.' }, { status: 400 });
-  await sql`UPDATE students SET email=${email}, email_verified=true, email_opt_out=false WHERE id=${sid}`;
+  await sql`UPDATE students SET email=${email}, email_verified=true WHERE id=${sid}`;
   return Response.json({ ok: true, email });
 }
