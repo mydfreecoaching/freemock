@@ -33,7 +33,7 @@ export default async function Dashboard({ searchParams }) {
   const exams = await getExams(); const EX = examMap(exams);
   const { tests, byTest } = await studentTests(sid);
   const mine = tests.filter((t) => EX[t.kind] && t.nq > 0);
-  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.name, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
+  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.reg_no, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
     JOIN tests t ON t.id=f.test_id WHERE f.status='approved' ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 12`;
   const replies = await sql`SELECT f.test_id, f.reply, f.replied_at, f.reply_seen, t.title FROM feedback f JOIN tests t ON t.id=f.test_id
     WHERE f.student_id=${sid} AND f.reply IS NOT NULL ORDER BY f.replied_at DESC LIMIT 5`;
@@ -164,7 +164,7 @@ export default async function Dashboard({ searchParams }) {
           <div key={f.id} className="fbitem">
             <div className="fbstars">{'★'.repeat(f.rating)}<span className="muted">{'★'.repeat(5 - f.rating)}</span></div>
             <p>“{f.comment}”</p>
-            <div className="small muted"><b>{f.name}</b>, {f.district} · {f.title}</div>
+            <div className="small muted"><b>{f.reg_no}</b>, {f.district} · {f.title}</div>
           </div>))}</div>
       </div>}
 

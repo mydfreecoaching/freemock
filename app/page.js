@@ -32,7 +32,7 @@ export default async function Home({ searchParams }) {
   if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
   const exams = await getExams(); const EX = examMap(exams);
   const [S, live, LB] = await Promise.all([publicStats(), liveTests(), leaderboards(exams)]);
-  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.name, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
+  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.reg_no, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
     JOIN tests t ON t.id=f.test_id WHERE f.status='approved' AND length(trim(f.comment)) > 0 ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 20`;
   const shown = live.filter((t) => EX[t.kind] && t.nq > 0);
   return (
@@ -74,7 +74,7 @@ export default async function Home({ searchParams }) {
                 <figure key={f.id} className="fb-item">
                   <div className="fb-stars" aria-label={`${f.rating} / 5`}>{'★'.repeat(f.rating)}<span>{'★'.repeat(5 - f.rating)}</span></div>
                   <blockquote>{f.comment}</blockquote>
-                  <figcaption><b>{f.name}</b> · {f.district}<small>{f.title}</small></figcaption>
+                  <figcaption><b>{f.reg_no}</b> · {f.district}<small>{f.title}</small></figcaption>
                 </figure>))}
               </div>
             </div>
