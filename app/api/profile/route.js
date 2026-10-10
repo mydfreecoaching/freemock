@@ -1,5 +1,5 @@
 import { sql, ensureSchema } from '@/lib/db';
-import { studentId } from '@/lib/auth';
+import { studentId, setPhotoSkip, photoSkipActive } from '@/lib/auth';
 import { profileFields, venueFields, g4Fields, g2Fields } from '@/lib/profile';
 import { parsePhoto, savePhoto } from '@/lib/photo';
 import { verifyGoogle } from '@/lib/mail';
@@ -24,7 +24,13 @@ export async function POST(req) {
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
   let ph = null;
   if (b.photo || b.photo_thumb) { ph = parsePhoto(b); if (ph.error) return Response.json({ error: ph.error }, { status: 400 }); }
-  else { const [p] = await sql`SELECT 1 FROM student_photos WHERE student_id=${sid}`; if (!p) return Response.json({ error: parsePhoto({}).error }, { status: 400 }); }
+  else {
+    const [p] = await sql`SELECT 1 FROM student_photos WHERE student_id=${sid}`;
+    const [k] = await sql`SELECT photo_skipped_at FROM students WHERE id=${sid}`;
+    // first time without a photo: allowed for this login only; afterwards the photo is required
+    if (!p && b.photo_now === 'no' && !k?.photo_skipped_at) { await sql`UPDATE students SET photo_skipped_at=now() WHERE id=${sid}`; await setPhotoSkip(); }
+    else if (!p && !(b.photo_now === 'no' && (await photoSkipActive()))) return Response.json({ error: parsePhoto({}).error }, { status: 400 });
+  }
   await sql`UPDATE students SET gender=${v.gender}, community=${v.community}, email=${v.email}, priority=${sql.json(v.priority)},
     priority_other=${v.priority_other}, qualification=${v.qualification} WHERE id=${sid}`;
   if (ph) await savePhoto(sid, ph);
