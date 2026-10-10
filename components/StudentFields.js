@@ -1,4 +1,4 @@
-import { GENDERS, COMMUNITIES } from '@/lib/util';
+import { GENDERS, COMMUNITIES, QUALIFICATIONS } from '@/lib/util';
 import PriorityFields from './PriorityFields';
 import EmailField from './EmailField';
 
@@ -20,7 +20,11 @@ export default function StudentFields({ s = {}, googleClientId = '' }) {
       <EmailField clientId={googleClientId} current={s.email || ''} verified={!!s.email_verified} />
       <PriorityFields value={s.priority || []} other={s.priority_other || ''} />
       <label>கல்வித் தகுதி / Qualification <span className="req">*</span></label>
-      <input name="qualification" required minLength={2} maxLength={60} defaultValue={s.qualification || ''} placeholder="எ.கா. B.Sc., 12th" />
+      <select name="qualification" required defaultValue={QUALIFICATIONS.includes(s.qualification) ? s.qualification : ''}>
+        <option value="" disabled>தேர்வு செய்யவும் / Select</option>
+        {QUALIFICATIONS.map((q) => <option key={q} value={q}>{q}</option>)}
+      </select>
+      {s.qualification_old && !QUALIFICATIONS.includes(s.qualification) && <div className="small muted">முன்பு உள்ளிட்டது / Earlier entry: {s.qualification_old}</div>}
     </>
   );
 }

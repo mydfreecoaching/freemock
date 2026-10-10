@@ -85,6 +85,7 @@ export default async function Dashboard({ searchParams }) {
     <>
       <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
+      {me.photo_waived && <div className="okmsg">📷 இந்த முறை புகைப்படம் இல்லாமல் தேர்வு எழுதலாம். <b>அடுத்த முறை உள்நுழையும்போது பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம் – தயாராக வைத்துக்கொள்ளவும்.</b> இப்போதே பதிவேற்ற: <a href="/profile">என் விவரங்கள்</a></div>}
       {missingFields(me).length > 0 && <div className="err">⚠️ தேர்வு எழுத, விடுபட்ட விவரங்களை நிறைவு செய்யவும்: <b>{missingFields(me).join(' · ')}</b> — <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
       {googleClientId() && !me.email_verified && (
         <div className="card email-verify"><b>📧 உங்கள் மின்னஞ்சலை Google மூலம் சரிபார்க்கவும்</b>

@@ -5,7 +5,7 @@ import { fmtDate } from '@/lib/util';
 import { missingFields } from '@/lib/profile';
 import Form from '@/components/Form';
 import StudentFields from '@/components/StudentFields';
-import PhotoInput from '@/components/PhotoInput';
+import PhotoChoice from '@/components/PhotoChoice';
 import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
@@ -34,7 +34,7 @@ export default async function Profile({ searchParams }) {
         <input type="hidden" name="next" value={next} />
         <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} />
         <StudentFields s={me} googleClientId={googleClientId()} />
-        <PhotoInput current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} />
+        <PhotoChoice current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} allowLater={!me.photo_skipped_at} waived={me.photo_waived} />
         <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} />
         {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
       </Form>

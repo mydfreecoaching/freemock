@@ -1,5 +1,5 @@
 import { sql, ensureSchema } from '@/lib/db';
-import { setStudent } from '@/lib/auth';
+import { setStudent, setPhotoSkip } from '@/lib/auth';
 import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { safeNext } from '@/lib/next';
 import { profileFields, validMobile, validDob, venueFields, g4Fields, g2Fields } from '@/lib/profile';
@@ -28,8 +28,9 @@ export async function POST(req) {
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
   let gEmail = null;
   if (b.google_cred) { gEmail = await verifyGoogle(b.google_cred); if (!gEmail) return Response.json({ error: 'Google மின்னஞ்சல் சரிபார்ப்பு தோல்வியடைந்தது – மீண்டும் முயற்சிக்கவும் அல்லது மின்னஞ்சலைத் தட்டச்சு செய்யவும்.' }, { status: 400 }); }
-  const ph = parsePhoto(b);
-  if (ph.error) return Response.json({ error: ph.error }, { status: 400 });
+  const later = b.photo_now === 'no';
+  const ph = later ? null : parsePhoto(b);
+  if (ph?.error) return Response.json({ error: ph.error }, { status: 400 });
   const [dup] = await sql`SELECT reg_no FROM students WHERE mobile=${mobile}`;
   if (dup) return Response.json({ error: `இந்தக் கைபேசி எண் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது (பதிவு எண் ${dup.reg_no}). உள்நுழையவும்.` }, { status: 409 });
   const year = istYear();
@@ -40,12 +41,13 @@ export async function POST(req) {
     try {
       const [s] = await sql`INSERT INTO students (reg_no,name,mobile,dob,district,qualification,gender,community,email,priority,priority_other)
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;
-      await savePhoto(s.id, ph);
+      if (ph) await savePhoto(s.id, ph); else await sql`UPDATE students SET photo_skipped_at=now() WHERE id=${s.id}`;
       if (gEmail && gEmail === email) await sql`UPDATE students SET email_verified=true WHERE id=${s.id}`;
       await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=${vf.values.answered ? new Date() : null},
         g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no} WHERE id=${s.id}`;
       if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${s.id}`;
       await setStudent(s.id);
+      if (later) await setPhotoSkip();
       const nx = safeNext(b.next);
       return Response.json({ redirect: nx ? `${nx}${nx.includes('?') ? '&' : '?'}new=${s.reg_no}` : `/dashboard?new=${s.reg_no}` });
     } catch (e) {

@@ -5,7 +5,7 @@ import { safeNext } from '@/lib/next';
 import { DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 import { dobRange } from '@/lib/dob';
 import StudentFields from '@/components/StudentFields';
-import PhotoInput from '@/components/PhotoInput';
+import PhotoChoice from '@/components/PhotoChoice';
 import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
@@ -31,7 +31,7 @@ export default async function Register({ searchParams }) {
         <input name="dob" type="date" required min={min} max={max} />
         <DistrictVenue districts={DISTRICT_LIST} firstCount={DISTRICT_FIRST_COUNT} />
         <StudentFields googleClientId={googleClientId()} />
-        <PhotoInput />
+        <PhotoChoice />
         <G2Fields />
         {g4Asking() && <G4Fields />}
         <p className="small muted"><span className="req">*</span> குறியிட்டவை கட்டாயம் / Mandatory. பிறந்த தேதியே உங்கள் கடவுச்சொல். பதிவு எண் அல்லது கைபேசி எண்ணுடன் அதைப் பயன்படுத்தி உள்நுழையலாம்.</p>
