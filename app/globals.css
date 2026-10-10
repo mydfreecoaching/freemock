@@ -374,3 +374,6 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .g4dates b{display:block;font-size:24px;color:#b3261e;line-height:1.2}:root[data-theme=dark] .g4dates b{color:#ff8a7a}
 .g4dates small{display:block;font-size:12.5px}
 .g4modal{z-index:70}
+.gmail{margin:6px 0 4px}.gmail-ok{color:var(--ok);font-size:14px;margin-bottom:6px}
+.email-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.linklike{background:none;border:0;padding:4px 0;color:var(--link);text-decoration:underline;cursor:pointer;font-weight:400}

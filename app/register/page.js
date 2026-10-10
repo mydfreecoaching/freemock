@@ -9,6 +9,7 @@ import PhotoInput from '@/components/PhotoInput';
 import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import { g4Asking } from '@/lib/venues';
+import { googleClientId } from '@/lib/mail';
 
 export const dynamic = 'force-dynamic';
 export default async function Register({ searchParams }) {
@@ -28,7 +29,7 @@ export default async function Register({ searchParams }) {
         <label>பிறந்த தேதி / Date of Birth <span className="req">*</span></label>
         <input name="dob" type="date" required min={min} max={max} />
         <DistrictVenue districts={DISTRICT_LIST} firstCount={DISTRICT_FIRST_COUNT} />
-        <StudentFields />
+        <StudentFields googleClientId={googleClientId()} />
         <PhotoInput />
         {g4Asking() && <G4Fields />}
         <p className="small muted"><span className="req">*</span> குறியிட்டவை கட்டாயம் / Mandatory. பிறந்த தேதியே உங்கள் கடவுச்சொல். பதிவு எண் அல்லது கைபேசி எண்ணுடன் அதைப் பயன்படுத்தி உள்நுழையலாம்.</p>

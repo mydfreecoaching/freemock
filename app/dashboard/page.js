@@ -4,6 +4,8 @@ import { studentId } from '@/lib/auth';
 import { profileComplete } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import G4Prompt from '@/components/G4Prompt';
+import GoogleEmail from '@/components/GoogleEmail';
+import { googleClientId } from '@/lib/mail';
 import { G4, g4Asking } from '@/lib/venues';
 import { fmt, fmtDate, testStatus, secLabel, secSort } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
@@ -84,6 +86,12 @@ export default async function Dashboard({ searchParams }) {
       <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {!profileComplete(me) && <div className="err">{me.has_photo ? '' : '📷 பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம். '}உங்கள் விவரங்கள் (புகைப்படம், பாலினம், சமூகப் பிரிவு, மின்னஞ்சல், கல்வித் தகுதி) நிறைவு செய்யப்படவில்லை. தேர்வு தொடங்கும் முன் <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
+      {googleClientId() && !me.email_verified && (
+        <div className="card email-verify"><b>📧 உங்கள் மின்னஞ்சலை Google மூலம் சரிபார்க்கவும்</b>
+          <p className="small" style={{ margin: '4px 0 8px' }}>புதிய தேர்வுகள், முடிவுகள் பற்றிய அறிவிப்புகள் சரியான மின்னஞ்சலுக்கு வர, உங்கள் Google கணக்கைத் தேர்வு செய்யவும். (தற்போது: {me.email || '—'})</p>
+          <GoogleEmail clientId={googleClientId()} mode="save" />
+        </div>
+      )}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <div className="row" style={{ gap: 12 }}>

@@ -9,6 +9,7 @@ import PhotoInput from '@/components/PhotoInput';
 import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import { g4Asking } from '@/lib/venues';
+import { googleClientId } from '@/lib/mail';
 import { PREFIX } from '@/lib/util';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,8 @@ export default async function Profile({ searchParams }) {
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
         <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} />
-        <StudentFields s={me} />
+        <StudentFields s={me} googleClientId={googleClientId()} />
+        <label className="choice" style={{ marginTop: 10 }}><input type="checkbox" name="email_opt_out" value="1" defaultChecked={me.email_opt_out} /> மின்னஞ்சல் அறிவிப்புகள் வேண்டாம் / Don&apos;t send me notification emails</label>
         <PhotoInput current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} />
         {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
       </Form>

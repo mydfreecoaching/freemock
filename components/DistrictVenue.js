@@ -37,14 +37,15 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
           <input type="hidden" name="coaching_venue" value={chosen || ''} />
           {code === 'TVR' && upcomingGuidance().length > 0 && (
             <div className="guidance">
-              <label>🧭 வழிகாட்டுதல் நிகழ்ச்சி நடைபெறும் இடங்கள் / Career guidance programme</label>
-              <p className="small muted" style={{ margin: '0 0 6px' }}>⏰ {GUIDANCE_TIME}. நீங்கள் கலந்துகொள்ளக்கூடிய இடத்தைத் தேர்வு செய்யவும் (ஒன்றுக்கு மேல் தேர்வு செய்யலாம்).</p>
+              <label>🧭 வழிகாட்டுதல் நிகழ்ச்சி நடைபெறும் இடங்கள் / Career guidance programme <span className="req">*</span></label>
+              <p className="small muted" style={{ margin: '0 0 6px' }}>⏰ {GUIDANCE_TIME}. நீங்கள் கலந்துகொள்ளக்கூடிய <b>ஏதேனும் ஒரு</b> இடத்தைத் தேர்வு செய்யவும்.</p>
               {upcomingGuidance().map(([date, day, list]) => (
                 <div key={date} className="g-day">
                   <div className="g-date">📅 {date} – {day}</div>
-                  {list.map(([k, l]) => <label key={k} className="choice"><input type="checkbox" name="guidance" value={k} defaultChecked={guidance.includes(k)} /> 📍 {l}</label>)}
+                  {list.map(([k, l]) => <label key={k} className="choice"><input type="radio" name="guidance" value={k} required defaultChecked={guidance[0] === k} /> 📍 {l}</label>)}
                 </div>
               ))}
+              <label className="choice"><input type="radio" name="guidance" value="NONE" required defaultChecked={guidance.length === 0 && !!fixed} /> எதிலும் கலந்துகொள்ள இயலாது / Cannot attend</label>
             </div>
           )}
         </div>
