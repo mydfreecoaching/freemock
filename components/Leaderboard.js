@@ -1,42 +1,67 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const SEC = { 'தமிழ்': 'பொதுத்தமிழ்', GS: 'பொது அறிவு', APT: 'திறனறிவு & காரணவியல்' };
 const medal = (r) => (r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : r);
 /** Interactive public leaderboard: exam dropdown → Latest test / Overall / Most improved / Improvement areas. */
 export default function Leaderboard({ exams, data }) {
   const avail = exams.filter((e) => data[e.code]);
-  const [code, setCode] = useState(avail[0]?.code || '');
-  const [tab, setTab] = useState('latest');
+  const first = avail.find((e) => data[e.code]?.live?.length) || avail[0];
+  const [code, setCode] = useState(first?.code || '');
+  const [tab, setTab] = useState(data[first?.code]?.live?.length ? 'live' : 'latest');
+  const router = useRouter();
+  const anyLive = avail.some((e) => data[e.code]?.live?.length);
+  const [at, setAt] = useState('');
+  // live ranking: refresh every minute while tests are running
+  useEffect(() => {
+    setAt(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+    if (!anyLive) return;
+    const t = setInterval(() => router.refresh(), 60000);
+    return () => clearInterval(t);
+  }, [anyLive, router, data]);
   if (!avail.length) return null;
   const d = data[code];
-  const TABS = [['latest', '🏆 சமீபத்திய தேர்வு'], ['overall', '⭐ ஒட்டுமொத்தம்'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']];
+  const TABS = [...(d.live?.length ? [['live', '🔴 நேரலை / Live']] : []),
+    ...(d.latest ? [['latest', '🏆 சமீபத்திய தேர்வு'], ['overall', '⭐ ஒட்டுமொத்தம்'], ['improved', '📈 அதிக முன்னேற்றம்'], ['areas', '🎯 மேம்படுத்த வேண்டியவை']] : [])];
+  const cur = TABS.some(([k]) => k === tab) ? tab : TABS[0][0];
   return (
     <div className="card lb">
       <div className="row" style={{ justifyContent: 'space-between' }}>
         <h2 style={{ margin: 0 }}>🏅 தரவரிசை / Leaderboard</h2>
-        <select value={code} onChange={(e) => setCode(e.target.value)} className="lb-select" aria-label="தேர்வு">
+        <select value={code} onChange={(e) => { setCode(e.target.value); setTab(data[e.target.value]?.live?.length ? 'live' : 'latest'); }} className="lb-select" aria-label="தேர்வு">
           {avail.map((e) => <option key={e.code} value={e.code}>{e.name}</option>)}
         </select>
       </div>
       <div className="seg" style={{ marginTop: 12 }}>
-        {TABS.map(([k, l]) => <button key={k} type="button" className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}
+        {TABS.map(([k, l]) => <button key={k} type="button" className={cur === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}
       </div>
-      {tab === 'latest' && <>
+      {cur === 'live' && d.live.map((L) => (
+        <div key={L.id} className="lb-live">
+          <p className="small"><span className="live-dot" /> <b>{L.title}</b> — நடைபெறுகிறது (முடிவு: {new Date(L.ends).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })})<br />
+            <span className="muted">இதுவரை எழுதியோர் {L.n} · சராசரி {L.avgPct}% · மாணவர்கள் எழுத எழுத தரவரிசை மாறும் · புதுப்பிப்பு {at}</span></p>
+          <ol className="lb-list">{L.top.map((p, i) => (
+            <li key={i}><span className="lb-rank">{medal(p.rank)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district}</small></span>
+              <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.score}<small>/{L.max}</small></span></li>))}
+          </ol>
+          <p className="small"><a href={`/rank/${L.id}`}>முழு நேரலைத் தரவரிசை →</a></p>
+        </div>
+      ))}
+      {cur === 'latest' && <>
         <p className="small muted">{d.latest.title} · எழுதியோர் {d.latest.n} · சராசரி {d.latest.avgPct}%</p>
         <ol className="lb-list">{d.latest.top.map((p, i) => (
           <li key={i}><span className="lb-rank">{medal(p.rank)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district}</small></span>
             <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.score}<small>/{d.latest.max}</small></span></li>))}
         </ol>
       </>}
-      {tab === 'overall' && <>
+      {cur === 'overall' && <>
         <p className="small muted">கடைசி {d.tests} தேர்வுகளின் சராசரி மதிப்பெண் %</p>
         <ol className="lb-list">{d.overall.map((p, i) => (
           <li key={i}><span className="lb-rank">{medal(i + 1)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district} · {p.n} தேர்வுகள்</small></span>
             <span className="lb-bar"><i style={{ width: `${Math.max(2, p.avg)}%` }} /></span><span className="lb-score">{p.avg}%</span></li>))}
         </ol>
       </>}
-      {tab === 'improved' && <>
+      {cur === 'improved' && <>
         <p className="small muted">முந்தைய தேர்வை விடக் கடைசித் தேர்வில் அதிகம் முன்னேறியவர்கள்</p>
         {d.improved.length === 0 ? <p className="muted">இரண்டு அல்லது அதற்கு மேற்பட்ட தேர்வுகள் எழுதியவர்கள் இன்னும் இல்லை.</p> :
           <ol className="lb-list">{d.improved.map((p, i) => (
@@ -44,7 +69,7 @@ export default function Leaderboard({ exams, data }) {
               <span className="lb-gain">▲ {p.gain}%</span></li>))}
           </ol>}
       </>}
-      {tab === 'areas' && <>
+      {cur === 'areas' && <>
         <p className="small muted">சமீபத்திய தேர்வில் அனைத்து மாணவர்களின் பகுதி வாரியான சராசரித் துல்லியம் – குறைவானது முதலில்</p>
         {d.sections.map((s, i) => (
           <div key={s.k} className="area"><span>{i === 0 ? '⚠️ ' : ''}{SEC[s.k] || s.k}</span>

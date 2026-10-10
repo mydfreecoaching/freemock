@@ -43,8 +43,8 @@ export default function SiteHeader({ loggedIn, admin = false, menus = { courses:
               <a className="btn alt" href="/dashboard"><span className="hide-sm">என் </span>Dashboard</a>
               <a className="btn" href="/api/logout">⎋ <span className="hide-sm">வெளியேறு / </span>Logout</a>
             </> : <>
-              <a className="btn alt" href="/login">Login</a>
-              <a className="btn" href="/register"><span className="hide-sm">பதிவு செய் / </span>Register</a>
+              <a className="btn alt guest-cta" href="/login">Login</a>
+              <a className="btn guest-cta" href="/register"><span className="hide-sm">பதிவு செய் / </span>Register</a>
             </>}
           </div>
         </div>

@@ -32,6 +32,8 @@ export default async function Home({ searchParams }) {
   if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
   const exams = await getExams(); const EX = examMap(exams);
   const [S, live, LB] = await Promise.all([publicStats(), liveTests(), leaderboards(exams)]);
+  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.name, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
+    JOIN tests t ON t.id=f.test_id WHERE f.status='approved' AND length(trim(f.comment)) > 0 ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 20`;
   const shown = live.filter((t) => EX[t.kind] && t.nq > 0);
   return (
     <>
@@ -57,20 +59,33 @@ export default async function Home({ searchParams }) {
             <li>மாநில, மாவட்ட அளவில் தரவரிசை</li>
           </ul>
           <div className="row" style={{ marginTop: 14 }}>
-            {loggedIn ? <a className="btn big-btn" href="/dashboard">என் Dashboard →</a> : <a className="btn big-btn" href="/register">இப்போதே பதிவு செய்யவும் →</a>}
+            {loggedIn && <a className="btn big-btn" href="/dashboard">என் Dashboard →</a>}
             <a className="btn alt big-btn" href="/courses">தேர்வுகளைப் பார்க்க</a>
           </div>
         </div>
-        {loggedIn ? (
-          <div className="card login-card"><h2>மீண்டும் வருக!</h2><p>நடப்புத் தேர்வுகள், உங்கள் மதிப்பெண்கள், முன்னேற்றம் – அனைத்தும் உங்கள் Dashboard-இல்.</p><a className="btn" href="/dashboard">Dashboard →</a></div>
-        ) : <LoginCard next={next} testTitle={testTitle} />}
+        <div className="hero-side">
+          {loggedIn ? (
+            <div className="card login-card"><h2>மீண்டும் வருக!</h2><p>நடப்புத் தேர்வுகள், உங்கள் மதிப்பெண்கள், முன்னேற்றம் – அனைத்தும் உங்கள் Dashboard-இல்.</p><a className="btn" href="/dashboard">Dashboard →</a></div>
+          ) : <LoginCard next={next} testTitle={testTitle} />}
+          {fbs.length > 0 && (
+            <div className="card fb-wall">
+              <h3>💬 மாணவர்களின் கருத்துகள் / What students say</h3>
+              <div className="fb-scroll">{fbs.map((f) => (
+                <figure key={f.id} className="fb-item">
+                  <div className="fb-stars" aria-label={`${f.rating} / 5`}>{'★'.repeat(f.rating)}<span>{'★'.repeat(5 - f.rating)}</span></div>
+                  <blockquote>{f.comment}</blockquote>
+                  <figcaption><b>{f.name}</b> · {f.district}<small>{f.title}</small></figcaption>
+                </figure>))}
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="statband">
         <div><b>{S.students}</b><span>பதிவு செய்த மாணவர்கள்</span></div>
         <div><b>{S.tests}</b><span>நடத்தப்பட்ட தேர்வுகள்</span></div>
         <div><b>{S.attempts}</b><span>எழுதப்பட்ட விடைத்தாள்கள்</span></div>
-        <div><b>{S.districts}</b><span>மாவட்டங்கள்</span></div>
       </section>
 
       <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>
