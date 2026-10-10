@@ -11,6 +11,7 @@ export async function POST(req) {
   const v = {
     name: String(b.name || '').trim().slice(0, 150),
     description: String(b.description || '').trim().slice(0, 2000) || null,
+    whatsapp_link: /^https:\/\/(chat\.whatsapp\.com|whatsapp\.com|wa\.me)\//.test(String(b.whatsapp_link || '').trim()) ? String(b.whatsapp_link).trim().slice(0, 300) : null,
     qcount: Number(b.qcount) > 0 ? Math.round(Number(b.qcount)) : null,
     marks_per_q: Number(b.marks_per_q) || 1.5,
     negative_mark: Math.max(0, Number(b.negative_mark) || 0),

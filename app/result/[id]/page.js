@@ -32,6 +32,8 @@ export default async function Result({ params, searchParams }) {
     total = rows.length; dtotal = rows.filter((r) => r.district === me?.district).length;
     qs = await sql`SELECT * FROM questions WHERE test_id=${id} ORDER BY qno`;
   }
+  const [exw] = await sql`SELECT whatsapp_link FROM exams WHERE code=${t.kind}`;
+  const wa = exw?.whatsapp_link || null;
   const [fb] = await sql`SELECT id, status, rating, comment, reply, replied_at FROM feedback WHERE test_id=${id} AND student_id=${sid}`;
   if (fb?.reply) await sql`UPDATE feedback SET reply_seen=true WHERE id=${fb.id} AND NOT reply_seen`;
   const f = (await searchParams)?.f;
@@ -74,6 +76,12 @@ export default async function Result({ params, searchParams }) {
       </div>
       {!fb && <p className="small muted card">📥 கருத்தைச் சமர்ப்பித்த பின் விடைகளைப் பார்க்கவும், வினா-விடையை PDF ஆகப் பதிவிறக்கவும் (Download question with answer) இயலும்.</p>}
       {!fb && <FeedbackForm testId={id} />}
+      {wa && <div className="card wa-join">
+        <div><b>📲 இந்தத் தேர்வுகளுக்காக உருவாக்கப்பட்டுள்ள WhatsApp குழுவில் இணையுங்கள்</b>
+          <div className="small">தேர்வு அறிவிப்புகள், விடைகள், முடிவுகள் பற்றிய தகவல்களை உடனுக்குடன் பெற / Join the WhatsApp group for these tests.</div></div>
+        <a className="btn wa-btn" href={wa} target="_blank" rel="noopener noreferrer">WhatsApp குழுவில் இணைய →</a>
+      </div>}
+
       {fb && (
         <div className="review">
           <div className="row" style={{ justifyContent: 'space-between' }}><h2>விடைகள் சரிபார்ப்பு</h2><a className="btn alt noprint" href={`/result/${id}/pdf`}>📥 வினா-விடை PDF</a></div>

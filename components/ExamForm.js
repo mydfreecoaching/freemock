@@ -10,6 +10,8 @@ export default function ExamForm({ e }) {
       <input name="name" required maxLength={150} defaultValue={e?.name || ''} placeholder="எ.கா. TNPSC Group 4 Weekly Test" />
       <label>விளக்கம் / Explanation (மாணவர்களுக்குத் தெரியும்)</label>
       <textarea name="description" rows={3} maxLength={2000} defaultValue={e?.description || ''} placeholder="எ.கா. எந்த வகுப்பு, எத்தனை வினாக்கள், எப்போது நடக்கும்" />
+      <label>WhatsApp குழு இணைப்பு (தேர்வு முடிந்ததும் கருத்துப் பக்கத்தில் காட்டப்படும்; காலி = காட்டாது)</label>
+      <input name="whatsapp_link" type="url" maxLength={300} defaultValue={e?.whatsapp_link || ''} placeholder="https://chat.whatsapp.com/…" />
       <div className="grid2">
         <div><label>வினாக்கள் (நிலையான எண்ணிக்கை; காலி = எந்த எண்ணிக்கையும்)</label><input type="number" min="1" name="qcount" defaultValue={e?.qcount ?? ''} /></div>
         <div><label>வரிசை எண்</label><input type="number" name="sort" defaultValue={e?.sort ?? 10} /></div>
