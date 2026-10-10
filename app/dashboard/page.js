@@ -35,6 +35,8 @@ export default async function Dashboard({ searchParams }) {
   const mine = tests.filter((t) => EX[t.kind] && t.nq > 0);
   const fbs = await sql`SELECT f.id, f.rating, f.comment, s.name, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
     JOIN tests t ON t.id=f.test_id WHERE f.status='approved' ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 12`;
+  const replies = await sql`SELECT f.test_id, f.reply, f.replied_at, f.reply_seen, t.title FROM feedback f JOIN tests t ON t.id=f.test_id
+    WHERE f.student_id=${sid} AND f.reply IS NOT NULL ORDER BY f.replied_at DESC LIMIT 5`;
   const noFb = await sql`SELECT a.test_id FROM attempts a WHERE a.student_id=${sid} AND a.submitted_at IS NOT NULL
     AND NOT EXISTS (SELECT 1 FROM feedback f WHERE f.test_id=a.test_id AND f.student_id=${sid})`;
 
@@ -105,6 +107,9 @@ export default async function Dashboard({ searchParams }) {
         <div className="row"><a className="btn alt" href="/profile">என் விவரங்கள்</a><a className="btn alt" href="/api/logout">வெளியேறு</a></div>
       </div>
 
+      {replies.length > 0 && <div className="card"><h2 style={{ marginTop: 0 }}>💬 உங்கள் கருத்துகளுக்கு Admin பதில்{replies.some((r) => !r.reply_seen) && <span className="pop-new">புதியது</span>}</h2>
+        {replies.map((r) => <div key={r.test_id} className="fb-answer" style={{ marginBottom: 8 }}><div className="small"><b>{r.title}</b> · {fmt(r.replied_at)} · <a href={`/result/${r.test_id}#feedback`}>பார்க்க</a></div><p style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{r.reply}</p></div>)}
+      </div>}
       {noFb.length > 0 && <div className="okmsg">💬 நீங்கள் எழுதிய {noFb.length} தேர்வுக்குக் கருத்து அளிக்கவில்லை. கருத்து அளித்ததும் விடைகளும் பகுப்பாய்வும் காட்டப்படும் – <a href={`/result/${noFb[0].test_id}#feedback`}><b>இப்போது அளிக்க</b></a></div>}
       <div className="card">
         <h2>📊 என் செயல்திறன் / My performance</h2>

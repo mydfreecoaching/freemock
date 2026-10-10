@@ -395,3 +395,6 @@ body:has(.hero-side) .guest-cta{display:none}
 .fb-item figcaption{font-size:13px}.fb-item figcaption small{display:block;color:var(--muted)}
 .lb-table{width:100%;font-size:14px}.lb-table td small,.lb-table th small{display:block;font-weight:400;color:var(--muted);font-size:12px}
 .lb-table .lb-rank{width:36px;text-align:center}
+.fb-mine{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--soft)}
+.fb-answer{border-left:3px solid var(--brand);background:var(--chip);border-radius:6px;padding:8px 10px;margin-top:6px}
+.fb-reply{margin:6px 0 8px}.fb-reply textarea{width:100%}

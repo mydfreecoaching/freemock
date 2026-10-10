@@ -6,7 +6,7 @@ import Form from '@/components/Form';
 export const dynamic = 'force-dynamic';
 
 const DIFF = { easy: 'எளிது', moderate: 'நடுத்தரம்', hard: 'கடினம்' };
-const ST = [['pending', 'காத்திருப்பவை'], ['approved', 'ஒப்புதல் அளித்தவை'], ['rejected', 'நிராகரித்தவை']];
+const ST = [['pending', 'காத்திருப்பவை'], ['approved', 'ஒப்புதல் அளித்தவை (தளத்தில் தெரியும்)'], ['kept', 'வைத்திருப்பவை / Keep (எங்கும் தெரியாது)']];
 export default async function AdminFeedback({ searchParams }) {
   await ensureSchema();
   if (!(await isAdmin())) redirect('/admin');
@@ -34,8 +34,13 @@ export default async function AdminFeedback({ searchParams }) {
             <span className="fbstars">{'★'.repeat(f.rating)}<span className="muted">{'★'.repeat(5 - f.rating)}</span></span>
           </div>
           <p style={{ margin: '8px 0' }}>{f.comment}</p>
+          <Form action="/api/admin/feedback" submit={f.reply ? 'பதிலைப் புதுப்பி / Update reply' : 'பதில் அனுப்பு / Reply'} className="fb-reply">
+            <input type="hidden" name="id" value={f.id} /><input type="hidden" name="action" value="reply" />
+            <label className="small" style={{ marginTop: 0 }}>💬 மாணவருக்குப் பதில் (தேர்வு எழுதிய மாணவருக்கு மட்டும் தெரியும்){f.replied_at && <span className="muted"> · {fmt(f.replied_at)}{f.reply_seen ? ' · ✔ பார்த்தார்' : ''}</span>}</label>
+            <textarea name="reply" rows={2} maxLength={2000} defaultValue={f.reply || ''} placeholder="பதிலை இங்கே தட்டச்சு செய்யவும்…" />
+          </Form>
           <div className="row"><span className="pill">{DIFF[f.difficulty] || '-'}</span>
-            {st !== 'approved' && btn(f.id, 'approve', '✔ ஒப்புதல்')}{st !== 'rejected' && btn(f.id, 'reject', '✖ நிராகரி')}{st !== 'pending' && btn(f.id, 'pending', 'காத்திருப்புக்கு')}</div>
+            {st !== 'approved' && btn(f.id, 'approve', '✔ ஒப்புதல்')}{st !== 'kept' && btn(f.id, 'keep', '📁 Keep (வைத்திரு)')}{st !== 'pending' && btn(f.id, 'pending', 'காத்திருப்புக்கு')}</div>
         </div>
       ))}
     </>
