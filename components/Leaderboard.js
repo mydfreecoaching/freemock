@@ -54,7 +54,15 @@ export default function Leaderboard({ exams, data }) {
             <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.score}<small>/{d.latest.max}</small></span></li>))}
         </ol>
       </>}
-      {cur === 'overall' && <>
+      {cur === 'overall' && d.combined && <>
+        <p className="small muted">ஒருங்கிணைந்த தரவரிசை – இதுவரை நடைபெற்ற {d.combined.tests} தேர்வுகளின் மொத்த மதிப்பெண் (மொத்தம் {d.combined.grand}) · தேர்வர்கள் {d.combined.n}</p>
+        <ol className="lb-list">{d.combined.top.map((p, i) => (
+          <li key={i}><span className="lb-rank">{medal(p.rank)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district} · {p.written}/{d.combined.tests} தேர்வுகள்</small></span>
+            <span className="lb-bar"><i style={{ width: `${Math.max(2, p.pct)}%` }} /></span><span className="lb-score">{p.total}<small>/{d.combined.grand}</small></span></li>))}
+        </ol>
+        <p className="small"><a href={`/combined/${code}`}>முழு ஒருங்கிணைந்த தரவரிசை →</a></p>
+      </>}
+      {cur === 'overall' && !d.combined && <>
         <p className="small muted">கடைசி {d.tests} தேர்வுகளின் சராசரி மதிப்பெண் %</p>
         <ol className="lb-list">{d.overall.map((p, i) => (
           <li key={i}><span className="lb-rank">{medal(i + 1)}</span><span className="lb-name"><b>{p.name}</b><small>{p.district} · {p.n} தேர்வுகள்</small></span>

@@ -58,6 +58,7 @@ export default async function Admin({ searchParams }) {
       <div className="card" id="tests">
         <div className="row" style={{ justifyContent: 'space-between' }}><h2 style={{ margin: 0 }}>கிடைக்கும் தேர்வுகள் / Available exams</h2><a className="small" href="/admin/exams">+ சேர் / திருத்து</a></div>
         <div style={{ marginTop: 10 }}><ExamSelect value={cat} exams={exams.map((e) => ({ code: e.code, name: e.name, active: e.active, count: ec[e.code]?.all || 0, open: ec[e.code]?.open || 0 }))} /></div>
+        {EX[cat]?.progress && <p style={{ margin: '8px 0 0' }}><a className="btn" href={`/combined/${cat}`}>🏆 ஒருங்கிணைந்த தரவரிசை (அனைத்துத் தேர்வுகளும்) / PDF</a></p>}
         {EX[cat]?.description && <p className="small muted" style={{ marginBottom: 0 }}>{EX[cat].description}</p>}
       </div>
       <div className="card">
