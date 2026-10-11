@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import QText from '@/components/QText';
-import { tabWarning, TAB_LOGOUT } from '@/lib/tabs';
 
 const letters = (q) => (Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']);
 const pad = (n) => String(n).padStart(2, '0');
@@ -33,7 +32,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
       if (Object.entries(loc).some(([k, v]) => saved[k] !== v)) { setAnswers((a) => ({ ...a, ...loc })); dirty.current = true; }
     } catch {}
     const m = meta();
-    if (m.tabs > tabs.current) { tabs.current = m.tabs; shown.current = m.tabs; }
+    if (m.tabs > tabs.current) tabs.current = m.tabs;
     if (m.pending) setTimeout(() => submitRef.current(), 300);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [review, setReview] = useState(() => new Set());
@@ -46,9 +45,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   const [showPal, setShowPal] = useState(false);
   const offset = useRef(serverNow - Date.now());
   const tabs = useRef(tabs0 || 0);
-  const shown = useRef(tabs0 || 0);   // last tab-switch count a warning was shown for
   const leaving = useRef(false);      // page reload / navigation is not a tab switch
-  const [warn, setWarn] = useState(() => ((tabs0 || 0) >= TAB_LOGOUT ? tabWarning(tabs0) : null));
   const ansRef = useRef(answers);
   const done = useRef(false);
   ansRef.current = answers;
@@ -64,7 +61,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
       setOffline(false);
       // the server already closed the attempt (time over / no contact) → send the answers on this phone with the submit
       if (r.status === 409) { submitRef.current(); return false; }
-      if (r.status === 401) { done.current = true; window.location.href = `/login?${j.reason === 'tabs' || tabs.current >= TAB_LOGOUT ? 'tabs=1&' : ''}next=${encodeURIComponent(resumeUrl)}`; return false; }
+      if (r.status === 401) { done.current = true; window.location.href = `/login?next=${encodeURIComponent(resumeUrl)}`; return false; }
       if (!r.ok) throw new Error(j.error);
       setStatus('சேமிக்கப்பட்டது ✓');
       return true;
@@ -127,19 +124,14 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     window.addEventListener('pagehide', hide);
     return () => { clearInterval(t); window.removeEventListener('pagehide', hide); window.__fmExam = false; hide(); };
   }, []);
-  // tab switches + save on hide
+  // leaving the page (other tab / app / screen lock): just save the answers – switching has no effect on the test
   useEffect(() => {
     const v = () => {
       if (done.current) return;
-      if (practice) { if (document.visibilityState === 'hidden') save(true); return; }
       if (document.visibilityState === 'hidden') {
-        if (leaving.current) return;
-        tabs.current += 1; setMeta({ tabs: tabs.current }); save(true);
-      } else if (tabs.current > shown.current) {
-        // back on the test: the server applies the rules (warn / logout / submit), then warn here
-        const n = tabs.current; shown.current = n;
-        save().then((ok) => { if (ok) setWarn(tabWarning(n)); });
-      }
+        if (!practice && !leaving.current) { tabs.current += 1; setMeta({ tabs: tabs.current }); }
+        save(true);
+      } else save();
     };
     document.addEventListener('visibilitychange', v);
     const stop = (e) => e.preventDefault();
@@ -244,16 +236,6 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
         </div>
         <div className="desk-pal">{Palette}</div>
       </div>
-      {warn && (
-        <div className="modal" onClick={() => setWarn(null)}>
-          <div className="card tabwarn" role="alertdialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-            <h2>{warn.title}</h2>
-            <p>{warn.ta}</p>
-            <p className="small muted">{warn.en}</p>
-            <div className="row"><button onClick={() => setWarn(null)}>புரிந்தது, தொடர்ந்து எழுதுகிறேன் / OK</button></div>
-          </div>
-        </div>
-      )}
       {pending && (
         <div className="modal">
           <div className="card tabwarn" role="alertdialog" aria-modal="true">
