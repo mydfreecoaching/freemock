@@ -30,7 +30,7 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
               {opts.length > 1 && <input type="radio" name="venue_pick" value={o.code} required checked={pick === o.code} onChange={() => setPick(o.code)} />}
               <span>
                 <b>{o.title}</b>{o.when && <span className="venue-when">{o.when}</span>}
-                <span className="small">📍 {o.address}{o.phone && <> · ☎ {o.phone}</>}</span>
+                <span className="small">📍 {o.address}{o.phone && <> · {o.phone.startsWith('WhatsApp') ? '💬 ' : '☎ '}{o.phone}</>}</span>
               </span>
             </label>
           ))}

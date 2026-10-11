@@ -401,3 +401,5 @@ body:has(.hero-side) .guest-cta{display:none}
 .wa-join{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border:2px solid #25d366;background:#effcf3;color:#0b3d1f}
 :root[data-theme=dark] .wa-join{background:#0f2a1a;color:#c8f5d8}
 .wa-btn{background:#1fae54!important;border-color:#1fae54!important;color:#fff!important}
+.office h3{margin:2px 0 0;font-size:16px}.office{height:100%}
+.office-mine{border:2px solid var(--brand)}

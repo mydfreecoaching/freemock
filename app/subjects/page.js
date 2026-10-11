@@ -1,6 +1,6 @@
 import { studentId } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
-import { SUBJECTS } from '@/lib/util';
+import { getSubjects } from '@/lib/subjects';
 import { browseTests } from '@/lib/browse';
 import ExamBrowser from '@/components/ExamBrowser';
 export const dynamic = 'force-dynamic';
@@ -11,8 +11,7 @@ export default async function Subjects() {
   await ensureSchema();
   const loggedIn = !!(await studentId());
   const data = await browseTests((t) => t.subject);
-  const extra = Object.keys(data).filter((s) => !SUBJECTS.includes(s)).sort();
-  const options = [...SUBJECTS, ...extra].map((s) => ({ value: s, label: s }));
+  const options = (await getSubjects()).map((s) => ({ value: s.name, label: s.name }));
   return (
     <>
       <section className="pagehead"><h1>பாட வாரியான மாதிரித் தேர்வுகள் / Subject-wise Mock Tests</h1><p>பாடத்தைத் தேர்வு செய்து, அந்தப் பாடத்தின் நடப்பு அல்லது நிறைவடைந்த தேர்வுகளைப் பார்க்கவும்.</p></section>
