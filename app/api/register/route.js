@@ -2,7 +2,7 @@ import { sql, ensureSchema } from '@/lib/db';
 import { setStudent, setPhotoSkip } from '@/lib/auth';
 import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { safeNext } from '@/lib/next';
-import { profileFields, validMobile, validDob, venueFields, g4Fields, g2Fields } from '@/lib/profile';
+import { profileFields, validMobile, validDob, venueFields, g2Fields } from '@/lib/profile';
 import { parsePhoto, savePhoto } from '@/lib/photo';
 
 export async function POST(req) {
@@ -21,8 +21,6 @@ export async function POST(req) {
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
   const vf = venueFields(b, district);
   if (vf.error) return Response.json({ error: vf.error }, { status: 400 });
-  const gf = g4Fields(b);
-  if (gf.error) return Response.json({ error: gf.error }, { status: 400 });
   const g2 = g2Fields(b);
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
   const later = b.photo_now === 'no';
@@ -41,7 +39,6 @@ export async function POST(req) {
       if (ph) await savePhoto(s.id, ph); else await sql`UPDATE students SET photo_skipped_at=now() WHERE id=${s.id}`;
       await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=${vf.values.answered ? new Date() : null},
         g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no} WHERE id=${s.id}`;
-      if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${s.id}`;
       await setStudent(s.id);
       if (later) await setPhotoSkip();
       const nx = safeNext(b.next);
