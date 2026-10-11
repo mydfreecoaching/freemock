@@ -61,7 +61,7 @@ export default async function Weekly({ searchParams }) {
           <div className="tablewrap"><table className="small">
             <thead><tr><th>தேர்வு</th><th>நேரம்</th><th className="num">வினாக்கள்</th><th></th></tr></thead>
             <tbody>{W.tests.map((t) => <tr key={t.id}><td>{t.title}</td><td>{fmt(t.start_at)}</td><td className="num">{t.nq}</td>
-              <td>{new Date(t.end_at) < new Date() ? <a href={`/analysis/${t.id}`}>பகுப்பாய்வு</a> : <span className="muted">நடைபெறுகிறது</span>}</td></tr>)}</tbody>
+              <td>{new Date(t.end_at) < new Date() || new Date(t.end_at).getTime() >= Date.UTC(2099, 0, 1) ? <a href={`/analysis/${t.id}`}>பகுப்பாய்வு</a> : <span className="muted">நடைபெறுகிறது</span>}</td></tr>)}</tbody>
           </table></div>
         </div>
       )}

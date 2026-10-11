@@ -403,3 +403,4 @@ body:has(.hero-side) .guest-cta{display:none}
 .wa-btn{background:#1fae54!important;border-color:#1fae54!important;color:#fff!important}
 .office h3{margin:2px 0 0;font-size:16px}.office{height:100%}
 .office-mine{border:2px solid var(--brand)}
+.searchrow{flex-wrap:nowrap}.searchrow input{flex:1;min-width:0}

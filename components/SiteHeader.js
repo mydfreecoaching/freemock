@@ -40,6 +40,7 @@ export default function SiteHeader({ loggedIn, admin = false, menus = { courses:
               <span className="pill admin-pill">🛡️ Admin</span>
               <a className="btn" href="/api/logout">⎋ <span className="hide-sm">வெளியேறு / </span>Logout</a>
             </> : loggedIn ? <>
+              <a className="btn alt" href="/search" title="தேர்வுகளைத் தேடு / Search">🔍<span className="hide-sm"> தேடு</span></a>
               <a className="btn alt" href="/dashboard"><span className="hide-sm">என் </span>Dashboard</a>
               <a className="btn" href="/api/logout">⎋ <span className="hide-sm">வெளியேறு / </span>Logout</a>
             </> : <>

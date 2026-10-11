@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
-import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { fmt, endLabel, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
@@ -69,7 +69,7 @@ export default async function Admin({ searchParams }) {
           <tbody>{running.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
+              <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
             </tr>))}
@@ -83,7 +83,7 @@ export default async function Admin({ searchParams }) {
           <tbody>{finished.map((t) => (
             <tr key={t.id}>
               <td><a href={`/admin/test/${t.id}`}>{t.title}</a></td>
-              <td className="small">{fmt(t.start_at)} – {fmt(t.end_at)}</td>
+              <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
             </tr>))}

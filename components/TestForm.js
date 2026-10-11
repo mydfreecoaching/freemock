@@ -1,11 +1,12 @@
 'use client';
 import { useRef, useState } from 'react';
 import Form from './Form';
-import { toISTInput, SUBJECTS } from '@/lib/util';
+import { toISTInput, SUBJECTS, openEnded } from '@/lib/util';
 
 const mins = (n) => Math.max(1, Math.ceil(n * 0.9));
 /** Test settings form. `t` = existing test (edit) or undefined (new). `exams` = available exams. */
 export default function TestForm({ subjects = null, t, exams = [], defaults = {}, action = '/api/admin/test', submit, hidden = {} }) {
+  const [noEnd, setNoEnd] = useState(() => !(t || defaults)?.end_at || openEnded(t || defaults));
   const ref = useRef(null);
   const v = { ...defaults, ...(t || {}) };
   const byCode = Object.fromEntries(exams.map((e) => [e.code, e]));
@@ -40,7 +41,10 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
       <textarea name="syllabus" required rows={6} maxLength={5000} defaultValue={v.syllabus || ''} placeholder={'எ.கா.\nபொதுத்தமிழ்: இலக்கணம் – எழுத்து, சொல்; திருக்குறள் 1–50\nபொது அறிவு: இந்திய அரசியலமைப்பு – அடிப்படை உரிமைகள்\nதிறனறிவு: சதவீதம், விகிதம்'} />
       <div className="grid2">
         <div><label>தொடக்கம் (IST)</label><input type="datetime-local" name="start_at" required defaultValue={v.start_at ? toISTInput(v.start_at) : ''} /></div>
-        <div><label>முடிவு (IST) – இதற்குப் பின் யாரும் எழுத இயலாது</label><input type="datetime-local" name="end_at" required defaultValue={v.end_at ? toISTInput(v.end_at) : ''} /></div>
+        <div>
+          <label className="choice" style={{ marginTop: 0 }}><input type="checkbox" name="no_end" checked={noEnd} onChange={(e) => setNoEnd(e.target.checked)} /> <b>கடைசி தேதி இல்லை</b> – எப்போது வேண்டுமானாலும் எழுதலாம்</label>
+          {!noEnd && <><label>முடிவு (IST) – இதற்குப் பின் யாரும் எழுத இயலாது</label><input type="datetime-local" name="end_at" required defaultValue={v.end_at && !openEnded(v) ? toISTInput(v.end_at) : ''} /></>}
+        </div>
       </div>
       <div className="grid2">
         <div><label>கால அளவு (நிமிடம்)</label><input type="number" name="duration_min" min="1" defaultValue={v.duration_min ?? (ex?.qcount ? mins(ex.qcount) : 180)} /></div>
