@@ -17,7 +17,7 @@ export function middleware(req) {
   const now = Date.now();
   const last = Number(c.get('sla')?.value) || 0;
   const isApi = p.startsWith('/api/');
-  const enforced = isApi ? ENFORCED_API.some((x) => p.startsWith(x)) : !p.startsWith('/test/') && p !== '/login';
+  const enforced = isApi ? ENFORCED_API.some((x) => p.startsWith(x)) : !p.startsWith('/test/') && !/^\/practice\/\d/.test(p) && p !== '/login';
   if (last && now - last > IDLE_MS && enforced) {
     let r;
     if (isApi) r = NextResponse.json({ error: 'நீண்ட நேரம் செயல்பாடு இல்லாததால் வெளியேற்றப்பட்டீர்கள். மீண்டும் உள்நுழையவும்.', idle: true }, { status: 401 });

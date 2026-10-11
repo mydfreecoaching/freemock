@@ -2,6 +2,7 @@ import './globals.css';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import IdleLogout from '@/components/IdleLogout';
+import OfflineSync from '@/components/OfflineSync';
 import { studentId, isAdmin } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
 import { getExams } from '@/lib/exams';
@@ -29,6 +30,7 @@ export default async function RootLayout({ children }) {
         <main className="wrap">{children}</main>
         <SiteFooter exams={exams} admin={admin} />
         {loggedIn && !admin && <IdleLogout />}
+        {loggedIn && !admin && <OfflineSync />}
       </body>
     </html>
   );

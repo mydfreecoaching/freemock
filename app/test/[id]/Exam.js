@@ -12,15 +12,29 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   const api = practice ? '/api/practice' : '/api/attempt';
   const resultUrl = practice ? `/practice/result/${practice.id}` : `/result/${test.id}`;
   const resumeUrl = practice ? `/practice/${test.id}` : `/test/${test.id}`;
+  // Offline support: every answer, the tab count and a pending submit are kept on the phone (localStorage),
+  // so the test continues without internet and is submitted automatically as soon as the connection is back.
+  const mkey = `${key}-m`;
+  const meta = () => { try { return JSON.parse(localStorage.getItem(mkey) || '{}'); } catch { return {}; } };
+  const setMeta = (m) => { try { localStorage.setItem(mkey, JSON.stringify({ ...meta(), ...m })); } catch {} };
   const [answers, setAnswers] = useState(() => ({ ...saved }));
   const saveTimer = useRef(null);
   const dirty = useRef(false);
+  const [offline, setOffline] = useState(false);
+  const [pending, setPending] = useState(false);
+  const pendingRef = useRef(false);
+  const sending = useRef(false);
+  const retry = useRef(null);
+  const submitRef = useRef(() => {});
   useEffect(() => {
     try {
+      // answers on this phone are the newest (they may not have reached the server yet)
       const loc = JSON.parse(localStorage.getItem(key) || '{}');
-      const extra = Object.entries(loc).filter(([k]) => !saved[k]);
-      if (extra.length) { setAnswers((a) => ({ ...Object.fromEntries(extra), ...a })); dirty.current = true; }
+      if (Object.entries(loc).some(([k, v]) => saved[k] !== v)) { setAnswers((a) => ({ ...a, ...loc })); dirty.current = true; }
     } catch {}
+    const m = meta();
+    if (m.tabs > tabs.current) { tabs.current = m.tabs; shown.current = m.tabs; }
+    if (m.pending) setTimeout(() => submitRef.current(), 300);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [review, setReview] = useState(() => new Set());
   const [i, setI] = useState(0);
@@ -40,33 +54,54 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   ansRef.current = answers;
 
   const save = useCallback(async (beacon = false) => {
-    if (done.current) return;
+    if (done.current || pendingRef.current) return;
     const body = JSON.stringify({ testId: test.id, practiceId: practice?.id, answers: ansRef.current, tabs: tabs.current });
     if (beacon && navigator.sendBeacon) { navigator.sendBeacon(`${api}/save`, new Blob([body], { type: 'application/json' })); return; }
     dirty.current = false; setStatus('சேமிக்கிறது…');
     try {
       const r = await fetch(`${api}/save`, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
       const j = await r.json().catch(() => ({}));
-      if (r.status === 409) { done.current = true; window.location.href = resultUrl; return false; }
+      setOffline(false);
+      // the server already closed the attempt (time over / no contact) → send the answers on this phone with the submit
+      if (r.status === 409) { submitRef.current(); return false; }
       if (r.status === 401) { done.current = true; window.location.href = `/login?${j.reason === 'tabs' || tabs.current >= TAB_LOGOUT ? 'tabs=1&' : ''}next=${encodeURIComponent(resumeUrl)}`; return false; }
       if (!r.ok) throw new Error(j.error);
       setStatus('சேமிக்கப்பட்டது ✓');
       return true;
-    } catch { dirty.current = true; setStatus('சேமிக்க இயலவில்லை – இணைப்பைச் சரிபார்க்கவும்'); return true; }
+    } catch { dirty.current = true; setOffline(true); setStatus('📴 இணைப்பு இல்லை – விடைகள் கைபேசியில் சேமிக்கப்படுகின்றன'); return true; }
   }, [test.id, api, resultUrl, resumeUrl, practice?.id]);
 
   const submit = useCallback(async () => {
-    if (done.current) return;
-    setBusy(true);
+    if (done.current || sending.current) return;
+    sending.current = true; pendingRef.current = true; setBusy(true); setConfirm(false);
+    clearTimeout(retry.current);
+    const doneAt = meta().doneAt || Math.min(deadline, Date.now() + offset.current);
+    setMeta({ pending: true, doneAt, tabs: tabs.current });
+    try { localStorage.setItem(key, JSON.stringify(ansRef.current)); } catch {}
     try {
-      const r = await fetch(`${api}/submit`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ testId: test.id, practiceId: practice?.id, answers: ansRef.current, tabs: tabs.current }) });
+      const r = await fetch(`${api}/submit`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ testId: test.id, practiceId: practice?.id, answers: ansRef.current, tabs: tabs.current, doneAt }) });
       const j = await r.json().catch(() => ({}));
+      if (r.status === 401) { done.current = true; window.location.href = `/login?next=${encodeURIComponent(resumeUrl)}`; return; } // answers stay on the phone; sent after login
+      if (r.status >= 400 && r.status < 500) { done.current = true; try { localStorage.removeItem(key); localStorage.removeItem(mkey); } catch {} alert(j.error || 'பிழை'); window.location.href = resultUrl; return; }
       if (!r.ok) throw new Error(j.error);
       done.current = true;
-      try { localStorage.removeItem(key); } catch {}
+      try { localStorage.removeItem(key); localStorage.removeItem(mkey); } catch {}
       window.location.href = j.redirect || resultUrl;
-    } catch (e) { setBusy(false); alert('சமர்ப்பிக்க இயலவில்லை: ' + (e.message || 'இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்')); }
-  }, [test.id, key, api, resultUrl, practice?.id]);
+    } catch {
+      // no internet: keep everything on the phone and keep trying – submitted automatically when the connection is back
+      sending.current = false; setOffline(true); setPending(true);
+      retry.current = setTimeout(() => submitRef.current(), 5000);
+    }
+  }, [test.id, key, mkey, api, resultUrl, resumeUrl, practice?.id, deadline]); // eslint-disable-line react-hooks/exhaustive-deps
+  submitRef.current = submit;
+  // connection back → send at once
+  useEffect(() => {
+    const on = () => { setOffline(false); if (pendingRef.current) submitRef.current(); else save(); };
+    const off = () => setOffline(true);
+    window.addEventListener('online', on); window.addEventListener('offline', off);
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) setOffline(true);
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
+  }, [save]);
 
   // timer
   useEffect(() => {
@@ -88,7 +123,9 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     const mark = () => { try { localStorage.setItem('fm_exam', String(Date.now())); } catch {} };
     mark(); window.__fmExam = true;
     const t = setInterval(mark, 15000);
-    return () => { clearInterval(t); window.__fmExam = false; try { localStorage.removeItem('fm_exam'); } catch {} };
+    const hide = () => { try { localStorage.removeItem('fm_exam'); } catch {} };
+    window.addEventListener('pagehide', hide);
+    return () => { clearInterval(t); window.removeEventListener('pagehide', hide); window.__fmExam = false; hide(); };
   }, []);
   // tab switches + save on hide
   useEffect(() => {
@@ -97,7 +134,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
       if (practice) { if (document.visibilityState === 'hidden') save(true); return; }
       if (document.visibilityState === 'hidden') {
         if (leaving.current) return;
-        tabs.current += 1; save(true);
+        tabs.current += 1; setMeta({ tabs: tabs.current }); save(true);
       } else if (tabs.current > shown.current) {
         // back on the test: the server applies the rules (warn / logout / submit), then warn here
         const n = tabs.current; shown.current = n;
@@ -163,6 +200,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
           <span className={`timer ${secs < 600 ? 'low' : ''}`}>⏱ {time}</span>
         </div>
       </div>
+      {offline && !pending && <div className="offline-bar" role="status">📴 <b>இணைய இணைப்பு இல்லை – கவலை வேண்டாம், தொடர்ந்து எழுதுங்கள்.</b> உங்கள் விடைகள் இந்தக் கைபேசியிலேயே சேமிக்கப்படுகின்றன; இணைப்பு வந்தவுடன் தானாக அனுப்பப்படும். இந்தப் பக்கத்தை reload செய்யவோ மூடவோ வேண்டாம்.<div className="small">No internet – keep writing. Answers are kept on this phone and sent automatically when the connection returns.</div></div>}
       <div className="exam" style={{ marginTop: 12 }}>
         <div>
           <div className="qcard">
@@ -213,6 +251,17 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
             <p>{warn.ta}</p>
             <p className="small muted">{warn.en}</p>
             <div className="row"><button onClick={() => setWarn(null)}>புரிந்தது, தொடர்ந்து எழுதுகிறேன் / OK</button></div>
+          </div>
+        </div>
+      )}
+      {pending && (
+        <div className="modal">
+          <div className="card tabwarn" role="alertdialog" aria-modal="true">
+            <h2>📤 சமர்ப்பிக்கக் காத்திருக்கிறது…</h2>
+            <p><b>இணைய இணைப்பு இல்லை.</b> உங்கள் விடைத்தாள் ({counts.ans + counts.e} விடைகள்) இந்தக் கைபேசியில் பாதுகாப்பாக உள்ளது. <b>இணைப்பு வந்தவுடன் தானாகச் சமர்ப்பிக்கப்படும்</b> – எதுவும் செய்ய வேண்டாம்.</p>
+            <p className="small">Mobile data / Wi-Fi-ஐ இயக்கவும். இந்தப் பக்கத்தை மூட வேண்டாம். தவறுதலாக மூடிவிட்டால், இதே கைபேசியில் இதே browser-இல் இணையத்துடன் இத்தளத்தைத் திறந்தவுடன் தானாக அனுப்பப்படும் (3 நாட்களுக்குள்).</p>
+            <p className="small muted">Waiting for internet – your answer sheet will be submitted automatically as soon as the connection is back.</p>
+            <div className="row"><button onClick={() => submitRef.current()}>இப்போதே மீண்டும் முயற்சி / Retry now</button></div>
           </div>
         </div>
       )}

@@ -16,7 +16,7 @@ export async function POST(req) {
   const tabs = Math.max(c.a.tab_switches, Math.min(9999, Number(b.tabs) || 0));
   await sql`UPDATE attempts SET answers=${sql.json(answers)}, tab_switches=${tabs}, last_seen=now() WHERE id=${c.a.id} AND submitted_at IS NULL`;
   // tab-switch rules: more than 5 → submit; more than 3 → logout (once)
-  if (tabs >= TAB_SUBMIT) { await finalize(c.a.id); return Response.json({ error: '5 முறைக்கு மேல் tab மாற்றியதால் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்பட்டது.', submitted: true, reason: 'tabs' }, { status: 409 }); }
+  if (tabs >= TAB_SUBMIT) { await finalize(c.a.id, 'tabs'); return Response.json({ error: '5 முறைக்கு மேல் tab மாற்றியதால் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்பட்டது.', submitted: true, reason: 'tabs' }, { status: 409 }); }
   if (tabs >= TAB_LOGOUT && c.a.tab_switches < TAB_LOGOUT) { await logoutAll(); return Response.json({ error: '3 முறைக்கு மேல் tab மாற்றியதால் வெளியேற்றப்பட்டீர்கள்.', logout: true, reason: 'tabs' }, { status: 401 }); }
   return Response.json({ ok: true, saved: Object.keys(answers).length, tabs });
 }
