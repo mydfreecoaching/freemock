@@ -5,7 +5,7 @@ import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import G4Prompt from '@/components/G4Prompt';
 import { G4, g4Asking } from '@/lib/venues';
-import { fmt, fmtDate, testStatus, secLabel, secSort } from '@/lib/util';
+import { openEnded, fmt, fmtDate, testStatus, secLabel, secSort } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import { studentTests } from '@/lib/student';
 import NewTestsPopup from '@/components/NewTestsPopup';
@@ -48,7 +48,7 @@ export default async function Dashboard({ searchParams }) {
 
   // pop-up: ongoing tests the student has not yet submitted
   const popItems = lists.open.filter((t) => !byTest[t.id]?.submitted_at)
-    .map((t) => ({ id: t.id, title: t.title, status: 'open', href: `/test/${t.id}`, label: EX[t.kind].name, when: `${fmt(t.end_at)} வரை எழுதலாம்` }));
+    .map((t) => ({ id: t.id, title: t.title, status: 'open', href: `/test/${t.id}`, label: EX[t.kind].name, when: openEnded(t) ? 'எப்போது வேண்டுமானாலும் எழுதலாம்' : `${fmt(t.end_at)} வரை எழுதலாம்` }));
 
   // performance
   const done = [...lists.done].reverse(); // oldest first
@@ -87,6 +87,7 @@ export default async function Dashboard({ searchParams }) {
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {me.photo_waived && <div className="okmsg">📷 இந்த முறை புகைப்படம் இல்லாமல் தேர்வு எழுதலாம். <b>அடுத்த முறை உள்நுழையும்போது பாஸ்போர்ட் அளவு புகைப்படம் கட்டாயம் – தயாராக வைத்துக்கொள்ளவும்.</b> இப்போதே பதிவேற்ற: <a href="/profile">என் விவரங்கள்</a></div>}
       {missingFields(me).length > 0 && <div className="err">⚠️ தேர்வு எழுத, விடுபட்ட விவரங்களை நிறைவு செய்யவும்: <b>{missingFields(me).join(' · ')}</b> — <a href="/profile"><b>இங்கே நிறைவு செய்யவும்</b></a>.</div>}
+      <form method="get" action="/search" className="card row searchrow" style={{ padding: 10 }}><input name="q" minLength={2} placeholder="🔍 தேர்வுகளைத் தேடு – பாடம் / தலைப்பு (எ.கா. அரசியலமைப்பு, Polity)" /><button>தேடு</button></form>
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <div className="row" style={{ gap: 12 }}>

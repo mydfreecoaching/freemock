@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
-import { testStatus, DISTRICT_EN } from '@/lib/util';
+import { openEnded, testStatus, DISTRICT_EN } from '@/lib/util';
 import { ranking, mmss } from '@/lib/rank';
 import AutoRefresh from '@/components/AutoRefresh';
 import { fmt } from '@/lib/util';
@@ -15,7 +15,7 @@ export default async function Rank({ params, searchParams }) {
   const d = (await searchParams)?.d;
   const [t] = await sql`SELECT * FROM tests WHERE id=${id}`;
   if (!t || (!adm && (!t.published || testStatus(t) === 'upcoming'))) redirect('/dashboard');
-  const live = testStatus(t) === 'open';
+  const live = testStatus(t) === 'open' && !openEnded(t);
   let rows = await ranking(id);
   const present = [...new Set(rows.map((r) => r.district))].sort((a, b) => (DISTRICT_EN[a] || a).localeCompare(DISTRICT_EN[b] || b));
   if (d) rows = rows.filter((r) => r.district === d);

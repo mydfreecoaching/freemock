@@ -36,6 +36,7 @@ export default async function Result({ params, searchParams }) {
   const wa = exw?.whatsapp_link || null;
   const [fb] = await sql`SELECT id, status, rating, comment, reply, replied_at FROM feedback WHERE test_id=${id} AND student_id=${sid}`;
   if (fb?.reply) await sql`UPDATE feedback SET reply_seen=true WHERE id=${fb.id} AND NOT reply_seen`;
+  const [{ nPr }] = await sql`SELECT count(*)::int AS "nPr" FROM practice_attempts WHERE test_id=${id} AND student_id=${sid} AND submitted_at IS NOT NULL`;
   const f = (await searchParams)?.f;
   const isWrong = (q) => { const m = (a.answers || {})[q.qno]; return m && m !== q.answer && !(m === 'E' && Number(q.nopts) !== 5); };
   const isBlank = (q) => { const m = (a.answers || {})[q.qno]; return !m || (m === 'E' && Number(q.nopts) !== 5); };
@@ -65,8 +66,9 @@ export default async function Result({ params, searchParams }) {
         )}
         {Number(t.negative_mark) > 0 && a.wrong > 0 && <p className="small muted">தவறான விடைகளுக்காக {Math.round(a.wrong * Number(t.negative_mark) * 100) / 100} மதிப்பெண் குறைக்கப்பட்டது (Negative).</p>}
         {a.unanswered > 0 && Number(t.unanswered_penalty) > 0 && <p className="small muted">விடுபட்ட வினாக்களுக்காக {Number(t.penalty_mode) === 2 ? a.unanswered * Number(t.unanswered_penalty) : Number(t.unanswered_penalty)} மதிப்பெண் குறைக்கப்பட்டது.</p>}
-        {!closed && <p className="small muted">* இதுவரை சமர்ப்பித்தவர்களிடையே உங்கள் தரம். தேர்வு {fmt(t.end_at)}-க்கு நிறைவடைந்ததும் இறுதித் தரவரிசை வெளியாகும்.</p>}
+        {!closed && <p className="small muted">* இதுவரை எழுதியவர்களிடையே உங்கள் தரம் – மேலும் மாணவர்கள் எழுத எழுத தரவரிசை தானாகப் புதுப்பிக்கப்படும்.</p>}
         {fb && <p className="row"><a className="btn" href={`/analysis/${id}`}>முழுப் பகுப்பாய்வு →</a><a className="btn alt" href={`/rank/${id}`}>{closed ? 'தரவரிசை' : '🔴 நேரலைத் தரவரிசை'}</a><a className="btn" href={`/result/${id}/pdf`}>📥 Download question with answer (PDF)</a>{t.kind && <a className="btn alt" href={`/progress?e=${t.kind}`}>என் முன்னேற்றம்</a>}</p>}
+        <p className="row" style={{ marginTop: 6 }}><a className="btn" href={`/practice/${id}`}>🔁 மீண்டும் பயிற்சிக்காக எழுது / Practice again</a><span className="small muted">தரவரிசையில் சேர்க்கப்படாது{nPr > 0 ? ` · ${nPr} பயிற்சி முடித்துள்ளீர்கள்` : ''}</span></p>
         {fb && <div className="fb-mine" id="feedback">
           <div className="small"><b>உங்கள் கருத்து</b> {'★'.repeat(fb.rating)} {fb.status === 'approved' ? <span className="muted">· ஒப்புதல் அளிக்கப்பட்டு தளத்தில் காட்டப்படுகிறது</span> : fb.status === 'pending' ? <span className="muted">· Admin பரிசீலனையில்</span> : null}</div>
           {fb.comment && <p style={{ margin: '4px 0' }}>{fb.comment}</p>}

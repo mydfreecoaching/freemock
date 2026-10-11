@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { saveQuestions } from '@/lib/questions';
-import { fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { NO_END, fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
 import { getExam, countError, examMinutes } from '@/lib/exams';
 /** approve: creates a new test from the submission (fields as in the test form). reject: {id, admin_note} */
 export async function POST(req) {
@@ -15,8 +15,9 @@ export async function POST(req) {
     await sql`UPDATE submissions SET status='rejected', admin_note=${String(b.admin_note || '').slice(0, 1000)}, reviewed_at=now() WHERE id=${sid}`;
     return Response.json({ redirect: '/admin/submissions' });
   }
-  if (!b.start_at || !b.end_at) return Response.json({ error: 'தொடக்க / முடிவு நேரம் தேவை.' }, { status: 400 });
-  const start = fromIST(b.start_at), end = fromIST(b.end_at);
+  const noEnd = b.no_end === 'on' || b.no_end === true || b.no_end === 'true' || !b.end_at;
+  if (!b.start_at) return Response.json({ error: 'தொடக்க / முடிவு நேரம் தேவை.' }, { status: 400 });
+  const start = fromIST(b.start_at), end = noEnd ? NO_END : fromIST(b.end_at);
   if (!(end > start)) return Response.json({ error: 'முடிவு நேரம் தொடக்க நேரத்துக்குப் பின் இருக்க வேண்டும்.' }, { status: 400 });
   const ex = await getExam(b.kind || s.kind);
   if (!ex) return Response.json({ error: 'தேர்வைத் (Available exam) தேர்வு செய்யவும்.' }, { status: 400 });

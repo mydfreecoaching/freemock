@@ -6,8 +6,12 @@ import { tabWarning, TAB_LOGOUT } from '@/lib/tabs';
 const letters = (q) => (Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']);
 const pad = (n) => String(n).padStart(2, '0');
 
-export default function Exam({ test, questions, saved, tabs: tabs0, deadline, serverNow }) {
-  const key = `exam-${test.id}`;
+/** practice = { id } → a practice retake: separate API, own result page, no tab-switch penalties, never ranked. */
+export default function Exam({ test, questions, saved, tabs: tabs0, deadline, serverNow, practice = null }) {
+  const key = practice ? `practice-${practice.id}` : `exam-${test.id}`;
+  const api = practice ? '/api/practice' : '/api/attempt';
+  const resultUrl = practice ? `/practice/result/${practice.id}` : `/result/${test.id}`;
+  const resumeUrl = practice ? `/practice/${test.id}` : `/test/${test.id}`;
   const [answers, setAnswers] = useState(() => ({ ...saved }));
   const saveTimer = useRef(null);
   const dirty = useRef(false);
@@ -37,32 +41,32 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
 
   const save = useCallback(async (beacon = false) => {
     if (done.current) return;
-    const body = JSON.stringify({ testId: test.id, answers: ansRef.current, tabs: tabs.current });
-    if (beacon && navigator.sendBeacon) { navigator.sendBeacon('/api/attempt/save', new Blob([body], { type: 'application/json' })); return; }
+    const body = JSON.stringify({ testId: test.id, practiceId: practice?.id, answers: ansRef.current, tabs: tabs.current });
+    if (beacon && navigator.sendBeacon) { navigator.sendBeacon(`${api}/save`, new Blob([body], { type: 'application/json' })); return; }
     dirty.current = false; setStatus('சேமிக்கிறது…');
     try {
-      const r = await fetch('/api/attempt/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+      const r = await fetch(`${api}/save`, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
       const j = await r.json().catch(() => ({}));
-      if (r.status === 409) { done.current = true; window.location.href = `/result/${test.id}`; return false; }
-      if (r.status === 401) { done.current = true; window.location.href = `/login?${j.reason === 'tabs' || tabs.current >= TAB_LOGOUT ? 'tabs=1&' : ''}next=${encodeURIComponent(`/test/${test.id}`)}`; return false; }
+      if (r.status === 409) { done.current = true; window.location.href = resultUrl; return false; }
+      if (r.status === 401) { done.current = true; window.location.href = `/login?${j.reason === 'tabs' || tabs.current >= TAB_LOGOUT ? 'tabs=1&' : ''}next=${encodeURIComponent(resumeUrl)}`; return false; }
       if (!r.ok) throw new Error(j.error);
       setStatus('சேமிக்கப்பட்டது ✓');
       return true;
     } catch { dirty.current = true; setStatus('சேமிக்க இயலவில்லை – இணைப்பைச் சரிபார்க்கவும்'); return true; }
-  }, [test.id]);
+  }, [test.id, api, resultUrl, resumeUrl, practice?.id]);
 
   const submit = useCallback(async () => {
     if (done.current) return;
     setBusy(true);
     try {
-      const r = await fetch('/api/attempt/submit', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ testId: test.id, answers: ansRef.current, tabs: tabs.current }) });
+      const r = await fetch(`${api}/submit`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ testId: test.id, practiceId: practice?.id, answers: ansRef.current, tabs: tabs.current }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error);
       done.current = true;
       try { localStorage.removeItem(key); } catch {}
-      window.location.href = j.redirect || `/result/${test.id}`;
+      window.location.href = j.redirect || resultUrl;
     } catch (e) { setBusy(false); alert('சமர்ப்பிக்க இயலவில்லை: ' + (e.message || 'இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்')); }
-  }, [test.id, key]);
+  }, [test.id, key, api, resultUrl, practice?.id]);
 
   // timer
   useEffect(() => {
@@ -90,6 +94,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   useEffect(() => {
     const v = () => {
       if (done.current) return;
+      if (practice) { if (document.visibilityState === 'hidden') save(true); return; }
       if (document.visibilityState === 'hidden') {
         if (leaving.current) return;
         tabs.current += 1; save(true);
@@ -150,7 +155,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
   return (
     <div onCopy={(e) => e.preventDefault()}>
       <div className="bar">
-        <div><b>{test.title}</b><div className="small" style={{ opacity: .85 }}>{status}</div></div>
+        <div><b>{practice && '🔁 பயிற்சி · '}{test.title}</b><div className="small" style={{ opacity: .85 }}>{status}</div></div>
         <div className="row">
           {bilingual && <select value={lang} onChange={(e) => setLang(e.target.value)} style={{ width: 'auto', padding: '4px 8px' }} aria-label="மொழி">
             <option value="both">தமிழ் + English</option><option value="ta">தமிழ்</option><option value="en">English</option>

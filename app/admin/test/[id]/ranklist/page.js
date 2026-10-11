@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { isAdmin } from '@/lib/auth';
 import { sql, ensureSchema } from '@/lib/db';
-import { DISTRICT_EN, fmt, secLabel, secSort } from '@/lib/util';
+import { DISTRICT_EN, fmt, endLabel, secLabel, secSort } from '@/lib/util';
 import { ranking, mmss } from '@/lib/rank';
 import PrintButton from '@/components/PrintButton';
 import PrintHead from '@/components/PrintHead';
@@ -30,7 +30,7 @@ export default async function RankList({ params, searchParams }) {
   const scope = d ? `${d} – ${DISTRICT_EN[d]}` : 'அனைத்து மாவட்டங்கள் / All districts';
   return (
     <div className="card rep">
-      <PrintHead title={`${t.title} — தரவரிசை / Rank list`} sub={`${scope}${top ? ` · முதல் ${top}` : ''} · தேர்வர்கள் / Candidates: ${rows.length} · மொத்த மதிப்பெண் / Max: ${max} · தேர்வு: ${fmt(t.start_at)} – ${fmt(t.end_at)}`} footer={`${t.title} · தரவரிசை`} landscape={secs.length > 3} />
+      <PrintHead title={`${t.title} — தரவரிசை / Rank list`} sub={`${scope}${top ? ` · முதல் ${top}` : ''} · தேர்வர்கள் / Candidates: ${rows.length} · மொத்த மதிப்பெண் / Max: ${max} · தேர்வு: ${fmt(t.start_at)} – ${endLabel(t)}`} footer={`${t.title} · தரவரிசை`} landscape={secs.length > 3} />
       <div className="noprint">
         <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – தரவரிசை PDF</h1><a className="btn alt" href={`/admin/test/${id}`}>← திரும்பு</a></div>
         <form className="row" method="get" style={{ margin: '12px 0' }}>

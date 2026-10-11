@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import CopyButton from '@/components/CopyButton';
-import { fmt } from '@/lib/util';
+import { openEnded, fmt } from '@/lib/util';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { ranking, mmss } from '@/lib/rank';
@@ -109,7 +109,7 @@ export default async function AdminTest({ params, searchParams }) {
 function ShareBox({ t, id, host }) {
   const proto = host?.startsWith('localhost') ? 'http' : 'https';
   const url = `${proto}://${host}/test/${id}`;
-  const msg = `*${t.title}*\n${fmt(t.start_at)} முதல் ${fmt(t.end_at)} வரை எழுதலாம்.\nஉள்நுழைந்து நேரடியாக இத்தேர்வை எழுத: ${url}\n(புதியவர்கள் இதே link-இல் பதிவு செய்யலாம்)`;
+  const msg = `*${t.title}*\n${openEnded(t) ? `${fmt(t.start_at)} முதல் எப்போது வேண்டுமானாலும் எழுதலாம்.` : `${fmt(t.start_at)} முதல் ${fmt(t.end_at)} வரை எழுதலாம்.`}\nஉள்நுழைந்து நேரடியாக இத்தேர்வை எழுத: ${url}\n(புதியவர்கள் இதே link-இல் பதிவு செய்யலாம்)`;
   return (
     <div className="card">
       <h2 style={{ marginBottom: 6 }}>🔗 தேர்வு Link – மாணவர்களுக்குப் பகிர</h2>

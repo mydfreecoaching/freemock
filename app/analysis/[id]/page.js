@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { ensureSchema, sql } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
-import { testStatus, secLabel, secSort, fmt, DISTRICT_EN } from '@/lib/util';
+import { testStatus, secLabel, secSort, fmt, endLabel, DISTRICT_EN } from '@/lib/util';
 import { testAnalysis } from '@/lib/analysis';
 import { mmss } from '@/lib/rank';
 import CopyButton from '@/components/CopyButton';
@@ -51,8 +51,8 @@ export default async function Analysis({ params }) {
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div><h1 style={{ margin: 0 }}>{test.title}</h1>
-            {!closed && <div className="okmsg small">தேர்வு இன்னும் நடைபெறுகிறது – இது இதுவரை சமர்ப்பித்தவர்களின் அடிப்படையிலான தற்காலிகப் பகுப்பாய்வு.</div>}
-            <div className="small muted">{fmt(test.start_at)} – {fmt(test.end_at)} · {items.length} வினாக்கள் · {max} மதிப்பெண்</div></div>
+            {!closed && <div className="okmsg small">இதுவரை எழுதியவர்களின் அடிப்படையிலான பகுப்பாய்வு – மேலும் மாணவர்கள் எழுத எழுத இது தானாகப் புதுப்பிக்கப்படும்.</div>}
+            <div className="small muted">{fmt(test.start_at)} – {endLabel(test)} · {items.length} வினாக்கள் · {max} மதிப்பெண்</div></div>
           <div className="row noprint"><a className="btn alt" href={`/rank/${id}`}>முழுத் தரவரிசை</a><a className="btn alt" href={back}>திரும்பு</a></div>
         </div>
         <div className="stats" style={{ marginTop: 12 }}>

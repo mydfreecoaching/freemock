@@ -1,3 +1,4 @@
+import { rescorePractice } from '@/lib/practice';
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { rescoreAll } from '@/lib/scoring';
@@ -17,5 +18,6 @@ export async function POST(req) {
     done.push(`${m[1]}=${m[2].toUpperCase()}`);
   }
   const n = await rescoreAll(id);
+  await rescorePractice(id);
   return Response.json({ message: `${done.length ? done.join(', ') + ' மாற்றப்பட்டது. ' : ''}${n} விடைத்தாள்கள் மறுமதிப்பீடு செய்யப்பட்டன.`, reload: true });
 }
