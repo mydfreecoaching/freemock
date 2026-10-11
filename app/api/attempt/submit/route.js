@@ -1,7 +1,6 @@
 import { sql } from '@/lib/db';
 import { current, cleanAnswers } from '@/lib/attempt';
 import { finalize, lateSync, isStale } from '@/lib/scoring';
-import { TAB_SUBMIT } from '@/lib/tabs';
 
 /**
  * Submit. Works also for answers written offline: the browser keeps the answers on the phone and sends them
@@ -25,7 +24,7 @@ export async function POST(req) {
   }
   if (!c.a.submitted_at) {
     if (answers) await sql`UPDATE attempts SET answers=${sql.json(answers)}, tab_switches=${tabs} WHERE id=${c.a.id} AND submitted_at IS NULL`;
-    await finalize(c.a.id, tabs >= TAB_SUBMIT ? 'tabs' : syncOnly ? null : 'student', doneAt);
+    await finalize(c.a.id, syncOnly ? null : 'student', doneAt);
   } else if (answers) {
     synced = await lateSync(c.a, answers, tabs, doneAt);
   }
