@@ -49,6 +49,7 @@ export default async function Admin({ searchParams }) {
           <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
           <a className="btn alt" href="/admin/exams">கிடைக்கும் தேர்வுகள்</a>
           <a className="btn alt" href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? ` (${fbPend})` : ''}</a>
+          <a className="btn alt" href="/admin/notify">🔔 அறிவிப்புகள்</a>
           <a className="btn alt" href="/admin/enquiries">கோரிக்கைகள்{newEnq ? ` (${newEnq})` : ''}</a>
           <a className="btn alt" href="/weekly">வாராந்திரப் பகுப்பாய்வு</a>
           <a className="btn alt" href="/admin/students">📷 தேர்வர் பட்டியல் (புகைப்படத்துடன்)</a>
