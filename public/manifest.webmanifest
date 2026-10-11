@@ -1,0 +1,9 @@
+{
+  "name": "இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test",
+  "short_name": "Free Mock Test",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#7a1f12",
+  "icons": [{ "src": "/icon.png", "sizes": "164x180", "type": "image/png", "purpose": "any" }]
+}

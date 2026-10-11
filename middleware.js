@@ -36,4 +36,4 @@ export function middleware(req) {
   return r;
 }
 
-export const config = { matcher: ['/((?!_next/|favicon|icon|tn-emblem|.*\\.(?:png|jpg|jpeg|svg|ico|webp|css|js|txt|xlsx|pdf)$).*)'] };
+export const config = { matcher: ['/((?!_next/|favicon|icon|tn-emblem|.*\\.(?:png|jpg|jpeg|svg|ico|webp|css|js|txt|xlsx|pdf|webmanifest)$).*)'] };

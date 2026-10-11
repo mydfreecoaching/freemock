@@ -3,6 +3,7 @@ import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import IdleLogout from '@/components/IdleLogout';
 import OfflineSync from '@/components/OfflineSync';
+import Analytics from '@/components/Analytics';
 import { studentId, isAdmin } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
 import { getExams } from '@/lib/exams';
@@ -10,6 +11,7 @@ import { menuTrees } from '@/lib/menu';
 
 export const metadata = {
   title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
+  manifest: '/manifest.webmanifest',
   description: 'TNPSC தொகுதி-II / IIA இலவச முழு மாதிரித் தேர்வுகள் – மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்கள், மயிலாடுதுறை & திருவாரூர்',
 };
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#7a1f12' };
@@ -31,6 +33,7 @@ export default async function RootLayout({ children }) {
         <SiteFooter exams={exams} admin={admin} />
         {loggedIn && !admin && <IdleLogout />}
         {loggedIn && !admin && <OfflineSync />}
+        {!admin && <Analytics />}
       </body>
     </html>
   );
