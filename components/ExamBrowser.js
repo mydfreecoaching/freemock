@@ -8,7 +8,7 @@ const f = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolka
  * options: [{ value, label, description }], data: { [value]: { ongoing, completed } }
  */
 export default function ExamBrowser({ options, data, loggedIn, label = 'கிடைக்கும் தேர்வுகள் / Available exams', placeholder = 'தேர்வைத் தேர்வு செய்யவும் / Select an exam' }) {
-  const [sel, setSel] = useState('');
+  const [sel, setSel] = useState(options.length === 1 ? options[0].value : '');
   const [tab, setTab] = useState('ongoing');
   useEffect(() => {
     const read = () => {

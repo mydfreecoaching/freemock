@@ -1,3 +1,4 @@
+import { viewer, testAllowed } from '@/lib/access';
 import { redirect } from 'next/navigation';
 import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
@@ -24,6 +25,8 @@ export default async function Search({ searchParams }) {
     tests = tests.filter((t) => t.nq > 0);
     const atts = tests.length ? await sql`SELECT * FROM attempts WHERE student_id=${sid} AND test_id = ANY(${tests.map((t) => t.id)})` : [];
     byTest = Object.fromEntries(atts.map((a) => [a.test_id, a]));
+    const v = await viewer();
+    tests = tests.filter((t) => testAllowed(t, v, !!byTest[t.id]));
   }
   return (
     <>

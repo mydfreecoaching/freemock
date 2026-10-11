@@ -8,7 +8,7 @@ const GUEST = [['/', 'home', 'முகப்பு', 'Home'], ['/courses', 'boo
 const active = (path, href) => (href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`));
 
 /** Phone bottom navigation bar (Material 3). Hidden on the exam screen and for admin. Also marks the current menu link. */
-export default function BottomNav({ loggedIn, admin }) {
+export default function BottomNav({ loggedIn, admin, classOk = true }) {
   const path = usePathname() || '/';
   useEffect(() => {
     document.querySelectorAll('.navlinks a, .drawer-links a').forEach((a) => {
@@ -17,7 +17,8 @@ export default function BottomNav({ loggedIn, admin }) {
     });
   }, [path]);
   if (admin || /^\/(test|practice)\/\d/.test(path) || path.startsWith('/admin') || path.startsWith('/faculty')) return null;
-  const items = loggedIn ? STUDENT : GUEST;
+  // the 'Tests' button opens Courses for Mayiladuthurai students and Full Mocks for others
+  const items = (loggedIn ? STUDENT : GUEST).map((x) => (x[0] === '/courses' && !classOk ? ['/full-mocks', x[1], 'தேர்வுகள்', 'Full Mocks'] : x));
   return (
     <nav className="botnav" aria-label="Quick navigation">
       {items.map(([h, ic, ta, en]) => (

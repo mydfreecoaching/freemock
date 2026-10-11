@@ -6,6 +6,7 @@ import { testStatus } from '@/lib/util';
 import { getExam } from '@/lib/exams';
 import { studentTests } from '@/lib/student';
 import TestCard from '@/components/TestCard';
+import ClassOnly from '@/components/ClassOnly';
 export const dynamic = 'force-dynamic';
 
 /** One exam: its ongoing, upcoming and completed tests for the logged-in student. */
@@ -15,8 +16,12 @@ export default async function ExamPage({ params }) {
   if (!sid) redirect(loginUrl(`/exam/${(await params).code}`));
   const ex = await getExam((await params).code);
   if (!ex || !ex.active) redirect('/dashboard');
-  const { tests, byTest } = await studentTests(sid);
+  const { tests, byTest, classOk } = await studentTests(sid);
   const mine = tests.filter((t) => t.kind === ex.code);
+  if (!classOk && !mine.length) {
+    const [{ c }] = await sql`SELECT count(*)::int c FROM tests WHERE kind=${ex.code} AND published AND ttype='class'`;
+    if (c) return <ClassOnly title={ex.name} />;
+  }
   const open = mine.filter((t) => testStatus(t) === 'open').sort((a, b) => new Date(a.end_at) - new Date(b.end_at));
   const upcoming = mine.filter((t) => testStatus(t) === 'upcoming').sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
   const closed = mine.filter((t) => testStatus(t) === 'closed');
