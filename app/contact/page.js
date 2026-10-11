@@ -1,23 +1,35 @@
 import Form from '@/components/Form';
-import { DISTRICT_LIST } from '@/lib/util';
+import { DISTRICT_LIST, PREFIX } from '@/lib/util';
+import { sql, ensureSchema } from '@/lib/db';
+import { studentId } from '@/lib/auth';
+import { decgcOf } from '@/lib/decgc';
+import OfficeCard from '@/components/OfficeCard';
+export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Contact us – இலவச இணையவழி மாதிரி தேர்வு' };
 
-const MAP = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('District Employment Office, Balaji Nagar, Poompuhar Road, Mayiladuthurai');
-export default function Contact() {
+export default async function Contact() {
+  await ensureSchema();
+  const sid = await studentId();
+  let mine = null;
+  if (sid) {
+    const [s] = await sql`SELECT district FROM students WHERE id=${sid}`;
+    const code = PREFIX[s?.district];
+    if (code && code !== 'MYD' && code !== 'TVR') mine = decgcOf(code);
+  }
   return (
     <>
       <section className="pagehead"><h1>தொடர்புக்கு / Contact us</h1><p>பதிவு, தேர்வு, பயிற்சி தொடர்பான சந்தேகங்களுக்கு எங்களைத் தொடர்புகொள்ளவும்.</p></section>
       <div className="grid2">
-        <div className="card">
-          <h2>📍 மயிலாடுதுறை</h2>
-          <p>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம்,<br />2-வது குறுக்குத் தெரு, பாலாஜி நகர்,<br />பூம்புகார் சாலை, மயிலாடுதுறை.</p>
-          <div className="row"><a className="btn" href="https://wa.me/919499055904">💬 WhatsApp 94990 55904</a><a className="btn alt" href={MAP} target="_blank" rel="noopener">🗺️ வரைபடம்</a></div>
-        </div>
-        <div className="card">
-          <h2>📍 திருவாரூர்</h2>
-          <p>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம்,<br />திருவாரூர்.</p>
-          <div className="row"><a className="btn" href="https://wa.me/919499055915">💬 WhatsApp 94990 55915</a></div>
-        </div>
+        <OfficeCard o={{ ...decgcOf('MYD'), no: 0 }} />
+        <OfficeCard o={{ ...decgcOf('TVR'), no: 0 }} />
+      </div>
+      {mine && <>
+        <h2 className="sec-h">📍 உங்கள் மாவட்டம் / Your district</h2>
+        <div className="grid2"><OfficeCard o={{ ...mine, no: 0 }} highlight /></div>
+      </>}
+      <div className="card row" style={{ justifyContent: 'space-between' }}>
+        <div><b>🗺️ மற்ற மாவட்டங்களில் பங்கேற்க</b><div className="small muted">தமிழ்நாட்டின் 41 மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்களின் முகவரி, தொடர்பு எண்கள் / Join from other districts</div></div>
+        <a className="btn" href="/centres">மற்ற மாவட்டங்கள் →</a>
       </div>
       <div className="card" style={{ maxWidth: 640 }}>
         <h2>✉️ கோரிக்கை அனுப்ப / Send an enquiry</h2>

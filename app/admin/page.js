@@ -4,6 +4,7 @@ import { fmt, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import { getSubjects } from '@/lib/subjects';
 import ExamSelect from '@/components/ExamSelect';
 export const dynamic = 'force-dynamic';
 
@@ -89,7 +90,7 @@ export default async function Admin({ searchParams }) {
           </tbody>
         </table></div>}
       </div>
-      <div className="card"><h2>புதிய தேர்வு</h2><TestForm exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
+      <div className="card"><h2>புதிய தேர்வு</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
     </>
   );
 }

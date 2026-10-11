@@ -7,6 +7,7 @@ import { isAdmin } from '@/lib/auth';
 import { ranking, mmss } from '@/lib/rank';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import { getSubjects } from '@/lib/subjects';
 import { getExams } from '@/lib/exams';
 import QText from '@/components/QText';
 export const dynamic = 'force-dynamic';
@@ -37,7 +38,7 @@ export default async function AdminTest({ params, searchParams }) {
       </div>
       <ShareBox t={t} id={id} host={(await headers()).get('host')} />
       <div className="grid2">
-        <div className="card"><h2>அமைப்புகள்</h2><TestForm t={t} exams={await getExams(true)} /></div>
+        <div className="card"><h2>அமைப்புகள்</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} t={t} exams={await getExams(true)} /></div>
         <div className="card">
           <h2>வினாக்கள் பதிவேற்றம்</h2>
           <p className="small">தற்போது: <b>{qs.length}</b> வினாக்கள் {Object.entries(by).map(([k, v]) => `· ${k} ${v} `)}</p>

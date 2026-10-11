@@ -6,6 +6,7 @@ import { getExams, examMap, preset } from '@/lib/exams';
 import { sectionSummary } from '@/lib/questions';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import { getSubjects } from '@/lib/subjects';
 import QText from '@/components/QText';
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,7 @@ export default async function Submission({ params }) {
       {s.status === 'pending' && (
         <div className="grid2">
           <div className="card"><h2>ஒப்புதல் → புதிய தேர்வாக உருவாக்கு</h2>
-            <TestForm exams={exams} defaults={defaults} action="/api/admin/submission" submit="ஒப்புதல் அளித்து தேர்வை உருவாக்கு" hidden={{ submission_id: s.id, decision: 'approve' }} />
+            <TestForm subjects={(await getSubjects()).map((x) => x.name)} exams={exams} defaults={defaults} action="/api/admin/submission" submit="ஒப்புதல் அளித்து தேர்வை உருவாக்கு" hidden={{ submission_id: s.id, decision: 'approve' }} />
           </div>
           <div className="card"><h2>நிராகரி</h2>
             <Form action="/api/admin/submission" submit="நிராகரி" confirm="நிராகரிக்கவா?">
