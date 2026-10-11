@@ -23,8 +23,13 @@ export default function StartButton({ testId, needAck = false }) {
         <div className="card tabwarn rules" role="alertdialog" aria-modal="true" aria-labelledby="rules-h" onClick={(e) => e.stopPropagation()}>
           <h2 id="rules-h">📢 தேர்வு விதிமுறைகள் / Test rules</h2>
           <p className="small muted" style={{ marginTop: 0 }}>கவனமாகப் படிக்கவும். &quot;சரி&quot; அழுத்திய பிறகே தேர்வும் நேரமும் தொடங்கும்.</p>
-          <h3>1️⃣ வேறு Tab / App-க்குச் செல்லலாம்</h3>
-          <ul><li>தேர்வின் போது வேறு tab, app, அழைப்பு அல்லது WhatsApp-க்குச் சென்றாலும் <b>எந்தப் பாதிப்பும் இல்லை</b> – எச்சரிக்கையோ logout-ஓ இல்லை. விடைகள் தானாகச் சேமிக்கப்படும்; நேரம் ஓடிக்கொண்டிருக்கும்.</li></ul>
+          <h3>1️⃣ தேர்வின் போது Tab / App மாற்றக்கூடாது</h3>
+          <ul>
+            <li>வேறு tab, வேறு app அல்லது வேறு திரைக்கு மாறினால் <b>முதல் முறையே எச்சரிக்கை</b> காட்டப்படும்.</li>
+            <li><b>3 முறைக்கு மேல்</b> மாறினால் தானாக <b>Logout</b> ஆகிவிடுவீர்கள். மீண்டும் உள்நுழைந்து தொடரலாம் (நேரம் ஓடிக்கொண்டே இருக்கும்).</li>
+            <li><b>5 முறைக்கு மேல்</b> மாறினால் இந்தத் தேர்வைத் தொடர்ந்து எழுத முடியாது — விடைத்தாள் <b>தானாகச் சமர்ப்பிக்கப்படும்</b>.</li>
+            <li>⚠️ கைபேசித் திரையை அணைப்பதும் (screen lock), அழைப்பு / WhatsApp பார்க்க வெளியே செல்வதும் மாறியதாகவே கணக்கிடப்படும்.</li>
+          </ul>
           <h3>2️⃣ பாதியில் விட்டுச் சென்ற தேர்வு</h3>
           <ul><li>பாதியில் விட்டுச் சென்று <b>10 நிமிடங்களுக்குள்</b> திரும்பாவிட்டால், அதுவரை அளித்த விடைகளுடன் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும்.</li></ul>
           <h3>📴 இணைய இணைப்பு துண்டிக்கப்பட்டால்</h3>
@@ -37,8 +42,9 @@ export default function StartButton({ testId, needAck = false }) {
           <ul>
             <li>நல்ல இணைய இணைப்பு, போதுமான charge உடன் தொடங்கவும்.</li>
             <li>Notification-களைத் தவிர்க்க <b>Do Not Disturb</b> ஐ இயக்கவும்.</li>
+            <li>தேர்வு முடியும் வரை அதே திரையில் இருக்கவும்.</li>
           </ul>
-          <p className="small muted">Switching tabs/apps has no effect on the test. A test left midway is auto-submitted after 10 minutes. If the internet drops, keep writing – answers stay on the phone and are submitted automatically when the connection returns.</p>
+          <p className="small muted">Do not switch tabs/apps: warning from the 1st time; more than 3 = automatic logout; more than 5 = test submitted automatically (screen lock also counts). A test left midway is auto-submitted after 10 minutes. If the internet drops, keep writing – answers stay on the phone and are submitted automatically when the connection returns.</p>
           <div className="row">
             <button onClick={go} disabled={busy}>{busy ? 'காத்திருக்கவும்…' : 'சரி, தேர்வைத் தொடங்கு / OK, start'}</button>
             <button className="alt" onClick={() => setRules(false)} disabled={busy}>இப்போது வேண்டாம்</button>
