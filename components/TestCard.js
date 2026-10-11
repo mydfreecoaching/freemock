@@ -19,6 +19,7 @@ export default function TestCard({ t, a, label }) {
         {a?.submitted_at && <span className="okmsg" style={{ margin: 0 }}>மதிப்பெண் {Number(a.score)} / {max}</span>}
         {a?.submitted_at && <a className="btn alt" href={`/result/${t.id}`}>விடைகள் & தவறுகள்</a>}
         {a?.submitted_at && <a className="btn alt" href={`/analysis/${t.id}`}>பகுப்பாய்வு</a>}
+        {a?.submitted_at && <a className="btn alt" href={`/practice/${t.id}`}>🔁 பயிற்சி</a>}
         {st === 'closed' && !a && <><a className="btn alt" href={`/analysis/${t.id}`}>தரவரிசை</a><span className="small muted">நீங்கள் எழுதவில்லை.</span></>}
       </div>
     </div>
