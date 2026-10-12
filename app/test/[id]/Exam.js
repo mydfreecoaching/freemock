@@ -192,7 +192,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
           <span className={`timer ${secs < 600 ? 'low' : ''}`}>⏱ {time}</span>
         </div>
       </div>
-      {offline && !pending && <div className="offline-bar" role="status">📴 <b>இணைய இணைப்பு இல்லை – கவலை வேண்டாம், தொடர்ந்து எழுதுங்கள்.</b> உங்கள் விடைகள் இந்தக் கைபேசியிலேயே சேமிக்கப்படுகின்றன; இணைப்பு வந்தவுடன் தானாக அனுப்பப்படும். இந்தப் பக்கத்தை reload செய்யவோ மூடவோ வேண்டாம்.<div className="small">No internet – keep writing. Answers are kept on this phone and sent automatically when the connection returns.</div></div>}
+      {offline && !pending && <div className="offline-bar" role="status">📴 <b>இணைய இணைப்பு இல்லை (Flight mode) – கவலை வேண்டாம், தொடர்ந்து எழுதுங்கள்.</b> உங்கள் விடைகள் இந்தக் கைபேசியிலேயே சேமிக்கப்படுகின்றன; இணைப்பு வந்தவுடன் தானாக அனுப்பப்படும். இந்தப் பக்கத்தை reload செய்யவோ மூடவோ வேண்டாம்.<div className="small">No internet – keep writing. Answers are kept on this phone and sent automatically when the connection returns.</div></div>}
       <div className="exam" style={{ marginTop: 12 }}>
         <div>
           <div className="qcard">
@@ -241,7 +241,7 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
           <div className="card tabwarn" role="alertdialog" aria-modal="true">
             <h2>📤 சமர்ப்பிக்கக் காத்திருக்கிறது…</h2>
             <p><b>இணைய இணைப்பு இல்லை.</b> உங்கள் விடைத்தாள் ({counts.ans + counts.e} விடைகள்) இந்தக் கைபேசியில் பாதுகாப்பாக உள்ளது. <b>இணைப்பு வந்தவுடன் தானாகச் சமர்ப்பிக்கப்படும்</b> – எதுவும் செய்ய வேண்டாம்.</p>
-            <p className="small">Mobile data / Wi-Fi-ஐ இயக்கவும். இந்தப் பக்கத்தை மூட வேண்டாம். தவறுதலாக மூடிவிட்டால், இதே கைபேசியில் இதே browser-இல் இணையத்துடன் இத்தளத்தைத் திறந்தவுடன் தானாக அனுப்பப்படும் (3 நாட்களுக்குள்).</p>
+            <p className="small"><b>Flight mode-இல் இருந்தால் அதை நிறுத்தவும்</b> / Mobile data / Wi-Fi-ஐ இயக்கவும். இந்தப் பக்கத்தை மூட வேண்டாம். தவறுதலாக மூடிவிட்டால், இதே கைபேசியில் இதே browser-இல் இணையத்துடன் இத்தளத்தைத் திறந்தவுடன் தானாக அனுப்பப்படும் (3 நாட்களுக்குள்).</p>
             <p className="small muted">Waiting for internet – your answer sheet will be submitted automatically as soon as the connection is back.</p>
             <div className="row"><button onClick={() => submitRef.current()}>இப்போதே மீண்டும் முயற்சி / Retry now</button></div>
           </div>
