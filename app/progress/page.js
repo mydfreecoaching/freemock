@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 const pc = (x) => Math.round(x * 1000) / 10;
 
 /** A student's progress across all tests of one exam (default: the exam marked for progress, e.g. Gr2/2A Full Mock). */
-export default async function Progress({ searchParams }) {
+export default async function Progress({ searchParams, embedded = false }) {
+  const base = embedded ? '/rankings?v=me&e=' : '/progress?e=';
   await ensureSchema();
   const sid = await studentId();
   if (!sid) redirect(loginUrl('/progress'));
@@ -42,12 +43,12 @@ export default async function Progress({ searchParams }) {
 
   return (
     <>
-      <div className="card">
+      <div className="card" id="progress">
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <div><h1 style={{ margin: 0 }}>📈 என் முன்னேற்றம் / My progress</h1><div className="small muted">{ex.name}</div></div>
-          <a className="btn alt" href={`/exam/${ex.code}`}>திரும்பு</a>
+          {!embedded && <a className="btn alt" href="/rankings?v=me">திரும்பு</a>}
         </div>
-        {exams.filter((e) => e.progress).length > 1 && <nav className="tabs" style={{ marginTop: 10 }}>{exams.filter((e) => e.progress).map((e) => <a key={e.code} className={`tab ${e.code === ex.code ? 'on' : ''}`} href={`/progress?e=${e.code}`}>{e.name}</a>)}</nav>}
+        {exams.filter((e) => e.progress).length > 1 && <nav className="tabs" style={{ marginTop: 10 }}>{exams.filter((e) => e.progress).map((e) => <a key={e.code} className={`tab ${e.code === ex.code ? 'on' : ''}`} href={`${base}${e.code}${embedded ? '#progress' : ''}`}>{e.name}</a>)}</nav>}
         {rows.length === 0 && <p className="muted">இந்தத் தேர்வில் நீங்கள் இன்னும் எழுதவில்லை. எழுதிய பிறகு உங்கள் முன்னேற்றம் இங்கே காட்டப்படும்.</p>}
         {rows.length > 0 && <div className="stats" style={{ marginTop: 12 }}>
           <div className="stat"><b>{rows.length}</b>எழுதிய தேர்வுகள்</div>

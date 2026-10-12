@@ -10,8 +10,8 @@ export default function ClassOnly({ title, districts = null }) {
       </div>
       <p>நீங்கள் கீழே உள்ள அனைத்துத் தேர்வுகளையும் இலவசமாக எழுதலாம் / You can write all of these for free:</p>
       <div className="row">
-        <a className="btn" href="/full-mocks">முழு மாதிரித் தேர்வுகள் / Full Mocks</a>
-        <a className="btn alt" href="/subjects">பாட வாரியான தேர்வுகள் / Subject-wise</a>
+        <a className="btn" href="/tests?t=full">முழு மாதிரித் தேர்வுகள் / Full Mocks</a>
+        <a className="btn alt" href="/tests?t=subject">பாட வாரியான தேர்வுகள் / Subject-wise</a>
         <a className="btn alt" href="/dashboard">என் Dashboard</a>
       </div>
     </div>

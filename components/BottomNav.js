@@ -3,12 +3,12 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Icon from './Icon';
 
-const STUDENT = [['/dashboard', 'dashboard', 'முகப்பு', 'Home'], ['/courses', 'book', 'தேர்வுகள்', 'Tests'], ['/search', 'search', 'தேடு', 'Search'], ['/leaderboard', 'rank', 'தரவரிசை', 'Ranks'], ['/profile', 'person', 'நான்', 'Profile']];
-const GUEST = [['/', 'home', 'முகப்பு', 'Home'], ['/courses', 'book', 'தேர்வுகள்', 'Tests'], ['/leaderboard', 'rank', 'தரவரிசை', 'Ranks'], ['/contact', 'call', 'தொடர்பு', 'Contact'], ['/login', 'login', 'உள்நுழை', 'Login']];
-const active = (path, href) => (href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`));
+const STUDENT = [['/dashboard', 'dashboard', 'முகப்பு', 'Home'], ['/tests', 'book', 'தேர்வுகள்', 'Tests'], ['/search', 'search', 'தேடு', 'Search'], ['/rankings', 'rank', 'தரவரிசை', 'Ranks'], ['/profile', 'person', 'நான்', 'Profile']];
+const GUEST = [['/', 'home', 'முகப்பு', 'Home'], ['/tests', 'book', 'தேர்வுகள்', 'Tests'], ['/rankings', 'rank', 'தரவரிசை', 'Ranks'], ['/contact', 'call', 'தொடர்பு', 'Contact'], ['/login', 'login', 'உள்நுழை', 'Login']];
+const active = (path, href) => { const h = href.split('?')[0]; return h === '/' ? path === '/' : path === h || path.startsWith(`${h}/`); };
 
 /** Phone bottom navigation bar (Material 3). Hidden on the exam screen and for admin. Also marks the current menu link. */
-export default function BottomNav({ loggedIn, admin, classOk = true }) {
+export default function BottomNav({ loggedIn, admin }) {
   const path = usePathname() || '/';
   useEffect(() => {
     document.querySelectorAll('.navlinks a, .drawer-links a').forEach((a) => {
@@ -17,8 +17,7 @@ export default function BottomNav({ loggedIn, admin, classOk = true }) {
     });
   }, [path]);
   if (admin || /^\/(test|practice)\/\d/.test(path) || path.startsWith('/admin') || path.startsWith('/faculty')) return null;
-  // the 'Tests' button opens Courses for Mayiladuthurai students and Full Mocks for others
-  const items = (loggedIn ? STUDENT : GUEST).map((x) => (x[0] === '/courses' && !classOk ? ['/full-mocks', x[1], 'தேர்வுகள்', 'Full Mocks'] : x));
+  const items = loggedIn ? STUDENT : GUEST;
   return (
     <nav className="botnav" aria-label="Quick navigation">
       {items.map(([h, ic, ta, en]) => (

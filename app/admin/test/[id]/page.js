@@ -34,7 +34,7 @@ export default async function AdminTest({ params, searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>{t.title}</h1>
-        <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a><a className="btn" href={`/admin/test/${id}/ranklist`}>📄 தரவரிசை PDF</a></div>
+        <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a><a className="btn" href={`/admin/test/${id}/ranklist`}>📄 தரவரிசை PDF</a><Form action="/api/admin/test/duplicate" submit="📑 இதுபோல் புதிய தேர்வு (Duplicate)" confirm="இதே அமைப்புகளுடன் (வினாக்கள் இல்லாமல்) புதிய தேர்வை உருவாக்கவா?" className="inline-form"><input type="hidden" name="id" value={id} /></Form></div>
       </div>
       <ShareBox t={t} id={id} host={(await headers()).get('host')} />
       <div className="grid2">

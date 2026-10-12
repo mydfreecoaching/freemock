@@ -19,8 +19,8 @@ export const metadata = {
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: [{ media: '(prefers-color-scheme: light)', color: '#ffffff' }, { media: '(prefers-color-scheme: dark)', color: '#131314' }] };
 
 export default async function RootLayout({ children }) {
-  let loggedIn = false, admin = false, classOk = true, exams = [], menus = { courses: [], full: [], subjects: [] };
-  try { admin = await isAdmin(); await ensureSchema(); const v = await viewer(); loggedIn = !v.guest; classOk = v.classOk; exams = await getExams(); menus = await menuTrees(exams, v); } catch {}
+  let loggedIn = false, admin = false, exams = [], menus = { tests: [] };
+  try { admin = await isAdmin(); await ensureSchema(); const v = await viewer(); loggedIn = !v.guest; exams = await getExams(); menus = await menuTrees(exams, v); } catch {}
   return (
     <html lang="ta" suppressHydrationWarning>
       <head>
@@ -30,13 +30,13 @@ export default async function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('fm_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
       <body>
-        <SiteHeader loggedIn={loggedIn} admin={admin} menus={menus} classOk={classOk} />
+        <SiteHeader loggedIn={loggedIn} admin={admin} menus={menus} />
         <main className="wrap">{children}</main>
         <SiteFooter exams={exams} admin={admin} />
         {loggedIn && !admin && <IdleLogout />}
         {loggedIn && !admin && <OfflineSync />}
         {!admin && <Analytics />}
-        <BottomNav loggedIn={loggedIn} admin={admin} classOk={classOk} />
+        <BottomNav loggedIn={loggedIn} admin={admin} />
       </body>
     </html>
   );

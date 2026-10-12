@@ -3,7 +3,7 @@ import NavDrop from './NavDrop';
 import NavDrawer from './NavDrawer';
 import Icon from './Icon';
 
-const NAV = [['/', 'முகப்பு', 'Home'], ['/courses', 'வகுப்புத் தேர்வுகள்', 'Courses'], ['/full-mocks', 'முழு மாதிரித் தேர்வுகள்', 'Full Mocks'], ['/subjects', 'பாட வாரியாக', 'Subject-wise Tests'], ['/leaderboard', 'தரவரிசை', 'Leaderboard'], ['/about', 'எங்களைப் பற்றி', 'About us'], ['/contact', 'தொடர்புக்கு', 'Contact us']];
+const NAV = [['/', 'முகப்பு', 'Home'], ['/tests', 'தேர்வுகள்', 'Tests'], ['/rankings', 'தரவரிசை', 'Rankings'], ['/contact', 'தொடர்புக்கு', 'Contact']];
 const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/subjects', 'பாடங்கள்', 'Subjects'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
   ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
 
@@ -11,12 +11,9 @@ const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/e
  * Material top app bar. Phones: ☰ drawer + compact title + icon actions (bottom navigation is in BottomNav).
  * Desktop: full title, menu tabs with dropdowns, action buttons.
  */
-export default function SiteHeader({ loggedIn, admin = false, classOk = true, menus = { courses: [], full: [], subjects: [] } }) {
-  // Courses (class tests) are for Mayiladuthurai students: hidden after login for other districts
-  const nav = admin ? ADMIN_NAV : NAV.filter(([h]) => h !== '/courses' || classOk);
-  const link = ([h, ta, en]) => h === '/courses' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.courses} />
-    : h === '/full-mocks' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.full || []} />
-    : h === '/subjects' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.subjects} />
+export default function SiteHeader({ loggedIn, admin = false, menus = { tests: [] } }) {
+  const nav = admin ? ADMIN_NAV : NAV;
+  const link = ([h, ta, en]) => h === '/tests' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.tests || []} />
     : <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>;
   return (
     <header className="site-head">

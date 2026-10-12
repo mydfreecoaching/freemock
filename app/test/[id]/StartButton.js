@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 
-/** Start: syllabus acknowledgement (if any) → test rules pop-up → OK starts the test and the timer. */
+/** Start → one pop-up: four short rules (+ full rules under "read more") and the syllabus tick → OK starts the test and the timer. */
 export default function StartButton({ testId, needAck = false }) {
   const [busy, setBusy] = useState(false); const [err, setErr] = useState('');
-  const [ok, setOk] = useState(!needAck);
+  const [ok, setOk] = useState(!needAck); // syllabus read (ticked inside the pop-up)
   const [rules, setRules] = useState(false);
   async function go() {
     if (!ok) return;
@@ -16,13 +16,20 @@ export default function StartButton({ testId, needAck = false }) {
   }
   return <>
     {err && <div className="err">{err}</div>}
-    {needAck && <label className="ack"><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} /> மேலே உள்ள பாடத்திட்டத்தைப் படித்தேன் – சரி / I have read the syllabus – OK</label>}
-    <button onClick={() => ok && setRules(true)} disabled={busy || !ok}>தேர்வைத் தொடங்கு / Start</button>
+    <button className="big-btn" onClick={() => setRules(true)} disabled={busy}>தேர்வைத் தொடங்கு / Start</button>
     {rules && (
       <div className="modal" onClick={() => !busy && setRules(false)}>
         <div className="card tabwarn rules" role="alertdialog" aria-modal="true" aria-labelledby="rules-h" onClick={(e) => e.stopPropagation()}>
           <h2 id="rules-h">📢 தேர்வு விதிமுறைகள் / Test rules</h2>
-          <p className="small muted" style={{ marginTop: 0 }}>கவனமாகப் படிக்கவும். &quot;சரி&quot; அழுத்திய பிறகே தேர்வும் நேரமும் தொடங்கும்.</p>
+          <p className="small muted" style={{ marginTop: 0 }}>&quot;சரி&quot; அழுத்திய பிறகே தேர்வும் நேரமும் தொடங்கும்.</p>
+          <ul className="rule4">
+            <li><span>✈️</span><span>வினாக்கள் வந்த பிறகு கைபேசியை <b>Flight mode</b>-இல் வைத்து இடையூறின்றி எழுதலாம்; சமர்ப்பித்ததும் Flight mode-ஐ நிறுத்தவும்.</span></li>
+            <li><span>🚫</span><span>வேறு <b>Tab / App</b>-க்கு மாறக்கூடாது – 3 முறைக்கு மேல் logout, 5 முறைக்கு மேல் தானாகச் சமர்ப்பிக்கப்படும்.</span></li>
+            <li><span>⏱️</span><span>நேரம் ஓடிக்கொண்டே இருக்கும்; பாதியில் விட்டு <b>10 நிமிடம்</b> திரும்பாவிட்டால் தானாகச் சமர்ப்பிக்கப்படும்.</span></li>
+            <li><span>📴</span><span>இணையம் போனாலும் தொடர்ந்து எழுதலாம் – விடைகள் கைபேசியில் சேமிக்கப்படும். பக்கத்தை <b>reload / மூட வேண்டாம்</b>.</span></li>
+          </ul>
+          <details className="syl"><summary>மேலும் படிக்க / Read full rules</summary>
+            <div className="rules-full">
           <div className="flight-tip">
             <b>✈️ இடையூறு இல்லாமல் எழுத – Flight mode பரிந்துரை</b>
             <ol>
@@ -54,8 +61,11 @@ export default function StartButton({ testId, needAck = false }) {
             <li>தேர்வு முடியும் வரை அதே திரையில் இருக்கவும்.</li>
           </ul>
           <p className="small muted">Do not switch tabs/apps: warning from the 1st time; more than 3 = automatic logout; more than 5 = test submitted automatically (screen lock also counts). A test left midway is auto-submitted after 10 minutes. If the internet drops, keep writing – answers stay on the phone and are submitted automatically when the connection returns.</p>
+            </div>
+          </details>
+          {needAck && <label className="ack"><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} /> பாடத்திட்டத்தைப் படித்தேன் / I have read the syllabus</label>}
           <div className="row">
-            <button onClick={go} disabled={busy}>{busy ? 'காத்திருக்கவும்…' : 'சரி, தேர்வைத் தொடங்கு / OK, start'}</button>
+            <button onClick={go} disabled={busy || !ok}>{busy ? 'காத்திருக்கவும்…' : 'சரி, தேர்வைத் தொடங்கு / OK, start'}</button>
             <button className="alt" onClick={() => setRules(false)} disabled={busy}>இப்போது வேண்டாம்</button>
           </div>
         </div>

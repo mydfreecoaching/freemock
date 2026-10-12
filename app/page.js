@@ -51,7 +51,7 @@ export default async function Home({ searchParams }) {
           </ul>
           <div className="row" style={{ marginTop: 14 }}>
             {loggedIn && <a className="btn big-btn" href="/dashboard">என் Dashboard →</a>}
-            <a className="btn alt big-btn" href="/courses">தேர்வுகளைப் பார்க்க</a>
+            <a className="btn alt big-btn" href="/tests">தேர்வுகளைப் பார்க்க</a>
           </div>
         </div>
         <div className="hero-side">

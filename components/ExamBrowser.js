@@ -8,7 +8,9 @@ const f = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolka
  * options: [{ value, label, description }], data: { [value]: { ongoing, completed } }
  */
 export default function ExamBrowser({ options, data, loggedIn, label = 'கிடைக்கும் தேர்வுகள் / Available exams', placeholder = 'தேர்வைத் தேர்வு செய்யவும் / Select an exam' }) {
-  const [sel, setSel] = useState(options.length === 1 ? options[0].value : '');
+  // open straight away: the first exam with running tests (else the first one) – no empty page
+  const first = (options.find((o) => data[o.value]?.ongoing?.some((t) => t.open)) || options.find((o) => data[o.value]) || options[0])?.value || '';
+  const [sel, setSel] = useState(first);
   const [tab, setTab] = useState('ongoing');
   useEffect(() => {
     const read = () => {
@@ -50,7 +52,7 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
               <b>{t.title}</b>
               {tab === 'ongoing' ? <span className={`pill ${t.open ? 'open' : 'upcoming'}`}>{t.open ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span> : <span className="pill closed">நிறைவடைந்தது</span>}
             </div>
-            <div className="small muted">{f(t.start)} – {f(t.end)} · {t.nq} வினாக்கள் · {t.mins} நிமிடம்</div>
+            <div className="small muted">{f(t.start)} – {new Date(t.end).getUTCFullYear() >= 2099 ? "கடைசி தேதி இல்லை" : f(t.end)} · {t.nq} வினாக்கள் · {t.mins} நிமிடம்</div>
             {tab === 'ongoing' && t.open && <a className="btn" style={{ marginTop: 8 }} href={`/test/${t.id}`}>{loggedIn ? 'தேர்வை எழுது →' : 'உள்நுழைந்து எழுது →'}</a>}
             {tab === 'completed' && <>
               <div className="small" style={{ marginTop: 4 }}>எழுதியோர் <b>{t.n}</b>{t.top != null && <> · அதிகபட்சம் <b>{t.top}</b> / {t.max} · சராசரி <b>{t.avgPct}%</b></>}</div>
