@@ -11,7 +11,7 @@ import G4Prompt from '@/components/G4Prompt';
 import { G4, g4Asking } from '@/lib/venues';
 import StartButton from './StartButton';
 import ClassOnly from '@/components/ClassOnly';
-import { isMyd } from '@/lib/access';
+import { forDistrict } from '@/lib/access';
 export const dynamic = 'force-dynamic';
 
 export default async function TestPage({ params, searchParams }) {
@@ -31,7 +31,7 @@ export default async function TestPage({ params, searchParams }) {
   const [{ n }] = await sql`SELECT count(*)::int AS n FROM questions WHERE test_id=${id}`;
   if (!a) {
     const me = await studentWithPhoto(sid);
-    if (t.ttype === 'class' && !isMyd(me.district)) return <ClassOnly title={t.title} />;
+    if (t.ttype === 'class' && !forDistrict(t, me.district)) return <ClassOnly title={t.title} districts={t.districts} />;
     if (!profileComplete(me)) redirect(`/profile?next=/test/${id}`);
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
     return (

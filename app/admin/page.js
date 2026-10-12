@@ -70,7 +70,7 @@ export default async function Admin({ searchParams }) {
           <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
           <tbody>{running.map((t) => (
             <tr key={t.id}>
-              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}</span></td>
+              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
               <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
@@ -84,7 +84,7 @@ export default async function Admin({ searchParams }) {
           <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
           <tbody>{finished.map((t) => (
             <tr key={t.id}>
-              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}</span></td>
+              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
               <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>

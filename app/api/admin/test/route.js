@@ -1,4 +1,4 @@
-import { normType } from '@/lib/access';
+import { normType, normDistricts } from '@/lib/access';
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { NO_END, fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
@@ -28,7 +28,12 @@ export async function POST(req) {
     syllabus: cleanSyllabus(b.syllabus),
     subject: String(b.subject || '').trim().slice(0, 120) || null,
     ttype: normType(b.ttype, ex.code),
+    districts: null,
   };
+  if (v.ttype === 'class') {
+    v.districts = normDistricts(b.districts);
+    if (!v.districts.length) return Response.json({ error: 'வகுப்புத் தேர்வுக்கு மாவட்டத்தைத் தேர்வு செய்யவும் / Select the district(s) for this class test.' }, { status: 400 });
+  }
   if ((ex.code === 'subject' || v.ttype === 'subject') && !v.subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   if (v.published) {

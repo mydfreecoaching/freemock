@@ -632,3 +632,5 @@ body:has(.botnav) .wa-float{bottom:96px}
 .typeopt span{display:flex;flex-direction:column;gap:2px} .typeopt small{color:var(--muted);font-size:12.5px;line-height:1.4}
 .typeopt.on{background:var(--sc);border-color:var(--sc);color:var(--on-sc)} .typeopt.on small{color:var(--on-sc);opacity:.85}
 .pill.tt-class{background:var(--pc);color:var(--on-pc)} .pill.tt-full{background:var(--okbg);color:var(--ok)} .pill.tt-subject{background:var(--warnbg);color:var(--warn)}
+.distpick{border:1px solid var(--outline-v);border-radius:12px;padding:6px 14px 10px;margin-top:10px}
+.distpick .choices{gap:8px 16px}
