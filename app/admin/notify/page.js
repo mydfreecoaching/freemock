@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { fmt } from '@/lib/util';
-import { fcmReady } from '@/lib/fcm';
+import { fcmReady, readAccount } from '@/lib/fcm';
 import { VAPID_KEY } from '@/lib/firebaseConfig';
 import Form from '@/components/Form';
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,7 @@ export default async function AdminNotify() {
         <b>அமைப்பு முழுமையாகவில்லை.</b> Vercel → freemock → Settings → Environment Variables-இல் சேர்க்கவும்:
         <ul>
           <li><code>NEXT_PUBLIC_FIREBASE_VAPID_KEY</code> {VAPID_KEY ? '✅' : '❌'} – Firebase console → Project settings → Cloud Messaging → Web Push certificates → Generate key pair → Key pair.</li>
-          <li><code>FIREBASE_SERVICE_ACCOUNT</code> {fcmReady() ? '✅' : '❌'} – Project settings → Service accounts → Generate new private key → பதிவிறக்கிய JSON கோப்பின் முழு உள்ளடக்கம்.</li>
+          <li><code>FIREBASE_SERVICE_ACCOUNT</code> {fcmReady() ? '✅' : <>❌ <b>காரணம்: {readAccount().err}</b></>} – Project settings → Service accounts → Generate new private key → பதிவிறக்கிய JSON கோப்பின் முழு உள்ளடக்கம்.</li>
         </ul>
         சேர்த்த பின் Redeploy செய்யவும்.
       </div>}
