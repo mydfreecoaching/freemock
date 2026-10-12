@@ -45,17 +45,27 @@ export default async function Admin({ searchParams }) {
         <div><h1 style={{ margin: 0 }}>Admin</h1>
           <div className="small muted">பதிவு செய்த தேர்வர்கள்: <b>{total}</b> · {st.slice(0, 8).map((s) => `${s.district} ${s.n}`).join(' · ')}{st.length > 8 ? ` · +${st.length - 8} மாவட்டங்கள்` : ''}</div>
           <div className="small muted">பாலினம்: {gst.map((x) => `${GENDER_LABEL[x.k] || 'விவரம் இல்லை'} ${x.n}`).join(' · ')} | சமூகம்: {cst.map((x) => `${x.k === '?' ? 'விவரம் இல்லை' : x.k} ${x.n}`).join(' · ')}{pst.length > 0 && <> | முன்னுரிமை: {pst.map((x) => `${PRIORITY_LABEL[x.k] || x.k} ${x.n}`).join(' · ')}</>}</div></div>
-        <div className="row">
-          <a className="btn" href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? ` (${pending} காத்திருப்பு)` : ''}</a>
-          <a className="btn alt" href="/admin/faculty">ஆசிரியர்கள்</a>
-          <a className="btn alt" href="/admin/exams">கிடைக்கும் தேர்வுகள்</a>
-          <a className="btn alt" href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? ` (${fbPend})` : ''}</a>
-          <a className="btn alt" href="/admin/notify">🔔 அறிவிப்புகள்</a>
-          <a className="btn alt" href="/admin/enquiries">கோரிக்கைகள்{newEnq ? ` (${newEnq})` : ''}</a>
-          <a className="btn alt" href="/weekly">வாராந்திரப் பகுப்பாய்வு</a>
-          <a className="btn alt" href="/admin/students">📷 தேர்வர் பட்டியல் (புகைப்படத்துடன்)</a>
-          <a className="btn alt" href="/api/admin/template">வினா Excel மாதிரி</a>
-          <a className="btn alt" href="/api/logout">வெளியேறு</a>
+      </div>
+      <div className="admin-groups">
+        <div className="card agroup">
+          <h2>📝 தேர்வுகள் / Tests</h2>
+          <a href="#new-test">+ புதிய தேர்வு <span>Create a test</span></a>
+          <a href="/admin/submissions">ஆசிரியர் வினாத்தாள்கள்{pending ? <b className="pop-new">{pending}</b> : null}<span>Faculty submissions</span></a>
+          <a href="/admin/exams">கிடைக்கும் தேர்வுகள் <span>Exams / courses</span></a>
+          <a href="/admin/subjects">பாடங்கள் <span>Subjects</span></a>
+          <a href="/api/admin/template">வினா Excel மாதிரி <span>Question template</span></a>
+        </div>
+        <div className="card agroup">
+          <h2>👥 மாணவர்கள் / Students</h2>
+          <a href="/admin/students">📷 தேர்வர் பட்டியல் <span>Students with photos (Excel / PDF)</span></a>
+          <a href="/weekly">வாராந்திரப் பகுப்பாய்வு <span>Weekly analysis</span></a>
+          <a href="/admin/faculty">ஆசிரியர்கள் <span>Faculty accounts</span></a>
+        </div>
+        <div className="card agroup">
+          <h2>💬 செய்திகள் / Messages</h2>
+          <a href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? <b className="pop-new">{fbPend}</b> : null}<span>Feedback</span></a>
+          <a href="/admin/enquiries">கோரிக்கைகள்{newEnq ? <b className="pop-new">{newEnq}</b> : null}<span>Enquiries</span></a>
+          <a href="/admin/notify">🔔 அறிவிப்புகள் <span>Push notifications</span></a>
         </div>
       </div>
       <div className="card" id="tests">
@@ -92,7 +102,7 @@ export default async function Admin({ searchParams }) {
           </tbody>
         </table></div>}
       </div>
-      <div className="card"><h2>புதிய தேர்வு</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
+      <div className="card" id="new-test"><h2>புதிய தேர்வு</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} exams={exams.filter((e) => e.active || e.code === cat)} defaults={cat ? { kind: cat } : {}} /></div>
     </>
   );
 }

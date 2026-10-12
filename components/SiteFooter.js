@@ -9,12 +9,12 @@ export default function SiteFooter({ exams = [], admin = false }) {
         </div>
         <div>
           <b>Quick links</b>
-          <a href="/">Home</a><a href="/courses">Courses</a><a href="/full-mocks">Full Mocks</a><a href="/subjects">Subject-wise Tests</a><a href="/about">About us</a><a href="/contact">Contact us</a>
+          <a href="/">Home</a><a href="/tests">Tests</a><a href="/rankings">Rankings</a><a href="/about">About us</a><a href="/contact">Contact us</a>
           {admin ? <a href="/admin">Admin</a> : <><a href="/register">Register</a><a href="/faculty">Faculty login</a></>}
         </div>
         <div>
-          <b>Courses</b>
-          {exams.slice(0, 8).map((e) => <a key={e.code} href={`/courses#${e.code}`}>{e.name}</a>)}
+          <b>Tests</b>
+          <a href="/tests?t=class">வகுப்புத் தேர்வுகள் / Class tests</a><a href="/tests?t=full">முழு மாதிரித் தேர்வுகள் / Full mocks</a><a href="/tests?t=subject">பாட வாரியான / Subject-wise</a>
         </div>
         <div>
           <b>Contact</b>

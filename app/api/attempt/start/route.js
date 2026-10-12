@@ -14,7 +14,7 @@ export async function POST(req) {
   const me = await studentWithPhoto(c.sid);
   const [t] = await sql`SELECT * FROM tests WHERE id=${id} AND published`;
   if (!t || testStatus(t) !== 'open') return Response.json({ error: 'இத்தேர்வு தற்போது திறந்திருக்கவில்லை.' }, { status: 400 });
-  if (t.ttype === 'class' && !forDistrict(t, me.district)) return Response.json({ error: `இந்த வகுப்புத் தேர்வு ${(t.districts || []).join(', ')} மாவட்ட மாணவர்களுக்கு மட்டும்.`, redirect: '/full-mocks' }, { status: 403 });
+  if (t.ttype === 'class' && !forDistrict(t, me.district)) return Response.json({ error: `இந்த வகுப்புத் தேர்வு ${(t.districts || []).join(', ')} மாவட்ட மாணவர்களுக்கு மட்டும்.`, redirect: '/tests?t=full' }, { status: 403 });
   if (!profileComplete(me)) return Response.json({ error: 'முதலில் உங்கள் விவரங்களை நிறைவு செய்யவும் (/profile).', redirect: `/profile?next=/test/${id}` }, { status: 400 });
   if (t.syllabus && ack !== true) return Response.json({ error: 'பாடத்திட்டத்தைப் படித்து "சரி" என்பதைத் தேர்வு செய்யவும்.' }, { status: 400 });
   if (rules !== true) return Response.json({ error: 'தேர்வு விதிமுறைகளைப் படித்து "சரி" அழுத்தவும்.' }, { status: 400 });

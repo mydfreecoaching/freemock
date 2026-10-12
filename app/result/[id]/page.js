@@ -6,7 +6,7 @@ import { fmt, testStatus, secLabel, secSort } from '@/lib/util';
 import { finalize } from '@/lib/scoring';
 import { ranking, mmss } from '@/lib/rank';
 import QText from '@/components/QText';
-import FeedbackForm from '@/components/FeedbackForm';
+import FeedbackForm, { FeedbackMore } from '@/components/FeedbackForm';
 export const dynamic = 'force-dynamic';
 
 export default async function Result({ params, searchParams }) {
@@ -70,6 +70,7 @@ export default async function Result({ params, searchParams }) {
         {fb && <div className="fb-mine" id="feedback">
           <div className="small"><b>உங்கள் கருத்து</b> {'★'.repeat(fb.rating)} {fb.status === 'approved' ? <span className="muted">· ஒப்புதல் அளிக்கப்பட்டு தளத்தில் காட்டப்படுகிறது</span> : fb.status === 'pending' ? <span className="muted">· Admin பரிசீலனையில்</span> : null}</div>
           {fb.comment && <p style={{ margin: '4px 0' }}>{fb.comment}</p>}
+          {!fb.comment && <FeedbackMore testId={id} rating={fb.rating} />}
           {fb.reply ? <div className="fb-answer"><b>💬 Admin பதில்</b><span className="small muted"> · {fmt(fb.replied_at)}</span><p style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{fb.reply}</p></div>
             : <div className="small muted">✔ உங்கள் கருத்துக்கு நன்றி. Admin பதில் அளித்தால் இங்கே காட்டப்படும்.</div>}
         </div>}
