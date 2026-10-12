@@ -23,6 +23,15 @@ export default function StartButton({ testId, needAck = false }) {
         <div className="card tabwarn rules" role="alertdialog" aria-modal="true" aria-labelledby="rules-h" onClick={(e) => e.stopPropagation()}>
           <h2 id="rules-h">📢 தேர்வு விதிமுறைகள் / Test rules</h2>
           <p className="small muted" style={{ marginTop: 0 }}>கவனமாகப் படிக்கவும். &quot;சரி&quot; அழுத்திய பிறகே தேர்வும் நேரமும் தொடங்கும்.</p>
+          <div className="flight-tip">
+            <b>✈️ இடையூறு இல்லாமல் எழுத – Flight mode பரிந்துரை</b>
+            <ol>
+              <li>"சரி, தேர்வைத் தொடங்கு" அழுத்தி, <b>வினாக்கள் திரையில் வந்த பிறகு</b> கைபேசியை <b>Flight mode</b>-இல் வைக்கவும். (தொடங்குவதற்கு இணையம் தேவை.)</li>
+              <li>அழைப்பு, WhatsApp, notification எதுவும் வராது – இணையம் இல்லாமலே தேர்வை முழுமையாக எழுதலாம்; விடைகள் கைபேசியில் சேமிக்கப்படும்.</li>
+              <li>எழுதி முடித்து <b>"சமர்ப்பி"</b> அழுத்தியதும் <b>Flight mode-ஐ நிறுத்தவும்</b> – இணையம் வந்தவுடன் விடைத்தாள் தானாகச் சமர்ப்பிக்கப்படும். அதுவரை பக்கத்தை மூடவோ reload செய்யவோ வேண்டாம்.</li>
+            </ol>
+            <div className="small">Tip: after the questions appear, switch on Flight mode to write without calls or notifications. Switch it off after pressing Submit – the answer sheet is sent automatically.</div>
+          </div>
           <h3>1️⃣ தேர்வின் போது Tab / App மாற்றக்கூடாது</h3>
           <ul>
             <li>வேறு tab, வேறு app அல்லது வேறு திரைக்கு மாறினால் <b>முதல் முறையே எச்சரிக்கை</b> காட்டப்படும்.</li>
@@ -41,7 +50,7 @@ export default function StartButton({ testId, needAck = false }) {
           <h3>✅ அறிவுரை</h3>
           <ul>
             <li>நல்ல இணைய இணைப்பு, போதுமான charge உடன் தொடங்கவும்.</li>
-            <li>Notification-களைத் தவிர்க்க <b>Do Not Disturb</b> ஐ இயக்கவும்.</li>
+            <li>Notification-களைத் தவிர்க்க வினாக்கள் வந்ததும் <b>Flight mode</b> (அல்லது Do Not Disturb) ஐ இயக்கவும்.</li>
             <li>தேர்வு முடியும் வரை அதே திரையில் இருக்கவும்.</li>
           </ul>
           <p className="small muted">Do not switch tabs/apps: warning from the 1st time; more than 3 = automatic logout; more than 5 = test submitted automatically (screen lock also counts). A test left midway is auto-submitted after 10 minutes. If the internet drops, keep writing – answers stay on the phone and are submitted automatically when the connection returns.</p>
