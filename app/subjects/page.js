@@ -1,4 +1,4 @@
-import { viewer } from '@/lib/access';
+import { viewer, testAllowed } from '@/lib/access';
 import { ensureSchema } from '@/lib/db';
 import { getSubjects } from '@/lib/subjects';
 import { browseTests } from '@/lib/browse';
@@ -11,7 +11,7 @@ export default async function Subjects() {
   await ensureSchema();
   const v = await viewer();
   const loggedIn = !v.guest;
-  const data = await browseTests((t) => (t.subject && (t.ttype !== 'class' || v.classOk) ? t.subject : null));
+  const data = await browseTests((t) => (t.subject && testAllowed(t, v) ? t.subject : null));
   const options = (await getSubjects()).map((s) => ({ value: s.name, label: s.name }));
   return (
     <>

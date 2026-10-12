@@ -16,9 +16,9 @@ export default async function ExamPage({ params }) {
   if (!sid) redirect(loginUrl(`/exam/${(await params).code}`));
   const ex = await getExam((await params).code);
   if (!ex || !ex.active) redirect('/dashboard');
-  const { tests, byTest, classOk } = await studentTests(sid);
+  const { tests, byTest } = await studentTests(sid);
   const mine = tests.filter((t) => t.kind === ex.code);
-  if (!classOk && !mine.length) {
+  if (!mine.length) {
     const [{ c }] = await sql`SELECT count(*)::int c FROM tests WHERE kind=${ex.code} AND published AND ttype='class'`;
     if (c) return <ClassOnly title={ex.name} />;
   }

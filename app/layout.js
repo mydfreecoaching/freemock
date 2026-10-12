@@ -20,7 +20,7 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: [{
 
 export default async function RootLayout({ children }) {
   let loggedIn = false, admin = false, classOk = true, exams = [], menus = { courses: [], full: [], subjects: [] };
-  try { admin = await isAdmin(); await ensureSchema(); const v = await viewer(); loggedIn = !v.guest; classOk = v.classOk; exams = await getExams(); menus = await menuTrees(exams); } catch {}
+  try { admin = await isAdmin(); await ensureSchema(); const v = await viewer(); loggedIn = !v.guest; classOk = v.classOk; exams = await getExams(); menus = await menuTrees(exams, v); } catch {}
   return (
     <html lang="ta" suppressHydrationWarning>
       <head>

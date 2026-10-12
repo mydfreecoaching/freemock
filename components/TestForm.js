@@ -1,9 +1,9 @@
 'use client';
 import { useRef, useState } from 'react';
 import Form from './Form';
-import { toISTInput, SUBJECTS, openEnded } from '@/lib/util';
+import { toISTInput, SUBJECTS, openEnded, DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 
-const TYPES = [['class', 'வகுப்புத் தேர்வு', 'Class test – Courses tab · மயிலாடுதுறை மாவட்ட மாணவர்களுக்கு மட்டும்'], ['full', 'முழு மாதிரித் தேர்வு', 'Full mock – Full Mocks tab · அனைவருக்கும்'], ['subject', 'பாட வாரியான தேர்வு', 'Subject-wise – Subject-wise tab · அனைவருக்கும்']];
+const TYPES = [['class', 'வகுப்புத் தேர்வு', 'Class test – Courses tab · தேர்வு செய்யும் மாவட்ட மாணவர்களுக்கு மட்டும்'], ['full', 'முழு மாதிரித் தேர்வு', 'Full mock – Full Mocks tab · அனைவருக்கும்'], ['subject', 'பாட வாரியான தேர்வு', 'Subject-wise – Subject-wise tab · அனைவருக்கும்']];
 const typeOf = (kind) => (kind === 'full' ? 'full' : kind === 'subject' ? 'subject' : 'class');
 
 const mins = (n) => Math.max(1, Math.ceil(n * 0.9));
@@ -16,6 +16,8 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
   const [code, setCode] = useState(v.kind && byCode[v.kind] ? v.kind : exams[0]?.code || '');
   const ex = byCode[code];
   const [ttype, setTtype] = useState(v.ttype || typeOf(code));
+  const [dists, setDists] = useState(() => new Set(v.districts || []));
+  const toggleD = (d) => setDists((s) => { const n = new Set(s); if (n.has(d)) n.delete(d); else n.add(d); return n; });
   const p = ex ? { marks_per_q: Number(ex.marks_per_q), negative_mark: Number(ex.negative_mark), unanswered_penalty: Number(ex.unanswered_penalty), allow_e: !!ex.allow_e } : {};
   function applyPreset(e) {
     setCode(e.target.value);
@@ -45,6 +47,25 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
           </label>
         ))}
       </div>
+      {ttype === 'class' && (
+        <div className="distpick">
+          <label style={{ marginTop: 4 }}>எந்த மாவட்ட மாணவர்களுக்கு? / District(s) <span className="req">*</span> <span className="small muted">– தேர்வு செய்த மாவட்ட மாணவர்கள் மட்டுமே Courses-இல் இத்தேர்வைப் பார்த்து எழுத முடியும்</span></label>
+          <div className="choices">
+            {DISTRICT_LIST.slice(0, DISTRICT_FIRST_COUNT).map(([ta, en]) => (
+              <label key={ta} className="choice"><input type="checkbox" name="districts" value={ta} checked={dists.has(ta)} onChange={() => toggleD(ta)} /> {ta} <span className="muted small">({en})</span></label>
+            ))}
+          </div>
+          <details className="syl" open={[...dists].some((d) => DISTRICT_LIST.findIndex((x) => x[0] === d) >= DISTRICT_FIRST_COUNT)}>
+            <summary>மற்ற மாவட்டங்கள் / Other districts</summary>
+            <div className="choices">
+              {DISTRICT_LIST.slice(DISTRICT_FIRST_COUNT).map(([ta, en]) => (
+                <label key={ta} className="choice"><input type="checkbox" name="districts" value={ta} checked={dists.has(ta)} onChange={() => toggleD(ta)} /> {ta} <span className="muted small">({en})</span></label>
+              ))}
+            </div>
+          </details>
+          {dists.size === 0 && <div className="small" style={{ color: 'var(--bad)' }}>குறைந்தது ஒரு மாவட்டத்தைத் தேர்வு செய்யவும் / Select at least one district.</div>}
+        </div>
+      )}
       <label>பாடம் / Subject {code === 'subject' || ttype === 'subject' ? <span className="req">*</span> : <span className="small muted">(பாட வாரியான தேர்வுக்குக் கட்டாயம்; மற்றவற்றுக்கு விருப்பம்)</span>}</label>
       <input name="subject" list="subject-list" required={code === 'subject' || ttype === 'subject'} maxLength={120} defaultValue={v.subject || ''} placeholder="பட்டியலிலிருந்து தேர்வு செய்யவும் அல்லது எழுதவும்" />
       <datalist id="subject-list">{(subjects || SUBJECTS).map((s) => <option key={s} value={s} />)}</datalist>
