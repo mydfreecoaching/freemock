@@ -5,10 +5,11 @@ import IdleLogout from '@/components/IdleLogout';
 import OfflineSync from '@/components/OfflineSync';
 import Analytics from '@/components/Analytics';
 import BottomNav from '@/components/BottomNav';
-import { studentId, isAdmin } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
 import { getExams } from '@/lib/exams';
 import { menuTrees } from '@/lib/menu';
+import { viewer } from '@/lib/access';
 
 export const metadata = {
   title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
@@ -18,8 +19,8 @@ export const metadata = {
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: [{ media: '(prefers-color-scheme: light)', color: '#ffffff' }, { media: '(prefers-color-scheme: dark)', color: '#131314' }] };
 
 export default async function RootLayout({ children }) {
-  let loggedIn = false, admin = false, exams = [], menus = { courses: [], subjects: [] };
-  try { admin = await isAdmin(); loggedIn = !!(await studentId()); await ensureSchema(); exams = await getExams(); menus = await menuTrees(exams, loggedIn); } catch {}
+  let loggedIn = false, admin = false, classOk = true, exams = [], menus = { courses: [], full: [], subjects: [] };
+  try { admin = await isAdmin(); await ensureSchema(); const v = await viewer(); loggedIn = !v.guest; classOk = v.classOk; exams = await getExams(); menus = await menuTrees(exams); } catch {}
   return (
     <html lang="ta" suppressHydrationWarning>
       <head>
@@ -29,13 +30,13 @@ export default async function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('fm_theme');if(t)document.documentElement.dataset.theme=t}catch(e){}" }} />
       </head>
       <body>
-        <SiteHeader loggedIn={loggedIn} admin={admin} menus={menus} />
+        <SiteHeader loggedIn={loggedIn} admin={admin} menus={menus} classOk={classOk} />
         <main className="wrap">{children}</main>
         <SiteFooter exams={exams} admin={admin} />
         {loggedIn && !admin && <IdleLogout />}
         {loggedIn && !admin && <OfflineSync />}
         {!admin && <Analytics />}
-        <BottomNav loggedIn={loggedIn} admin={admin} />
+        <BottomNav loggedIn={loggedIn} admin={admin} classOk={classOk} />
       </body>
     </html>
   );

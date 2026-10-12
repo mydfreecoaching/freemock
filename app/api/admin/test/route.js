@@ -1,3 +1,4 @@
+import { normType } from '@/lib/access';
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { NO_END, fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
@@ -26,8 +27,9 @@ export async function POST(req) {
     allow_e: b.allow_e === 'on' || b.allow_e === true || b.allow_e === 'true',
     syllabus: cleanSyllabus(b.syllabus),
     subject: String(b.subject || '').trim().slice(0, 120) || null,
+    ttype: normType(b.ttype, ex.code),
   };
-  if (ex.code === 'subject' && !v.subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
+  if ((ex.code === 'subject' || v.ttype === 'subject') && !v.subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   if (v.published) {
     const [{ n }] = b.id ? await sql`SELECT count(*)::int n FROM questions WHERE test_id=${Number(b.id)}` : [{ n: 0 }];

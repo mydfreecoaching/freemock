@@ -3,6 +3,9 @@ import { useRef, useState } from 'react';
 import Form from './Form';
 import { toISTInput, SUBJECTS, openEnded } from '@/lib/util';
 
+const TYPES = [['class', 'வகுப்புத் தேர்வு', 'Class test – Courses tab · மயிலாடுதுறை மாவட்ட மாணவர்களுக்கு மட்டும்'], ['full', 'முழு மாதிரித் தேர்வு', 'Full mock – Full Mocks tab · அனைவருக்கும்'], ['subject', 'பாட வாரியான தேர்வு', 'Subject-wise – Subject-wise tab · அனைவருக்கும்']];
+const typeOf = (kind) => (kind === 'full' ? 'full' : kind === 'subject' ? 'subject' : 'class');
+
 const mins = (n) => Math.max(1, Math.ceil(n * 0.9));
 /** Test settings form. `t` = existing test (edit) or undefined (new). `exams` = available exams. */
 export default function TestForm({ subjects = null, t, exams = [], defaults = {}, action = '/api/admin/test', submit, hidden = {} }) {
@@ -12,9 +15,11 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
   const byCode = Object.fromEntries(exams.map((e) => [e.code, e]));
   const [code, setCode] = useState(v.kind && byCode[v.kind] ? v.kind : exams[0]?.code || '');
   const ex = byCode[code];
+  const [ttype, setTtype] = useState(v.ttype || typeOf(code));
   const p = ex ? { marks_per_q: Number(ex.marks_per_q), negative_mark: Number(ex.negative_mark), unanswered_penalty: Number(ex.unanswered_penalty), allow_e: !!ex.allow_e } : {};
   function applyPreset(e) {
     setCode(e.target.value);
+    if (!t) setTtype(typeOf(e.target.value));
     const f = ref.current?.closest('form'); const x = byCode[e.target.value];
     if (!f || !x) return;
     f.marks_per_q.value = Number(x.marks_per_q); f.negative_mark.value = Number(x.negative_mark);
@@ -31,8 +36,17 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
         {exams.map((e) => <option key={e.code} value={e.code}>{e.name}{e.qcount ? ` – ${e.qcount} வினாக்கள்` : ''}{e.active ? '' : ' (மறைக்கப்பட்டது)'}</option>)}
       </select>
       {ex?.description && <p className="small muted" style={{ margin: '4px 0 6px' }}>{ex.description}</p>}
-      <label>பாடம் / Subject {code === 'subject' ? <span className="req">*</span> : <span className="small muted">(Subject-wise Mock Test-க்குக் கட்டாயம்; மற்றவற்றுக்கு விருப்பம்)</span>}</label>
-      <input name="subject" list="subject-list" required={code === 'subject'} maxLength={120} defaultValue={v.subject || ''} placeholder="பட்டியலிலிருந்து தேர்வு செய்யவும் அல்லது எழுதவும்" />
+      <label>தேர்வு வகை / Test type <span className="req">*</span></label>
+      <div className="typepick" role="radiogroup">
+        {TYPES.map(([k, ta, en]) => (
+          <label key={k} className={`typeopt ${ttype === k ? 'on' : ''}`}>
+            <input type="radio" name="ttype" value={k} checked={ttype === k} onChange={() => setTtype(k)} />
+            <span><b>{ta}</b><small>{en}</small></span>
+          </label>
+        ))}
+      </div>
+      <label>பாடம் / Subject {code === 'subject' || ttype === 'subject' ? <span className="req">*</span> : <span className="small muted">(பாட வாரியான தேர்வுக்குக் கட்டாயம்; மற்றவற்றுக்கு விருப்பம்)</span>}</label>
+      <input name="subject" list="subject-list" required={code === 'subject' || ttype === 'subject'} maxLength={120} defaultValue={v.subject || ''} placeholder="பட்டியலிலிருந்து தேர்வு செய்யவும் அல்லது எழுதவும்" />
       <datalist id="subject-list">{(subjects || SUBJECTS).map((s) => <option key={s} value={s} />)}</datalist>
       <p className="small muted" style={{ margin: '2px 0 6px' }}>தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்: 200 → 180, 100 → 90, 20 → 18).</p>
       <label>தலைப்பு</label>

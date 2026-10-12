@@ -1,4 +1,4 @@
-import { studentId } from '@/lib/auth';
+import { viewer } from '@/lib/access';
 import { ensureSchema } from '@/lib/db';
 import { getSubjects } from '@/lib/subjects';
 import { browseTests } from '@/lib/browse';
@@ -9,8 +9,9 @@ export const metadata = { title: 'Subject-wise Mock Tests – இலவச இ�
 /** Subject-wise tests: every published test that has a subject set, grouped by subject. */
 export default async function Subjects() {
   await ensureSchema();
-  const loggedIn = !!(await studentId());
-  const data = await browseTests((t) => t.subject);
+  const v = await viewer();
+  const loggedIn = !v.guest;
+  const data = await browseTests((t) => (t.subject && (t.ttype !== 'class' || v.classOk) ? t.subject : null));
   const options = (await getSubjects()).map((s) => ({ value: s.name, label: s.name }));
   return (
     <>
