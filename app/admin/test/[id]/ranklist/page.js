@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { isAdmin } from '@/lib/auth';
 import { sql, ensureSchema } from '@/lib/db';
-import { DISTRICT_EN, fmt, endLabel, secLabel, secSort } from '@/lib/util';
+import { DISTRICT_EN, fmt, endLabel, secLabel, secSort, genderText, priorityText } from '@/lib/util';
 import { ranking, mmss } from '@/lib/rank';
 import PrintButton from '@/components/PrintButton';
 import PrintHead from '@/components/PrintHead';
@@ -42,12 +42,12 @@ export default async function RankList({ params, searchParams }) {
         </form>
       </div>
       <div className="tablewrap"><table>
-        <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th>{d && <th>ஒட்டுமொத்தத் தரம்</th>}{photo && <th>புகைப்படம்</th>}<th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>மதிப்பெண்</th><th>சரி</th><th>தவறு</th><th>விடுபட்டவை</th>{secs.map((k) => <th key={k}>{secLabel(k)}</th>)}<th>நேரம்</th></tr></thead>
+        <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th>{d && <th>ஒட்டுமொத்தத் தரம்</th>}{photo && <th>புகைப்படம்</th>}<th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>பாலினம்</th><th>சமூகம்</th><th>முன்னுரிமை</th><th>மதிப்பெண்</th><th>சரி</th><th>தவறு</th><th>விடுபட்டவை</th>{secs.map((k) => <th key={k}>{secLabel(k)}</th>)}<th>நேரம்</th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.id}>
             <td><b>{d ? r.drank : r.rank}</b></td>{d && <td>{r.rank}</td>}
             {photo && <td>{pv[r.student_id] ? <img className="thumb" loading="lazy" src={`/api/photo/${r.student_id}?t=1&v=${pv[r.student_id]}`} alt="" /> : <span className="muted small">—</span>}</td>}
-            <td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b></td><td>{r.correct}</td><td>{r.wrong}</td><td>{(r.unanswered || 0) + (r.e_count || 0)}</td>
+            <td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td>{genderText(r.gender)}</td><td>{r.community || ''}</td><td className="small">{priorityText(r)}</td><td><b>{r.score}</b></td><td>{r.correct}</td><td>{r.wrong}</td><td>{(r.unanswered || 0) + (r.e_count || 0)}</td>
             {secs.map((k) => <td key={k}>{r.section_scores?.[k]?.marks ?? ''}</td>)}
             <td>{mmss(r.secs)}</td>
           </tr>))}
