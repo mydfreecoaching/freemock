@@ -4,6 +4,8 @@ import { GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { VENUE_LABEL, GUIDANCE_LABEL } from '@/lib/venues';
 import { ranking } from '@/lib/rank';
 import { testAnalysis, weeklyAnalysis } from '@/lib/analysis';
+import { combinedRanking } from '@/lib/combined';
+import { getExam } from '@/lib/exams';
 import { weekStart, genderText, priorityText } from '@/lib/util';
 
 const csvCell = (v) => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -26,6 +28,19 @@ export async function GET(req) {
     rows = [['Q.No', 'Section', 'Key', 'Correct %', 'Level', 'A', 'B', 'C', 'D', 'E', 'Blank', 'Discrimination', 'Most chosen wrong', 'Wrong %', 'Check key', 'Question'],
       ...A.items.map((i) => [i.qno, i.section, i.answer, i.pct, i.level, i.dist.A, i.dist.B, i.dist.C, i.dist.D, i.dist.E, i.dist['-'], i.disc ?? '', i.topWrong, i.topWrongPct, i.flag ? 'YES' : '', i.text])];
     name = `test_${id}_question_analysis`;
+  } else if (type === 'combined') {
+    // combined ranking of every test held so far for one exam, with each test's marks
+    const code = u.searchParams.get('e') || 'full';
+    const ex = await getExam(code);
+    const C = await combinedRanking(code);
+    rows = [
+      [`${ex?.name || code} – Combined ranking (${C.tests.length} tests, max ${C.grand})`],
+      ['Rank', 'District Rank', 'Reg No', 'Name', 'Mobile', 'District', 'Gender', 'Community', 'Priority',
+        ...C.tests.map((t, i) => `Test ${i + 1}: ${t.title} (/${t.max})`), `Total (/${C.grand})`, 'Tests written', 'Tests missed', 'Average %', 'Total time (min)'],
+      ...C.rows.map((r) => [r.rank, r.drank, r.reg_no, r.name, r.mobile || '', r.district, genderText(r.gender), r.community || '', priorityText(r),
+        ...C.tests.map((t) => r.scores[t.id] ?? 'Absent'), r.total, `${r.written}/${C.tests.length}`, r.missed, r.avgPct, Math.round((r.secs || 0) / 6) / 10]),
+    ];
+    name = `combined_${code}_${new Date().toISOString().slice(0, 10)}`;
   } else if (type === 'weekly') {
     const from = u.searchParams.get('w') ? new Date(`${u.searchParams.get('w')}T00:00:00+05:30`) : weekStart();
     const kk = u.searchParams.get('k') || 'g2_daily';
