@@ -17,7 +17,7 @@ export default async function Combined({ params, searchParams }) {
   const ex = await getExam(code);
   if (!ex) redirect(adm ? '/admin' : '/');
   const sp = await searchParams;
-  const { tests, rows: all, others, running, done, grand } = await combinedRanking(code);
+  const { tests, rows: all, byWritten, others, running, done, grand } = await combinedRanking(code);
   const present = [...new Set(all.map((r) => r.district))].sort((a, b) => (DISTRICT_EN[a] || a).localeCompare(DISTRICT_EN[b] || b));
   const d = present.includes(sp?.d) ? sp.d : '';
   const rows = d ? all.filter((r) => r.district === d) : all;
@@ -32,7 +32,7 @@ export default async function Combined({ params, searchParams }) {
           <div><h1 style={{ margin: 0 }}>🏆 ஒருங்கிணைந்த தரவரிசை / Combined ranking</h1><div className="small muted">{ex.name} · நடைபெற்ற {tests.length} தேர்வுகள் · மொத்த மதிப்பெண் {grand}</div></div>
           <a className="btn alt" href={adm ? '/admin' : sid ? `/exam/${code}` : '/leaderboard'}>திரும்பு</a>
         </div>
-        <p className="small" style={{ marginTop: 10 }}>இதுவரை நடைபெற்ற {tests.length} தேர்வுகளின் மொத்த மதிப்பெண் அடிப்படையில் தரவரிசை (எழுதாத தேர்வு = 0; சமமெனில் அதிக சராசரி %, பின் குறைந்த மொத்த நேரம்). புதிதாக யார் எழுதினாலும் தரவரிசை தானாகப் புதுப்பிக்கப்படும். "எழுதியவை" பகுதியில் எத்தனை தேர்வுகள் எழுதினார்கள் என்பதைப் பார்க்கலாம்.
+        <p className="small" style={{ marginTop: 10 }}>{byWritten && <><b>முதலில் அனைத்துத் தேர்வுகளையும் எழுதியவர்கள், பின் 1 தேர்வு தவறவிட்டவர்கள், பின் 2 தேர்வுகள் தவறவிட்டவர்கள் … என வரிசைப்படுத்தப்படும்;</b> ஒவ்வொரு பிரிவிலும் </>}இதுவரை நடைபெற்ற {tests.length} தேர்வுகளின் மொத்த மதிப்பெண் அடிப்படையில் தரவரிசை (எழுதாத தேர்வு = 0; சமமெனில் அதிக சராசரி %, பின் குறைந்த மொத்த நேரம்). புதிதாக யார் எழுதினாலும் தரவரிசை தானாகப் புதுப்பிக்கப்படும். "எழுதியவை" பகுதியில் எத்தனை தேர்வுகள் எழுதினார்கள் என்பதைப் பார்க்கலாம்.
           {running > 0 && <> <span className="live-dot" /> <b>தேர்வு நடைபெறுகிறது</b> – மாணவர்கள் எழுத எழுத தரவரிசை மாறும் (ஒவ்வொரு நிமிடமும் தானாகப் புதுப்பிக்கப்படும்).</>}<br />
           <span className="muted">Ranked by total marks of all tests held so far (not written = 0); updates automatically as students write.</span></p>
         {me && <div className="okmsg">உங்கள் ஒருங்கிணைந்த தரம்: <b>{me.rank} / {all.length}</b> · {me.district} தரம்: <b>{me.drank}</b> · மொத்தம் <b>{me.total} / {grand}</b></div>}
@@ -47,12 +47,15 @@ export default async function Combined({ params, searchParams }) {
         <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th><th>பதிவு எண்</th>{adm && <th>பெயர்</th>}<th>மாவட்டம்</th>{adm && <><th>பாலினம்</th><th>சமூகம்</th><th>முன்னுரிமை</th></>}
           {tests.map((t, i) => <th key={t.id} className="num" title={t.title}>தேர்வு {i + 1}{t.open && ' 🔴'}<div className="small muted">/{t.max}</div></th>)}
           <th className="num">மொத்தம்<div className="small muted">/{grand}</div></th><th className="num">எழுதியவை</th><th className="num">சராசரி %</th></tr></thead>
-        <tbody>{rows.map((r) => (
+        <tbody>{rows.map((r, i) => [
+          byWritten && (i === 0 || rows[i - 1].missed !== r.missed) && (
+            <tr key={`g${r.missed}`} className="grp-row"><td colSpan={99}>{r.missed === 0 ? `✅ அனைத்து ${tests.length} தேர்வுகளையும் எழுதியவர்கள் / Wrote all ${tests.length} tests` : `${r.missed} தேர்வு தவறவிட்டவர்கள் (${r.written}/${tests.length} எழுதியவர்கள்) / Missed ${r.missed}`} · {rows.filter((x) => x.missed === r.missed).length} பேர்</td></tr>
+          ),
           <tr key={r.student_id} style={r.student_id === sid ? { background: 'var(--sel)', fontWeight: 600 } : undefined}>
             <td><b>{d ? r.drank : r.rank}</b></td><td>{r.reg_no}</td>{adm && <td>{r.name}</td>}<td>{r.district}</td>{adm && <><td>{genderText(r.gender)}</td><td>{r.community || ''}</td><td className="small">{priorityText(r)}</td></>}
             {tests.map((t) => <td key={t.id} className="num">{r.scores[t.id] ?? '–'}</td>)}
             <td className="num"><b>{r.total}</b></td><td className="num">{r.written}/{tests.length}</td><td className="num">{r.avgPct}</td>
-          </tr>))}
+          </tr>])}
         </tbody>
       </table></div>
       {rows.length === 0 && <p className="muted">{tests.length ? 'தகுதியானவர்கள் இன்னும் இல்லை.' : 'இன்னும் தேர்வுகள் நடைபெறவில்லை.'}</p>}
