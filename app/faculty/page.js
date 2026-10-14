@@ -40,8 +40,10 @@ export default async function Faculty() {
               {exams.filter((e) => e.active).map((e) => <option key={e.code} value={e.code}>{e.name}{e.qcount ? ` – ${e.qcount} வினாக்கள்` : ''}</option>)}
             </select>
             <label>பாடம் / Subject <span className="small muted">(Subject-wise Mock Test-க்குக் கட்டாயம்)</span></label>
-            <input name="subject" list="subject-list" maxLength={120} />
-            <datalist id="subject-list">{(await getSubjects()).map((s) => <option key={s.id} value={s.name} />)}</datalist>
+            <select name="subject" defaultValue="">
+              <option value="">— பாடம் இல்லை / No subject —</option>
+              {(await getSubjects()).map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+            </select>
             <label>தலைப்பு</label><input name="title" required maxLength={150} placeholder="எ.கா. Daily Test – Indian Polity – 08.10.2026" />
             <label>பாடத்திட்டம் / Syllabus <span className="req">*</span></label><textarea name="syllabus" required rows={5} maxLength={5000} placeholder="இத்தேர்வில் இடம்பெறும் பாடப்பகுதிகள் – தேர்வர்களுக்குத் தேர்வு தொடங்கும் முன் காட்டப்படும்" />
             <label>Admin-க்குக் குறிப்பு (விருப்பம்)</label><textarea name="note" maxLength={1000} placeholder="எந்த நாளில் நடத்த வேண்டும், பாடப்பகுதி போன்றவை" />

@@ -67,8 +67,19 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
         </div>
       )}
       <label>பாடம் / Subject {code === 'subject' || ttype === 'subject' ? <span className="req">*</span> : <span className="small muted">(பாட வாரியான தேர்வுக்குக் கட்டாயம்; மற்றவற்றுக்கு விருப்பம்)</span>}</label>
-      <input name="subject" list="subject-list" required={code === 'subject' || ttype === 'subject'} maxLength={120} defaultValue={v.subject || ''} placeholder="பட்டியலிலிருந்து தேர்வு செய்யவும் அல்லது எழுதவும்" />
-      <datalist id="subject-list">{(subjects || SUBJECTS).map((s) => <option key={s} value={s} />)}</datalist>
+      {(() => {
+        // subjects come from Admin → Subjects; an older free-text subject stays selectable
+        const list = subjects || SUBJECTS;
+        const opts = v.subject && !list.includes(v.subject) ? [...list, v.subject] : list;
+        const need = code === 'subject' || ttype === 'subject';
+        return <>
+          <select name="subject" required={need} defaultValue={v.subject || ''}>
+            <option value="">{need ? 'பாடத்தைத் தேர்வு செய்யவும் / Select a subject' : '— பாடம் இல்லை / No subject —'}</option>
+            {opts.map((x) => <option key={x} value={x}>{x}</option>)}
+          </select>
+          <div className="small muted" style={{ margin: '2px 0 6px' }}>பட்டியலில் இல்லாத பாடத்தைச் சேர்க்க: <a href="/admin/subjects" target="_blank" rel="noopener">Admin → பாடங்கள்</a> (சேர்த்த பின் இப்பக்கத்தை refresh செய்யவும்)</div>
+        </>;
+      })()}
       <p className="small muted" style={{ margin: '2px 0 6px' }}>தேர்வு நேரம் வினா எண்ணிக்கைக்கு ஏற்ப தானாக அமையும் (ஒரு வினாவுக்கு 0.9 நிமிடம்: 200 → 180, 100 → 90, 20 → 18).</p>
       <label>தலைப்பு</label>
       <input name="title" required defaultValue={v.title || ''} placeholder="எ.கா. TNPSC GROUP 2/2A – FREE FULL MOCK TEST 3 / Daily Test 07.10.2026" />
