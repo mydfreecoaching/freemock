@@ -41,6 +41,7 @@ export default async function Combined({ params, searchParams }) {
           <select name="d" defaultValue={d} style={{ width: 'auto', minWidth: 220 }}><option value="">அனைத்து மாவட்டங்களும் / All districts</option>{present.map((x) => <option key={x} value={x}>{x} – {DISTRICT_EN[x] || ''}</option>)}</select>
           <button>காட்டு</button>
           {adm && <PrintButton label="📄 PDF பதிவிறக்கு" />}
+          {adm && <a className="btn alt" href={`/api/admin/export?type=combined&e=${code}`}>📥 Excel (மதிப்பெண்களுடன்)</a>}
         </form>
       </div>
       <div className="tablewrap"><table>
