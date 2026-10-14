@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
-import { GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
+import { GENDER_LABEL, PRIORITY_LABEL, genderText, priorityText } from '@/lib/util';
 import { VENUE_LABEL, GUIDANCE_LABEL } from '@/lib/venues';
 import { ranking } from '@/lib/rank';
 import { testAnalysis, weeklyAnalysis } from '@/lib/analysis';
@@ -30,17 +30,17 @@ export async function GET(req) {
     const from = u.searchParams.get('w') ? new Date(`${u.searchParams.get('w')}T00:00:00+05:30`) : weekStart();
     const kk = u.searchParams.get('k') || 'g2_daily';
     const W = await weeklyAnalysis(from, kk);
-    rows = [['Rank', 'Reg No', 'Name', 'District', 'Tests', 'Score', 'Max', 'Score %', 'Correct', 'Wrong', 'Accuracy %'],
-      ...W.students.map((s) => [s.rank, s.reg_no, s.name, s.district, `${s.tests}/${W.closed.length}`, s.score, W.totalMax, s.pct, s.correct, s.wrong, s.acc])];
+    rows = [['Rank', 'Reg No', 'Name', 'District', 'Gender', 'Community', 'Priority', 'Tests', 'Score', 'Max', 'Score %', 'Correct', 'Wrong', 'Accuracy %'],
+      ...W.students.map((s) => [s.rank, s.reg_no, s.name, s.district, genderText(s), s.community || '', priorityText(s), `${s.tests}/${W.closed.length}`, s.score, W.totalMax, s.pct, s.correct, s.wrong, s.acc])];
     name = `weekly_${kk}_${u.searchParams.get('w') || 'current'}`;
   } else {
     const id = Number(u.searchParams.get('test'));
     const qs = await sql`SELECT qno FROM questions WHERE test_id=${id} ORDER BY qno`;
     const rk = await ranking(id);
-    const head = ['Rank', 'District Rank', 'Reg No', 'Name', 'Mobile', 'District', 'Score', 'Correct', 'Wrong', 'E', 'Unanswered', 'Tamil', 'GS', 'Aptitude', 'Time (min)', 'Tab switches', 'Responses (200, - = blank)'];
+    const head = ['Rank', 'District Rank', 'Reg No', 'Name', 'Mobile', 'District', 'Gender', 'Community', 'Priority', 'Score', 'Correct', 'Wrong', 'E', 'Unanswered', 'Tamil', 'GS', 'Aptitude', 'Time (min)', 'Tab switches', 'Responses (200, - = blank)'];
     rows = [head, ...rk.map((r) => {
       const s = r.section_scores || {};
-      return [r.rank, r.drank, r.reg_no, r.name, r.mobile, r.district, r.score, r.correct, r.wrong, r.e_count, r.unanswered,
+      return [r.rank, r.drank, r.reg_no, r.name, r.mobile, r.district, genderText(r), r.community || '', priorityText(r), r.score, r.correct, r.wrong, r.e_count, r.unanswered,
         s['தமிழ்']?.marks ?? '', s.GS?.marks ?? '', s.APT?.marks ?? '', Math.round((r.secs || 0) / 6) / 10, r.tab_switches,
         qs.map((q) => r.answers?.[q.qno] || '-').join('')];
     })];
