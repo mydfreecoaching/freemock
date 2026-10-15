@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { loginUrl } from '@/lib/next';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
@@ -74,7 +75,7 @@ export default async function ResultPdf({ params }) {
           </div>
         );
       })}
-      <p className="paper-foot">freemock-mu.vercel.app · {s?.reg_no} · {fmt(new Date())}</p>
+      <p className="paper-foot">{(await headers()).get('host') || 'freemock.vercel.app'} · {s?.reg_no} · {fmt(new Date())}</p>
     </div>
   );
 }
