@@ -75,7 +75,7 @@ export default async function ResultPdf({ params }) {
           </div>
         );
       })}
-      <p className="paper-foot">{(await headers()).get('host') || 'freemock.vercel.app'} · {s?.reg_no} · {fmt(new Date())}</p>
+      <p className="paper-foot">{(await headers()).get('host') || 'tnpscfreemock.vercel.app'} · {s?.reg_no} · {fmt(new Date())}</p>
     </div>
   );
 }
