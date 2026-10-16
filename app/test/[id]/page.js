@@ -38,7 +38,7 @@ export default async function TestPage({ params, searchParams }) {
     return (
       <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
         {g4Asking() && me.g4_applied !== true && <G4Prompt lastDate={G4.lastDate} examDate={G4.examDate} />}
-        <GuidanceWa guidance={me.guidance} fresh={!!(await searchParams)?.new} />
+        <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!(await searchParams)?.new} />
         {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
         <h1>{t.title}</h1>
         <ul>
