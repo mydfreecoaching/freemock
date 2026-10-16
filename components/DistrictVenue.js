@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { venueOptions, upcomingGuidance, GUIDANCE_TIME } from '@/lib/venues';
+import { venueOptions, upcomingGuidance, GUIDANCE_TIME, TVR_START } from '@/lib/venues';
 
 /**
  * District select (optional) + "free coaching venue" for that district.
@@ -25,6 +25,7 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
         <div className="venue">
           <label>🏫 இலவச பயிற்சி வகுப்புகள் நடைபெறும் இடம் / Free coaching venue {opts.length > 1 && <span className="req">*</span>}</label>
           {opts.length > 1 && <p className="small muted" style={{ margin: '0 0 6px' }}>நீங்கள் கலந்துகொள்ள விரும்பும் பயிற்சி வகுப்பைத் தேர்வு செய்யவும்.</p>}
+          {code === 'TVR' && <div className="venue-when" style={{ margin: '0 0 6px' }}>📅 {TVR_START}</div>}
           {opts.map((o) => (
             <label key={o.code} className={`venue-opt ${chosen === o.code ? 'on' : ''}`}>
               {opts.length > 1 && <input type="radio" name="venue_pick" value={o.code} required checked={pick === o.code} onChange={() => setPick(o.code)} />}

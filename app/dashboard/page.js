@@ -12,7 +12,7 @@ import { studentTests } from '@/lib/student';
 import NewTestsPopup from '@/components/NewTestsPopup';
 import TestCard from '@/components/TestCard';
 import GuidanceWa from '@/components/GuidanceWa';
-import { guidanceGroups } from '@/lib/venues';
+import { guidanceGroups, venueGroup } from '@/lib/venues';
 export const dynamic = 'force-dynamic';
 
 const TABS = [
@@ -67,10 +67,10 @@ export default async function Dashboard({ searchParams }) {
   return (
     <>
       {/* right after registering with a venue that has a WhatsApp group, show that first – no pop-up on top of it */}
-      {!(sp?.new && guidanceGroups(me.guidance).length) && <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />}
+      {!(sp?.new && (guidanceGroups(me.guidance).length || venueGroup(me.coaching_venue))) && <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />}
       {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
-      <GuidanceWa guidance={me.guidance} fresh={!!sp?.new} />
+      <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
 
       <div className="hello row">
         {me.has_photo ? <img className="avatar sm" src={photoUrl(me.id, me.photo_v)} alt="" /> : <a className="avatar sm" href="/profile" style={{ display: 'grid', placeItems: 'center', fontSize: 11, textAlign: 'center' }}>📷</a>}
