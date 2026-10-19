@@ -1,6 +1,6 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { setStudent, setPhotoSkip } from '@/lib/auth';
-import { DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
+import { REG_DISTRICTS, PREFIX, istYear, regNo } from '@/lib/util';
 import { safeNext } from '@/lib/next';
 import { profileFields, validMobile, validDob, venueFields, g4Fields, g2Fields } from '@/lib/profile';
 import { parsePhoto, savePhoto } from '@/lib/photo';
@@ -15,7 +15,7 @@ export async function POST(req) {
   if (name.length < 2 || name.length > 80 || !/\p{L}/u.test(name)) return Response.json({ error: 'பெயரைச் சரியாக உள்ளிடவும் / Enter your name.' }, { status: 400 });
   if (!validMobile(mobile)) return Response.json({ error: '10 இலக்க கைபேசி எண்ணைச் சரியாக உள்ளிடவும் (6/7/8/9-இல் தொடங்க வேண்டும்) / Enter a valid 10-digit mobile number.' }, { status: 400 });
   if (!validDob(dob)) return Response.json({ error: 'பிறந்த தேதியைச் சரியாகத் தேர்வு செய்யவும் / Select a valid date of birth.' }, { status: 400 });
-  if (!DISTRICTS.includes(district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும் / Select your district.' }, { status: 400 });
+  if (!REG_DISTRICTS.some((d) => d[0] === district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும் / Select your district.' }, { status: 400 });
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
