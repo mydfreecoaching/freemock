@@ -58,7 +58,7 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
           <details className="syl" open={[...dists].some((d) => DISTRICT_LIST.findIndex((x) => x[0] === d) >= DISTRICT_FIRST_COUNT)}>
             <summary>மற்ற மாவட்டங்கள் / Other districts</summary>
             <div className="choices">
-              {DISTRICT_LIST.slice(DISTRICT_FIRST_COUNT).map(([ta, en]) => (
+              {DISTRICT_LIST.slice(DISTRICT_FIRST_COUNT).filter((d) => d[2] !== 'OTH').map(([ta, en]) => (
                 <label key={ta} className="choice"><input type="checkbox" name="districts" value={ta} checked={dists.has(ta)} onChange={() => toggleD(ta)} /> {ta} <span className="muted small">({en})</span></label>
               ))}
             </div>
