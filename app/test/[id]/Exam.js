@@ -109,10 +109,11 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
     }, 1000);
     return () => clearInterval(t);
   }, [deadline, submit]);
-  // autosave every 20 s when changed; heartbeat every 60 s so the server knows the student is still writing
+  // autosave every 20 s when changed; heartbeat every 4 min so the server knows the student is still writing
+  // (the server closes an attempt only after 10 min without contact; fewer heartbeats = less database load)
   useEffect(() => {
     let beat = Date.now();
-    const t = setInterval(() => { if (dirty.current || Date.now() - beat >= 60000) { beat = Date.now(); save(); } }, 20000);
+    const t = setInterval(() => { if (dirty.current || Date.now() - beat >= 240000) { beat = Date.now(); save(); } }, 20000);
     return () => clearInterval(t);
   }, [save]);
   // tell the idle-logout watcher (in every open tab) that a test is being written
