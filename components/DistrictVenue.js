@@ -23,8 +23,10 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
         <label>மாவட்டம் / District <span className="req">*</span></label>
         <select name="district" required defaultValue="" onChange={(e) => { const d = districts.find((x) => x[0] === e.target.value); setCode(d?.[2] || ''); setPick(''); setMode(''); }}>
           <option value="" disabled>தேர்வு செய்யவும்</option>
-          <optgroup label="மயிலாடுதுறை மண்டலம்">{districts.slice(0, firstCount).map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</optgroup>
-          <optgroup label="பிற மாவட்டங்கள் (A–Z)">{districts.slice(firstCount).map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</optgroup>
+          {firstCount ? <>
+            <optgroup label="மயிலாடுதுறை மண்டலம்">{districts.slice(0, firstCount).map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</optgroup>
+            <optgroup label="பிற மாவட்டங்கள் (A–Z)">{districts.slice(firstCount).map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</optgroup>
+          </> : districts.map(([ta, en, c]) => <option key={ta} value={ta}>{c === 'OTH' ? 'இதர மாவட்டங்கள் / Others' : `${ta} – ${en}`}</option>)}
         </select>
       </>}
       {opts.length > 0 && (

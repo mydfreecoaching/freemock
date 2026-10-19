@@ -2,7 +2,7 @@ import Form from '@/components/Form';
 import { redirect } from 'next/navigation';
 import { isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
-import { DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
+import { REG_DISTRICTS } from '@/lib/util';
 import { dobRange } from '@/lib/dob';
 import StudentFields from '@/components/StudentFields';
 import PhotoChoice from '@/components/PhotoChoice';
@@ -28,7 +28,7 @@ export default async function Register({ searchParams }) {
         <input name="mobile" type="tel" required inputMode="numeric" pattern="[6-9][0-9]{9}" minLength={10} maxLength={10} autoComplete="tel-national" placeholder="9XXXXXXXXX" title="6, 7, 8 அல்லது 9-இல் தொடங்கும் 10 இலக்க எண் / 10 digits starting with 6-9" />
         <label>பிறந்த தேதி / Date of Birth <span className="req">*</span></label>
         <input name="dob" type="date" required min={min} max={max} />
-        <DistrictVenue districts={DISTRICT_LIST} firstCount={DISTRICT_FIRST_COUNT} />
+        <DistrictVenue districts={REG_DISTRICTS} />
         <StudentFields />
         <PhotoChoice />
         <G2Fields />
