@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
  * Student idle logout (server side).
  * `sla` = time of the student's last request. A student session idle for more than 5 minutes is ended
  * on the next page visit. Writing a test is never interrupted: /test/* pages and the test APIs are exempt
- * (they only refresh the timestamp), and the open exam page sends a heartbeat every minute.
+ * (they only refresh the timestamp), and the open exam page sends a heartbeat every 4 minutes.
  */
 export const IDLE_MS = 5 * 60 * 1000;
 const opts = { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/', maxAge: 30 * 86400 };
