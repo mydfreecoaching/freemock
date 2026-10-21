@@ -6,6 +6,7 @@ import { secLabel, secSort } from '@/lib/util';
 import { mmss } from '@/lib/rank';
 import { finalizePractice, isStale } from '@/lib/practice';
 import QText from '@/components/QText';
+import QImg from '@/components/QImg';
 import PracticeStart from '@/app/practice/[id]/PracticeStart';
 export const dynamic = 'force-dynamic';
 
@@ -70,11 +71,12 @@ export default async function PracticeResult({ params, searchParams }) {
                 </span>
                 {q.en_q && <div className="lang"><QText text={q.en_q} /></div>}
                 {q.ta_q && <div className="lang"><QText text={q.ta_q} /></div>}
+                <QImg id={q.imgs?.q} />
                 <div className="opts">
                   {(Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']).map((l, j) => (
                     <div key={l} className={`opt ${l === q.answer ? 'correct' : mine === l ? 'wrongsel' : ''}`}>
                       <span className="l">{l}</span>
-                      <span className="t">{q.en_opts?.[j] && <span>{q.en_opts[j]}</span>}{q.ta_opts?.[j] && q.ta_opts[j] !== q.en_opts?.[j] && <span>{q.ta_opts[j]}</span>}</span>
+                      <span className="t">{q.en_opts?.[j] && <span>{q.en_opts[j]}</span>}{q.ta_opts?.[j] && q.ta_opts[j] !== q.en_opts?.[j] && <span>{q.ta_opts[j]}</span>}{q.imgs?.[l] && <QImg id={q.imgs[l]} />}</span>
                     </div>
                   ))}
                 </div>

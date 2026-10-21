@@ -18,7 +18,7 @@ export async function POST(req) {
   if (ex?.code === 'subject' && !subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   if (!file || typeof file === 'string' || !file.size) return Response.json({ error: 'Excel கோப்பைத் தேர்வு செய்யவும்.' }, { status: 400 });
-  if (file.size > 5 * 1024 * 1024) return Response.json({ error: 'கோப்பு 5 MB-க்குள் இருக்க வேண்டும்.' }, { status: 400 });
+  if (file.size > 4.3 * 1024 * 1024) return Response.json({ error: 'கோப்பு 4 MB-க்குள் இருக்க வேண்டும். படங்கள் இருந்தால் Excel-இல் Picture Format → Compress Pictures பயன்படுத்தவும்.' }, { status: 400 });
   let r;
   try { r = await parseUpload(file); } catch (e) { return Response.json({ error: 'கோப்பைப் படிக்க இயலவில்லை: ' + e.message }, { status: 400 }); }
   if (r.errors.length) return Response.json({ error: 'பிழைகளைச் சரிசெய்து மீண்டும் பதிவேற்றவும்:\n' + r.errors.join('\n') }, { status: 400 });

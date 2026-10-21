@@ -5,6 +5,7 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt } from '@/lib/util';
 import QText from '@/components/QText';
+import QImg from '@/components/QImg';
 import PrintBar from './PrintBar';
 export const dynamic = 'force-dynamic';
 
@@ -70,7 +71,8 @@ export default async function ResultPdf({ params }) {
             {q.ta_q && <div className="pq-opts">{L(q).map((l, k) => q.ta_opts?.[k] ? <Opt key={l} l={l} txt={q.ta_opts[k]} q={q} mine={mine} /> : null)}</div>}
             {q.en_q && <div className="pq-q en"><QText text={q.en_q} /></div>}
             {q.en_q && <div className="pq-opts">{L(q).map((l, k) => q.en_opts?.[k] ? <Opt key={l} l={l} txt={q.en_opts[k]} q={q} mine={mine} /> : null)}</div>}
-            {!q.ta_q && !q.en_q && null}
+            <QImg id={q.imgs?.q} />
+            {L(q).some((l) => q.imgs?.[l]) && <div className="pq-opts pq-imgs">{L(q).map((l) => q.imgs?.[l] ? <div key={l} className="pq-oi"><b>({l})</b> <QImg id={q.imgs[l]} /></div> : null)}</div>}
             <div className="pq-ans">சரியான விடை / Correct: <b>({q.answer})</b> &nbsp;·&nbsp; உங்கள் விடை / Yours: <b>{mine ? `(${mine})` : '—'}</b></div>
           </div>
         );

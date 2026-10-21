@@ -63,7 +63,7 @@ export default async function TestPage({ params, searchParams }) {
       </div>
     );
   }
-  const qs = await sql`SELECT qno, section, en_q, en_opts, ta_q, ta_opts, nopts FROM questions WHERE test_id=${id} ORDER BY qno`;
+  const qs = await sql`SELECT qno, section, en_q, en_opts, ta_q, ta_opts, nopts, imgs FROM questions WHERE test_id=${id} ORDER BY qno`;
   return <Exam test={{ id, title: t.title, allowE: !!t.allow_e, penalty: Number(t.unanswered_penalty) > 0 }} questions={qs} saved={a.answers || {}} tabs={a.tab_switches}
     deadline={new Date(a.deadline).getTime()} serverNow={Date.now()} />;
 }
