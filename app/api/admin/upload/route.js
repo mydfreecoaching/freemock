@@ -9,6 +9,7 @@ export async function POST(req) {
   const id = Number(fd.get('test_id'));
   const file = fd.get('file');
   if (!id || !file || typeof file === 'string' || !file.size) return Response.json({ error: 'கோப்பைத் தேர்வு செய்யவும்.' }, { status: 400 });
+  if (file.size > 4.3 * 1024 * 1024) return Response.json({ error: 'கோப்பு 4 MB-க்குள் இருக்க வேண்டும். படங்கள் இருந்தால் Excel-இல் Picture Format → Compress Pictures பயன்படுத்தவும்.' }, { status: 400 });
   const [t] = await sql`SELECT syllabus, kind FROM tests WHERE id=${id}`;
   if (!t) return Response.json({ error: 'தேர்வு இல்லை.' }, { status: 404 });
   if (!t.syllabus) return Response.json({ error: 'முதலில் இடப்புறம் உள்ள "அமைப்புகள்"-இல் பாடத்திட்டத்தை (Syllabus) உள்ளிட்டுச் சேமிக்கவும்; பிறகு வினாக்களைப் பதிவேற்றவும்.' }, { status: 400 });

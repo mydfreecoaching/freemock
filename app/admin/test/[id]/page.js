@@ -10,6 +10,7 @@ import TestForm from '@/components/TestForm';
 import { getSubjects } from '@/lib/subjects';
 import { getExams } from '@/lib/exams';
 import QText from '@/components/QText';
+import QImg from '@/components/QImg';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminTest({ params, searchParams }) {
@@ -97,6 +98,8 @@ export default async function AdminTest({ params, searchParams }) {
               {q.en_opts.some(Boolean) && <ol type="A" className="small">{q.en_opts.map((o, k) => <li key={k}>{o}</li>)}</ol>}
               {q.ta_q && <div className="lang"><QText text={q.ta_q} /></div>}
               {q.ta_opts.some(Boolean) && <ol type="A" className="small">{q.ta_opts.map((o, k) => <li key={k}>{o}</li>)}</ol>}
+              <QImg id={q.imgs?.q} />
+              {['A', 'B', 'C', 'D', 'E'].some((l) => q.imgs?.[l]) && <div className="opt-imgs">{['A', 'B', 'C', 'D', 'E'].map((l) => q.imgs?.[l] ? <span key={l}><b>{l}</b> <QImg id={q.imgs[l]} /></span> : null)}</div>}
             </div>
           ))}
         </div>

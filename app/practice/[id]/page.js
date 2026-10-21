@@ -19,7 +19,7 @@ export default async function PracticePage({ params }) {
   if (!(await canPractise(id, sid))) redirect(`/test/${id}`);
   const p = await openPractice(id, sid);
   if (p) {
-    const qs = await sql`SELECT qno, section, en_q, en_opts, ta_q, ta_opts, nopts FROM questions WHERE test_id=${id} ORDER BY qno`;
+    const qs = await sql`SELECT qno, section, en_q, en_opts, ta_q, ta_opts, nopts, imgs FROM questions WHERE test_id=${id} ORDER BY qno`;
     return <Exam test={{ id, title: t.title, allowE: !!t.allow_e, penalty: Number(t.unanswered_penalty) > 0 }} questions={qs} saved={p.answers || {}} tabs={0}
       deadline={new Date(p.deadline).getTime()} serverNow={Date.now()} practice={{ id: p.id }} />;
   }

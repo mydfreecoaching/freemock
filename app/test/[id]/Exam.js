@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import QText from '@/components/QText';
+import QImg from '@/components/QImg';
 
 const letters = (q) => (Number(q.nopts) === 5 ? ['A', 'B', 'C', 'D', 'E'] : ['A', 'B', 'C', 'D']);
 const pad = (n) => String(n).padStart(2, '0');
@@ -207,13 +208,14 @@ export default function Exam({ test, questions, saved, tabs: tabs0, deadline, se
             </div>
             {showEn && <div className="lang"><QText text={q.en_q} /></div>}
             {showTa && <div className="lang"><QText text={q.ta_q} /></div>}
+            <QImg id={q.imgs?.q} />
             <div className="opts">
               {letters(q).map((l, k) => {
                 const en = showEn ? q.en_opts?.[k] : '', ta = showTa ? q.ta_opts?.[k] : '';
                 return (
                   <button key={l} className={`opt ${answers[q.qno] === l ? 'on' : ''}`} onClick={() => pick(q.qno, l)}>
                     <span className="l">{l}</span>
-                    <span className="t">{en && <span>{en}</span>}{ta && ta !== en && <span>{ta}</span>}</span>
+                    <span className="t">{en && <span>{en}</span>}{ta && ta !== en && <span>{ta}</span>}{q.imgs?.[l] && <QImg id={q.imgs[l]} />}</span>
                   </button>
                 );
               })}
