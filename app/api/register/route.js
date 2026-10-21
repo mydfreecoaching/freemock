@@ -40,7 +40,7 @@ export async function POST(req) {
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;
       if (ph) await savePhoto(s.id, ph); else await sql`UPDATE students SET photo_skipped_at=now() WHERE id=${s.id}`;
       await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=${vf.values.answered ? new Date() : null},
-        g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no} WHERE id=${s.id}`;
+        g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket} WHERE id=${s.id}`;
       if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${s.id}`;
       await setStudent(s.id);
       if (later) await setPhotoSkip();

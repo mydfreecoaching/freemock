@@ -31,7 +31,7 @@ export async function POST(req) {
     priority_other=${v.priority_other}, qualification=${v.qualification} WHERE id=${sid}`;
   if (ph) await savePhoto(sid, ph);
   await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=COALESCE(${vf.values.answered ? new Date() : null}, guidance_at),
-    g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no} WHERE id=${sid}`;
+    g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket} WHERE id=${sid}`;
   if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${sid}`;
   const next = typeof b.next === 'string' && b.next.startsWith('/') && !b.next.startsWith('//') ? b.next : '/dashboard';
   return Response.json({ redirect: next });
