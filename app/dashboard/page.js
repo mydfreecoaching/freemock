@@ -5,6 +5,7 @@ import { studentId } from '@/lib/auth';
 import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import G4Prompt from '@/components/G4Prompt';
+import G2HallPrompt from '@/components/G2HallPrompt';
 import { G4, g4Asking } from '@/lib/venues';
 import { openEnded, fmt, fmtDate, testStatus } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
@@ -68,7 +69,8 @@ export default async function Dashboard({ searchParams }) {
     <>
       {/* right after registering with a venue that has a WhatsApp group, show that first – no pop-up on top of it */}
       {!(sp?.new && (guidanceGroups(me.guidance).length || venueGroup(me.coaching_venue))) && <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />}
-      {g4Asking() && me.g4_applied !== true && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
+      {me.g2_applied === true && !me.g2_hall_ticket ? <G2HallPrompt appNo={me.g2_app_no || ''} /> : null}
+      {g4Asking() && me.g4_applied !== true && !(me.g2_applied === true && !me.g2_hall_ticket) && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
 

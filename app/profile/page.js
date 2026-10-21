@@ -34,7 +34,7 @@ export default async function Profile({ searchParams }) {
         <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} />
         <StudentFields s={me} />
         <PhotoChoice current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} allowLater={!me.photo_skipped_at} waived={me.photo_waived} />
-        <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} />
+        <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} hallTicket={me.g2_hall_ticket || ''} />
         {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
       </Form>
     </div>
