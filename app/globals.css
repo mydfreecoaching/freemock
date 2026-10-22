@@ -281,8 +281,7 @@ details.syl .syllabus{margin-top:6px;font-size:14px}
 .fbgrid{display:grid;gap:12px;grid-template-columns:1fr} @media(min-width:760px){.fbgrid{grid-template-columns:1fr 1fr}} @media(min-width:1000px){.fbgrid{grid-template-columns:1fr 1fr 1fr}}
 .fbitem{background:var(--soft);border-radius:12px;padding:12px 14px} .fbitem p{margin:6px 0;font-style:italic}
 .fbform{border:2px solid var(--brand2)}
-.emblem{width:58px;height:auto;flex:none;background:#fff;border-radius:12px;padding:4px}
-@media(max-width:640px){.emblem{width:46px;border-radius:10px;padding:3px}}
+.brand-mark{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;background:var(--brand,#0b57d0);color:var(--on-brand,#fff)}
 .admin-pill{background:var(--okbg);color:var(--ok);padding:6px 12px;font-size:13px}
 
 /* idle-logout warning */
@@ -680,3 +679,4 @@ body:has(.botnav) .wa-float{bottom:96px}
 .opt-imgs{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0}.opt-imgs span{display:flex;gap:6px;align-items:flex-start}.opt-imgs .qimg{max-height:120px}
 .pq-imgs{display:flex;flex-wrap:wrap;gap:10px}.pq-oi{display:flex;gap:6px;align-items:flex-start}.pq-oi .qimg{max-height:110px}
 @media print{.qimg{max-height:260px;break-inside:avoid}}
+@media(max-width:899px){.brand-t b{white-space:normal;font-size:15px}}
