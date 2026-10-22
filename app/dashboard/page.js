@@ -76,7 +76,7 @@ export default async function Dashboard({ searchParams }) {
 
       <div className="hello row">
         {me.has_photo ? <img className="avatar sm" src={photoUrl(me.id, me.photo_v)} alt="" /> : <a className="avatar sm" href="/profile" style={{ display: 'grid', placeItems: 'center', fontSize: 11, textAlign: 'center' }}>📷</a>}
-        <div style={{ minWidth: 0 }}><b>வணக்கம், {me.name}</b><div className="small muted">{me.reg_no} · {me.district} · <a href="/profile">என் விவரங்கள்</a></div></div>
+        <div style={{ minWidth: 0 }}><b>வணக்கம், {me.name}</b><div className="small muted">{me.reg_no} · {me.district_other || me.district} · <a href="/profile">என் விவரங்கள்</a></div></div>
       </div>
 
       {next ? (

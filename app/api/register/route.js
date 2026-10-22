@@ -16,6 +16,9 @@ export async function POST(req) {
   if (!validMobile(mobile)) return Response.json({ error: '10 இலக்க கைபேசி எண்ணைச் சரியாக உள்ளிடவும் (6/7/8/9-இல் தொடங்க வேண்டும்) / Enter a valid 10-digit mobile number.' }, { status: 400 });
   if (!validDob(dob)) return Response.json({ error: 'பிறந்த தேதியைச் சரியாகத் தேர்வு செய்யவும் / Select a valid date of birth.' }, { status: 400 });
   if (!REG_DISTRICTS.some((d) => d[0] === district)) return Response.json({ error: 'மாவட்டத்தைத் தேர்வு செய்யவும் / Select your district.' }, { status: 400 });
+  // "இதர" (Others): the student types their own district; Reg. No. stays OTH…
+  const districtOther = PREFIX[district] === 'OTH' ? String(b.district_other || '').replace(/\s+/g, ' ').trim().slice(0, 60) : null;
+  if (PREFIX[district] === 'OTH' && districtOther.length < 2) return Response.json({ error: 'உங்கள் மாவட்டத்தின் பெயரை உள்ளிடவும் / Type your district.' }, { status: 400 });
   const pf = profileFields(b);
   if (pf.error) return Response.json({ error: pf.error }, { status: 400 });
   const { gender, community, email, priority, priority_other, qualification } = pf.values;
@@ -40,7 +43,7 @@ export async function POST(req) {
         VALUES (${reg},${name},${mobile},${dob},${district},${qualification},${gender},${community},${email},${sql.json(priority)},${priority_other}) RETURNING id, reg_no`;
       if (ph) await savePhoto(s.id, ph); else await sql`UPDATE students SET photo_skipped_at=now() WHERE id=${s.id}`;
       await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=${vf.values.answered ? new Date() : null},
-        g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket} WHERE id=${s.id}`;
+        g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket}, district_other=${districtOther} WHERE id=${s.id}`;
       if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${s.id}`;
       await setStudent(s.id);
       if (later) await setPhotoSkip();

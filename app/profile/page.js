@@ -27,7 +27,7 @@ export default async function Profile({ searchParams }) {
     <div className="card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <h1>என் விவரங்கள் / My Profile</h1>
       {missing.length > 0 && <div className="err"><b>⚠️ தேர்வு எழுதும் முன் விடுபட்ட விவரங்களை நிறைவு செய்யவும் (ஒரு முறை மட்டும்):</b><br />{missing.join(' · ')}<div className="small">Please complete the missing details before writing a test.</div></div>}
-      <p className="small muted">{me.name} · பதிவு எண் <b>{me.reg_no}</b> · {me.mobile} · {me.district} · பிறந்த தேதி {fmtDate(me.dob)}<br />
+      <p className="small muted">{me.name} · பதிவு எண் <b>{me.reg_no}</b> · {me.mobile} · {me.district}{me.district_other ? ` – ${me.district_other}` : ""} · பிறந்த தேதி {fmtDate(me.dob)}<br />
         (பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம் மாற்ற வேண்டுமெனில் WhatsApp-இல் தொடர்பு கொள்ளவும்.)</p>
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
