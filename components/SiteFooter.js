@@ -22,7 +22,6 @@ export default function SiteFooter({ exams = [], admin = false }) {
         </div>
       </div>
       <div className="foot-bottom small">© {new Date().getFullYear()} இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests · முற்றிலும் இலவசம் / Completely free</div>
-      <a className="wa-float" href="https://wa.me/919499055904" aria-label="WhatsApp">💬</a>
     </footer>
   );
 }
