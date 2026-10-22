@@ -17,22 +17,16 @@ export default function SiteHeader({ loggedIn, admin = false, menus = { tests: [
     : <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>;
   return (
     <header className="site-head">
-      <div className="utilbar"><div className="util-in">
-        <span>📍 மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம், 2-வது குறுக்குத் தெரு, பாலாஜி நகர், பூம்புகார் சாலை, மயிலாடுதுறை</span>
-        <span>📞 <a href="https://wa.me/919499055904">94990 55904</a> · <a href="https://wa.me/919499055915">94990 55915</a></span>
-      </div></div>
       <div className="appbar"><div className="appbar-in">
-        <NavDrawer title="இலவச மாதிரி தேர்வு / Free Mock Test">
+        <NavDrawer title="இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests">
           <div className="navlinks">{nav.map(link)}</div>
           <div className="drawer-foot small">📞 <a href="https://wa.me/919499055904">94990 55904</a> (மயிலாடுதுறை)<br />📞 <a href="https://wa.me/919499055915">94990 55915</a> (திருவாரூர்)</div>
         </NavDrawer>
         <a href={admin ? '/admin' : '/'} className="brand">
-          <img className="emblem" src="/tn-emblem.png" alt="தமிழ்நாடு அரசு / Government of Tamil Nadu" width="164" height="180" />
+          <span className="brand-mark" aria-hidden="true"><Icon name="book" size={24} /></span>
           <span className="brand-t">
-            <b><span className="b-long">இலவச இணையவழி மாதிரி தேர்வு / </span>Free Online Mock Test</b>
-            <small className="b-long">மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம் / District Employment and Career Guidance Centre</small>
-            <small className="b-long">தன்னார்வ பயிலும் வட்டம் / Study Circle · மயிலாடுதுறை & திருவாரூர் / Mayiladuthurai & Thiruvarur</small>
-            <small className="b-short">DECGC · மயிலாடுதுறை & திருவாரூர்</small>
+            <b>இலவச இணையவழி மாதிரி தேர்வுகள்</b>
+            <small>Free Mock Tests</small>
           </span>
         </a>
         <div className="appbar-act">

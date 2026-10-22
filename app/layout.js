@@ -12,7 +12,7 @@ import { menuTrees } from '@/lib/menu';
 import { viewer } from '@/lib/access';
 
 export const metadata = {
-  title: 'இலவச இணையவழி மாதிரி தேர்வு / Free Online Mock Test – DECGC Study Circle, Mayiladuthurai & Thiruvarur',
+  title: 'இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests',
   manifest: '/manifest.webmanifest',
   description: 'TNPSC தொகுதி-II / IIA இலவச முழு மாதிரித் தேர்வுகள் – மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்கள், மயிலாடுதுறை & திருவாரூர்',
 };
