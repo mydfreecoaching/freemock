@@ -20,7 +20,6 @@ export default function SiteHeader({ loggedIn, admin = false, menus = { tests: [
       <div className="appbar"><div className="appbar-in">
         <NavDrawer title="இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests">
           <div className="navlinks">{nav.map(link)}</div>
-          <div className="drawer-foot small">📞 <a href="https://wa.me/919499055904">94990 55904</a> (மயிலாடுதுறை)<br />📞 <a href="https://wa.me/919499055915">94990 55915</a> (திருவாரூர்)</div>
         </NavDrawer>
         <a href={admin ? '/admin' : '/'} className="brand">
           <span className="brand-mark" aria-hidden="true"><Icon name="book" size={24} /></span>

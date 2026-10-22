@@ -40,10 +40,10 @@ export default async function Home({ searchParams }) {
                 <div><small>விண்ணப்பத் திருத்தம்</small><b style={{ fontSize: 17 }}>{G4.correction}</b><small>Correction window</small></div>
                 <div><small>எழுத்துத் தேர்வு</small><b>{G4.examDate}</b><small>Written exam: {G4.examDateEn}</small></div>
               </div>
-              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a><a className="btn alt" href="/centres">இலவசப் பயிற்சிக்குப் பதிவு செய்ய</a></div>
+              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a></div>
             </div>
           )}
-          <p>மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம் – தன்னார்வ பயிலும் வட்டம், மயிலாடுதுறை & திருவாரூர் நடத்தும் தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
+          <p>தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – முற்றிலும் இலவசம், எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
           <ul className="ticks">
             <li>TNPSC மாதிரியில் 200 வினாக்கள், 3 மணி நேரம்</li>
             <li>சமர்ப்பித்தவுடன் விடைகள், தவறுகள், பகுப்பாய்வு</li>
