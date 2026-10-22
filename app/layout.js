@@ -14,7 +14,7 @@ import { viewer } from '@/lib/access';
 export const metadata = {
   title: 'இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests',
   manifest: '/manifest.webmanifest',
-  description: 'TNPSC தொகுதி-II / IIA இலவச முழு மாதிரித் தேர்வுகள் – மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையங்கள், மயிலாடுதுறை & திருவாரூர்',
+  description: 'TNPSC தொகுதி-II / IIA மற்றும் பிற போட்டித் தேர்வுகளுக்கான இலவச இணையவழி மாதிரித் தேர்வுகள் / Free online mock tests',
 };
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: [{ media: '(prefers-color-scheme: light)', color: '#ffffff' }, { media: '(prefers-color-scheme: dark)', color: '#131314' }] };
 

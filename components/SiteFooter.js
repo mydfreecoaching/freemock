@@ -4,8 +4,8 @@ export default function SiteFooter({ exams = [], admin = false }) {
     <footer className="site-foot">
       <div className="foot-in">
         <div>
-          <b>இலவச இணையவழி மாதிரி தேர்வு</b>
-          <p className="small">மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம், தன்னார்வ பயிலும் வட்டம் – மயிலாடுதுறை & திருவாரூர். போட்டித் தேர்வு மாணவர்களுக்கு முற்றிலும் இலவசமான மாதிரித் தேர்வுகள்.</p>
+          <b>இலவச இணையவழி மாதிரி தேர்வுகள்</b>
+          <p className="small">போட்டித் தேர்வு மாணவர்களுக்கு முற்றிலும் இலவசமான இணையவழி மாதிரித் தேர்வுகள் / Free online mock tests for competitive exams.</p>
         </div>
         <div>
           <b>Quick links</b>
@@ -18,12 +18,10 @@ export default function SiteFooter({ exams = [], admin = false }) {
         </div>
         <div>
           <b>Contact</b>
-          <p className="small">மாவட்ட வேலைவாய்ப்பு மற்றும் தொழில்நெறி வழிகாட்டும் மையம், 2-வது குறுக்குத் தெரு, பாலாஜி நகர், பூம்புகார் சாலை, மயிலாடுதுறை</p>
-          <a href="https://wa.me/919499055904">WhatsApp 94990 55904 (மயிலாடுதுறை)</a>
-          <a href="https://wa.me/919499055915">WhatsApp 94990 55915 (திருவாரூர்)</a>
+          <a href="/contact">கோரிக்கை அனுப்ப / Send an enquiry</a>
         </div>
       </div>
-      <div className="foot-bottom small">© {new Date().getFullYear()} DECGC Study Circle, Mayiladuthurai & Thiruvarur · முற்றிலும் இலவசம் / Completely free</div>
+      <div className="foot-bottom small">© {new Date().getFullYear()} இலவச இணையவழி மாதிரி தேர்வுகள் / Free Mock Tests · முற்றிலும் இலவசம் / Completely free</div>
       <a className="wa-float" href="https://wa.me/919499055904" aria-label="WhatsApp">💬</a>
     </footer>
   );
