@@ -40,7 +40,7 @@ export default async function Home({ searchParams }) {
                 <div><small>விண்ணப்பத் திருத்தம்</small><b style={{ fontSize: 17 }}>{G4.correction}</b><small>Correction window</small></div>
                 <div><small>எழுத்துத் தேர்வு</small><b>{G4.examDate}</b><small>Written exam: {G4.examDateEn}</small></div>
               </div>
-              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a><a className="btn alt" href="/centres">இலவசப் பயிற்சிக்குப் பதிவு செய்ய</a></div>
+              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a></div>
             </div>
           )}
           <p>தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – முற்றிலும் இலவசம், எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
