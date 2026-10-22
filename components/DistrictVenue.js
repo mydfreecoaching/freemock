@@ -28,6 +28,10 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
             <optgroup label="பிற மாவட்டங்கள் (A–Z)">{districts.slice(firstCount).map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</optgroup>
           </> : districts.map(([ta, en, c]) => <option key={ta} value={ta}>{c === 'OTH' ? 'இதர மாவட்டங்கள் / Others' : `${ta} – ${en}`}</option>)}
         </select>
+        {code === 'OTH' && <>
+          <label>உங்கள் மாவட்டம் / Your district <span className="req">*</span></label>
+          <input name="district_other" required minLength={2} maxLength={60} placeholder="எ.கா. தஞ்சாவூர் / Thanjavur" />
+        </>}
       </>}
       {opts.length > 0 && (
         <div className="venue">

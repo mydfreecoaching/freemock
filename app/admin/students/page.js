@@ -63,7 +63,7 @@ export default async function Students({ searchParams }) {
             <td>{i + 1}</td>
             <td>{r.has_photo ? <img className="thumb" loading="lazy" src={photoUrl(r.id, r.photo_v, true)} alt="" /> : <span className="muted small">—</span>}</td>
             <td>{r.reg_no}</td><td>{r.name}</td><td>{r.mobile}</td><td>{r.email}</td><td>{r.dob}</td><td>{GENDER_LABEL[r.gender] || ''}</td><td>{r.community}</td>
-            <td>{r.district}</td><td>{r.qualification}</td>
+            <td>{r.district}{r.district_other ? ` – ${r.district_other}` : ''}</td><td>{r.qualification}</td>
             <td>{(r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; ')}</td><td>{VENUE_LABEL(r.coaching_venue)}</td><td>{r.g2_applied ? r.g2_app_no : r.g2_applied === false ? 'இல்லை' : '—'}</td><td>{r.g2_applied ? r.g2_hall_ticket || '—' : ''}</td><td>{r.g4_applied ? r.g4_app_no : r.g4_applied === false ? 'இல்லை' : '—'}</td><td>{(r.guidance || []).map((k) => GUIDANCE_LABEL[k]).join('; ')}</td><td>{r.reg_at}</td>
           </tr>))}
         </tbody>
