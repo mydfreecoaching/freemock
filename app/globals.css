@@ -680,3 +680,4 @@ body:has(.botnav) .wa-float{bottom:96px}
 .pq-imgs{display:flex;flex-wrap:wrap;gap:10px}.pq-oi{display:flex;gap:6px;align-items:flex-start}.pq-oi .qimg{max-height:110px}
 @media print{.qimg{max-height:260px;break-inside:avoid}}
 @media(max-width:899px){.brand-t b{white-space:normal;font-size:15px}}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 12px;margin:4px 0 8px}
