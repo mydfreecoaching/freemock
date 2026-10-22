@@ -49,7 +49,7 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
         {list.map((t) => (
           <div key={t.id} className="card titem">
             <div className="row" style={{ justifyContent: 'space-between' }}>
-              <b>{t.title}</b>
+              <b>{t.unit ? <span className="pill" style={{ marginRight: 6 }}>அலகு {t.unit}</span> : null}{t.title}</b>
               {tab === 'ongoing' ? <span className={`pill ${t.open ? 'open' : 'upcoming'}`}>{t.open ? 'நடைபெறுகிறது' : 'வரவிருக்கிறது'}</span> : <span className="pill closed">நிறைவடைந்தது</span>}
             </div>
             <div className="small muted">{f(t.start)} – {new Date(t.end).getUTCFullYear() >= 2099 ? "கடைசி தேதி இல்லை" : f(t.end)} · {t.nq} வினாக்கள் · {t.mins} நிமிடம்</div>

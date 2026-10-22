@@ -2,7 +2,7 @@ import { normType, normDistricts } from '@/lib/access';
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { saveQuestions } from '@/lib/questions';
-import { NO_END, fromIST, cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { NO_END, fromIST, cleanSyllabus, SYLLABUS_MISSING, unitField } from '@/lib/util';
 import { getExam, countError, examMinutes } from '@/lib/exams';
 /** approve: creates a new test from the submission (fields as in the test form). reject: {id, admin_note} */
 export async function POST(req) {
@@ -42,6 +42,7 @@ export async function POST(req) {
     if (!v.districts.length) return Response.json({ error: 'வகுப்புத் தேர்வுக்கு மாவட்டத்தைத் தேர்வு செய்யவும் / Select the district(s) for this class test.' }, { status: 400 });
   }
   if ((ex.code === 'subject' || v.ttype === 'subject') && !v.subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
+  { const uf = unitField({ unit: b.unit ?? s.unit }, v.subject); if (uf.error) return Response.json({ error: uf.error }, { status: 400 }); v.unit = uf.unit; }
   if (!v.syllabus) return Response.json({ error: SYLLABUS_MISSING }, { status: 400 });
   const ce = countError(ex, s.n);
   v.duration_min = examMinutes(s.n) || v.duration_min;

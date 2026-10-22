@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import Form from './Form';
+import SubjectUnit from './SubjectUnit';
 import { toISTInput, SUBJECTS, openEnded, DISTRICT_LIST, DISTRICT_FIRST_COUNT } from '@/lib/util';
 
 const TYPES = [['class', 'வகுப்புத் தேர்வு', 'Class test – Courses tab · தேர்வு செய்யும் மாவட்ட மாணவர்களுக்கு மட்டும்'], ['full', 'முழு மாதிரித் தேர்வு', 'Full mock – Full Mocks tab · அனைவருக்கும்'], ['subject', 'பாட வாரியான தேர்வு', 'Subject-wise – Subject-wise tab · அனைவருக்கும்']];
@@ -73,10 +74,7 @@ export default function TestForm({ subjects = null, t, exams = [], defaults = {}
         const opts = v.subject && !list.includes(v.subject) ? [...list, v.subject] : list;
         const need = code === 'subject' || ttype === 'subject';
         return <>
-          <select name="subject" required={need} defaultValue={v.subject || ''}>
-            <option value="">{need ? 'பாடத்தைத் தேர்வு செய்யவும் / Select a subject' : '— பாடம் இல்லை / No subject —'}</option>
-            {opts.map((x) => <option key={x} value={x}>{x}</option>)}
-          </select>
+          <SubjectUnit key={need ? 'r' : 'o'} options={opts} value={v.subject || ''} unit={v.unit} required={need} />
           <div className="small muted" style={{ margin: '2px 0 6px' }}>பட்டியலில் இல்லாத பாடத்தைச் சேர்க்க: <a href="/admin/subjects" target="_blank" rel="noopener">Admin → பாடங்கள்</a> (சேர்த்த பின் இப்பக்கத்தை refresh செய்யவும்)</div>
         </>;
       })()}
