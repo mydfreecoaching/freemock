@@ -64,6 +64,7 @@ export default async function Admin({ searchParams }) {
         <div className="card agroup">
           <h2>💬 செய்திகள் / Messages</h2>
           <a href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? <b className="pop-new">{fbPend}</b> : null}<span>Feedback</span></a>
+          <a href="/admin/volunteers">பயிற்றுநர்கள்<span>Resource persons</span></a>
           <a href="/admin/enquiries">கோரிக்கைகள்{newEnq ? <b className="pop-new">{newEnq}</b> : null}<span>Enquiries</span></a>
           <a href="/admin/notify">🔔 அறிவிப்புகள் <span>Push notifications</span></a>
         </div>
