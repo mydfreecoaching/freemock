@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db';
 import { currentFaculty } from '@/lib/facultyGuard';
 import { parseUpload, sectionSummary } from '@/lib/questions';
-import { cleanSyllabus, SYLLABUS_MISSING } from '@/lib/util';
+import { cleanSyllabus, SYLLABUS_MISSING, unitField } from '@/lib/util';
 import { getExam, countError } from '@/lib/exams';
 export async function POST(req) {
   const f = await currentFaculty();
@@ -13,6 +13,8 @@ export async function POST(req) {
   const syllabus = cleanSyllabus(fd.get('syllabus'));
   const subject = String(fd.get('subject') || '').trim().slice(0, 120) || null;
   const file = fd.get('file');
+  const uf = unitField({ unit: fd.get('unit') }, subject);
+  if (uf.error) return Response.json({ error: uf.error }, { status: 400 });
   if (!ex || !ex.active) return Response.json({ error: 'தேர்வைத் (Available exam) தேர்வு செய்யவும்.' }, { status: 400 });
   if (!title) return Response.json({ error: 'தலைப்பு தேவை.' }, { status: 400 });
   if (ex?.code === 'subject' && !subject) return Response.json({ error: 'பாடத்தைத் (Subject) தேர்வு செய்யவும்.' }, { status: 400 });
@@ -25,7 +27,7 @@ export async function POST(req) {
   if (!r.questions.length) return Response.json({ error: 'வினாக்கள் இல்லை.' }, { status: 400 });
   const ce = countError(ex, r.questions.length);
   if (ce) return Response.json({ error: ce }, { status: 400 });
-  await sql`INSERT INTO submissions (faculty_id, category, kind, title, note, syllabus, subject, questions, n)
-    VALUES (${f.id}, 'TNPSC_G2', ${ex.code}, ${title}, ${note}, ${syllabus}, ${subject}, ${sql.json(r.questions)}, ${r.questions.length})`;
+  await sql`INSERT INTO submissions (faculty_id, category, kind, title, note, syllabus, subject, unit, questions, n)
+    VALUES (${f.id}, 'TNPSC_G2', ${ex.code}, ${title}, ${note}, ${syllabus}, ${subject}, ${uf.unit}, ${sql.json(r.questions)}, ${r.questions.length})`;
   return Response.json({ message: `${r.questions.length} வினாக்கள் (${sectionSummary(r.questions)}) Admin ஒப்புதலுக்கு அனுப்பப்பட்டன.`, reload: true });
 }
