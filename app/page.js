@@ -77,7 +77,7 @@ export default async function Home({ searchParams }) {
 
       <section className="statband">
         <div><b>{S.tests}</b><span>பதிவேற்றப்பட்ட தேர்வுகள்</span></div>
-        {loggedIn && <div><b>{mine}</b><span>நீங்கள் எழுதிய தேர்வுகள்</span></div>}
+        {loggedIn ? <div><b>{mine}</b><span>நீங்கள் எழுதிய தேர்வுகள்</span></div> : <div><b>{S.writers}</b><span>தேர்வு எழுதியவர்கள்</span></div>}
       </section>
 
       <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>

@@ -1,11 +1,13 @@
 import { ensureSchema } from '@/lib/db';
 import { publicStats } from '@/lib/public';
+import { studentId } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'About us – இலவச இணையவழி மாதிரி தேர்வு' };
 
 export default async function About() {
   await ensureSchema();
   const S = await publicStats();
+  const sid = await studentId();
   return (
     <>
       <section className="pagehead"><h1>எங்களைப் பற்றி / About us</h1><p>போட்டித் தேர்வுகளுக்கான இலவச இணையவழி மாதிரி தேர்வுகள் / Free online mock tests</p></section>
@@ -27,6 +29,7 @@ export default async function About() {
       </div>
       <section className="statband">
         <div><b>{S.tests}</b><span>பதிவேற்றப்பட்ட தேர்வுகள்</span></div>
+        {!sid && <div><b>{S.writers}</b><span>தேர்வு எழுதியவர்கள்</span></div>}
       </section>
       <div className="card">
         <h2>இந்த இணையதளத்தில் என்னென்ன?</h2>
