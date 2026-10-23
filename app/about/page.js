@@ -26,10 +26,7 @@ export default async function About() {
         </div>
       </div>
       <section className="statband">
-        <div><b>{S.students}</b><span>பதிவு செய்த மாணவர்கள்</span></div>
-        <div><b>{S.tests}</b><span>நடத்தப்பட்ட தேர்வுகள்</span></div>
-        <div><b>{S.attempts}</b><span>எழுதப்பட்ட விடைத்தாள்கள்</span></div>
-        <div><b>{S.districts}</b><span>மாவட்டங்கள்</span></div>
+        <div><b>{S.tests}</b><span>பதிவேற்றப்பட்ட தேர்வுகள்</span></div>
       </section>
       <div className="card">
         <h2>இந்த இணையதளத்தில் என்னென்ன?</h2>
