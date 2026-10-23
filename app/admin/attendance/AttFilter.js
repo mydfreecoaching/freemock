@@ -1,21 +1,28 @@
 'use client';
 import { useRouter } from 'next/navigation';
 
-/** District → venue → date selectors (venues of the chosen district appear automatically). */
+/** District → venues of that district (tick one or more; none = all) → date. */
 export default function AttFilter({ districts, venuesByDistrict, d, v, date }) {
   const router = useRouter();
-  const go = (p) => { const q = new URLSearchParams({ d, v, date, ...p }); router.push(`/admin/attendance?${q}`); };
+  const go = (p) => {
+    const o = { d, v: v.join(','), date, ...p };
+    const q = new URLSearchParams(Object.entries(o).filter(([, x]) => x));
+    router.push(`/admin/attendance?${q}`);
+  };
   const venues = venuesByDistrict[d] || [];
+  const toggle = (c) => { const s = new Set(v); s.has(c) ? s.delete(c) : s.add(c); go({ v: [...s].join(',') }); };
   return (
-    <div className="grid3 att-filter">
-      <div><label>மாவட்டம் / District</label>
-        <select value={d} onChange={(e) => go({ d: e.target.value, v: 'all' })}>{districts.map(([c, t]) => <option key={c} value={c}>{t}</option>)}</select></div>
-      <div><label>பயிற்சி இடம் / Venue</label>
-        <select value={v} onChange={(e) => go({ v: e.target.value })}>
-          <option value="all">அனைத்து இடங்களும் / All venues</option>
-          {venues.map((x) => <option key={x.code} value={x.code}>{x.title} ({x.days})</option>)}
-        </select></div>
-      <div><label>தேதி / Date</label><input type="date" value={date} onChange={(e) => e.target.value && go({ date: e.target.value })} /></div>
+    <div className="att-filter">
+      <div className="grid3">
+        <div><label>மாவட்டம் / District</label>
+          <select value={d} onChange={(e) => go({ d: e.target.value, v: '' })}>{districts.map(([c, t]) => <option key={c} value={c}>{t}</option>)}</select></div>
+        <div><label>தேதி / Date</label><input type="date" value={date} onChange={(e) => e.target.value && go({ date: e.target.value })} /></div>
+      </div>
+      <label>பயிற்சி இடம் / Venues <span className="small muted">(ஒன்றுக்கு மேல் தேர்வு செய்யலாம்; எதுவும் தேர்வு செய்யாவிட்டால் அனைத்தும்)</span></label>
+      <div className="checks">
+        {venues.map((x) => <label key={x.code} className="choice"><input type="checkbox" checked={v.includes(x.code)} onChange={() => toggle(x.code)} /> <span>{x.title} <span className="small muted">({x.days})</span></span></label>)}
+      </div>
+      {v.length > 0 && <button type="button" className="linkish small" onClick={() => go({ v: '' })}>அனைத்து இடங்களும் / All venues</button>}
     </div>
   );
 }
