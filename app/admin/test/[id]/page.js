@@ -10,6 +10,7 @@ import TestForm from '@/components/TestForm';
 import { getSubjects } from '@/lib/subjects';
 import { getExams } from '@/lib/exams';
 import QText from '@/components/QText';
+import { testVenueBreakdown } from '@/lib/venueParticipation';
 import QImg from '@/components/QImg';
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,7 @@ export default async function AdminTest({ params, searchParams }) {
     const c = rows.filter((r) => r.answers?.[q.qno] === q.answer).length;
     return { qno: q.qno, p: rows.length ? Math.round((c / rows.length) * 100) : null };
   });
+  const venueRows = t.ttype === 'class' && (t.districts || []).length ? await testVenueBreakdown(id, t.districts) : [];
   const hardest = pct.filter((x) => x.p != null).sort((a, b) => a.p - b.p).slice(0, 15);
   return (
     <>
@@ -38,6 +40,16 @@ export default async function AdminTest({ params, searchParams }) {
         <div className="row"><a className="btn alt" href={`/admin?e=${t.kind}`}>← Admin</a><a className="btn" href={`/analysis/${id}`}>விரிவான பகுப்பாய்வு</a><a className="btn alt" href={`/rank/${id}`}>தரவரிசை</a><a className="btn" href={`/admin/test/${id}/ranklist`}>📄 தரவரிசை PDF</a><Form action="/api/admin/test/duplicate" submit="📑 இதுபோல் புதிய தேர்வு (Duplicate)" confirm="இதே அமைப்புகளுடன் (வினாக்கள் இல்லாமல்) புதிய தேர்வை உருவாக்கவா?" className="inline-form"><input type="hidden" name="id" value={id} /></Form></div>
       </div>
       <ShareBox t={t} id={id} host={(await headers()).get('host')} />
+      {t.ttype === 'class' && venueRows.length > 0 && (
+        <div className="card" id="venues">
+          <h2 style={{ marginTop: 0 }}>🏫 மைய வாரியாக எழுதியவர்கள் / By coaching venue</h2>
+          <div className="tablewrap"><table className="small">
+            <thead><tr><th>மாவட்டம்</th><th>பயிற்சி இடம்</th><th>பதிவு செய்தவர்கள்</th><th>எழுதியவர்கள்</th><th>%</th></tr></thead>
+            <tbody>{venueRows.map((r) => <tr key={r.code}><td>{r.district}</td><td>{r.title} <span className="muted">({r.days})</span></td><td>{r.reg}</td><td><b>{r.wrote}</b></td><td>{r.reg ? `${Math.round((r.wrote / r.reg) * 100)}%` : '—'}</td></tr>)}
+              <tr><td colSpan={2}><b>மொத்தம்</b></td><td><b>{venueRows.reduce((a, r) => a + r.reg, 0)}</b></td><td><b>{venueRows.reduce((a, r) => a + r.wrote, 0)}</b></td><td></td></tr></tbody>
+          </table></div>
+        </div>
+      )}
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} t={t} exams={await getExams(true)} /></div>
         <div className="card">
