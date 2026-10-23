@@ -5,6 +5,8 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
+import AttendanceCard from '@/components/AttendanceCard';
+import { hasClassOn, istToday, venueTitle, fmtDay, dayName } from '@/lib/attendance';
 import G4Prompt from '@/components/G4Prompt';
 import G2HallPrompt from '@/components/G2HallPrompt';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
@@ -60,6 +62,9 @@ export default async function Dashboard({ searchParams }) {
   const lastA = lastT ? byTest[lastT.id] : null;
   const lastMax = lastT ? lastT.nq * Number(lastT.marks_per_q) : 0;
   const unseen = replies.filter((r) => !r.reply_seen).length;
+  const today = istToday();
+  const attToday = me.coaching_venue && hasClassOn(me.coaching_venue, today) ? today : null;
+  const attStatus = attToday ? (await sql`SELECT status FROM class_attendance WHERE student_id=${sid} AND day=${today}`)[0]?.status || null : null;
   const notices = [
     me.photo_waived && <>📷 அடுத்த முறை உள்நுழையும்போது <b>பாஸ்போர்ட் புகைப்படம் கட்டாயம்</b> – <a href="/profile">இப்போதே பதிவேற்ற</a></>,
     missingFields(me).length > 0 && <>⚠️ விடுபட்ட விவரங்கள்: <b>{missingFields(me).join(' · ')}</b> – <a href="/profile"><b>நிறைவு செய்ய</b></a></>,
@@ -75,6 +80,7 @@ export default async function Dashboard({ searchParams }) {
       {!(PREFIX[me.district] === 'OTH' && !me.district_other) && me.g2_applied === true && !me.g2_hall_ticket ? <G2HallPrompt appNo={me.g2_app_no || ''} /> : null}
       {g4Asking() && me.g4_applied !== true && !(me.g2_applied === true && !me.g2_hall_ticket) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && !sp?.new && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
+      {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} status={attStatus} />}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
 
       <div className="hello row">
