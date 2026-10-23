@@ -686,3 +686,4 @@ body:has(.botnav) .wa-float{bottom:96px}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
 
 .modal.pushgate{z-index:200}
+.venue-filter{flex-basis:100%;margin:4px 0}.venue-filter summary{cursor:pointer;font-weight:500}

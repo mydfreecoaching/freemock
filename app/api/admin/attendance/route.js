@@ -10,7 +10,7 @@ export async function GET(req) {
   await ensureSchema();
   const q = new URL(req.url).searchParams;
   const d = ATT_DISTRICTS.some(([c]) => c === q.get('d')) ? q.get('d') : 'TVR';
-  const v = attVenues(d).some((x) => x.code === q.get('v')) ? q.get('v') : 'all';
+  const v = String(q.get('v') || '').split(',').filter((c) => attVenues(d).some((x) => x.code === c));
   const date = /^\d{4}-\d{2}-\d{2}$/.test(q.get('date') || '') ? q.get('date') : istToday();
   const rows = await attendanceRows(d, v, date);
   const wb = new ExcelJS.Workbook();
@@ -21,5 +21,5 @@ export async function GET(req) {
   rows.forEach((r, i) => ws.addRow([i + 1, r.reg_no, r.name, r.mobile, r.venueTitle, r.status === 'P' ? 'Present' : r.status === 'A' ? 'Absent' : 'Not marked',
     r.marked_at ? new Date(r.marked_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : '', r.present_total, r.marked_total]));
   const buf = await wb.xlsx.writeBuffer();
-  return new Response(buf, { headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-disposition': `attachment; filename="attendance_${d}_${v}_${date}.xlsx"` } });
+  return new Response(buf, { headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-disposition': `attachment; filename="attendance_${d}_${v.join('-') || 'all'}_${date}.xlsx"` } });
 }
