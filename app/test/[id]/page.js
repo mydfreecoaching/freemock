@@ -10,6 +10,7 @@ import { studentWithPhoto } from '@/lib/photo';
 import Exam from './Exam';
 import G4Prompt from '@/components/G4Prompt';
 import G2HallPrompt from '@/components/G2HallPrompt';
+import PushOptIn from '@/components/PushOptIn';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
 import { G4, g4Asking } from '@/lib/venues';
 import StartButton from './StartButton';
@@ -43,6 +44,7 @@ export default async function TestPage({ params, searchParams }) {
         {PREFIX[me.district] === 'OTH' && !me.district_other ? <OtherDistrictPrompt /> : null}
         {!(PREFIX[me.district] === 'OTH' && !me.district_other) && me.g2_applied === true && !me.g2_hall_ticket ? <G2HallPrompt appNo={me.g2_app_no || ''} /> : null}
         {g4Asking() && me.g4_applied !== true && !(me.g2_applied === true && !me.g2_hall_ticket) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && <G4Prompt lastDate={G4.lastDate} examDate={G4.examDate} />}
+        <PushOptIn gate hideOn />
         <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!(await searchParams)?.new} />
         {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
         {t.unit ? <div className="small muted">பொதுத்தமிழ் · அலகு {t.unit}</div> : null}
