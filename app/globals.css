@@ -681,3 +681,6 @@ body:has(.botnav) .wa-float{bottom:96px}
 @media print{.qimg{max-height:260px;break-inside:avoid}}
 @media(max-width:899px){.brand-t b{white-space:normal;font-size:15px}}
 .checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 12px;margin:4px 0 8px}
+.linkish{background:none;border:0;padding:0;color:var(--link);text-decoration:underline;cursor:pointer;font:inherit;min-height:0;box-shadow:none}
+.att-card{border-left:4px solid var(--brand)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}

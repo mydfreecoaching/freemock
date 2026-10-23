@@ -60,6 +60,7 @@ export default async function Admin({ searchParams }) {
           <a href="/admin/students">📷 தேர்வர் பட்டியல் <span>Students with photos (Excel / PDF)</span></a>
           <a href="/weekly">வாராந்திரப் பகுப்பாய்வு <span>Weekly analysis</span></a>
           <a href="/admin/faculty">ஆசிரியர்கள் <span>Faculty accounts</span></a>
+          <a href="/admin/attendance">📋 வகுப்பு வருகை <span>Class attendance</span></a>
         </div>
         <div className="card agroup">
           <h2>💬 செய்திகள் / Messages</h2>
