@@ -687,3 +687,13 @@ body:has(.botnav) .wa-float{bottom:96px}
 
 .modal.pushgate{z-index:200}
 .venue-filter{flex-basis:100%;margin:4px 0}.venue-filter summary{cursor:pointer;font-weight:500}
+.att-times{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.att-times div{background:var(--soft);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column}
+.att-times div.on{background:var(--sel)}
+.att-times span{font-size:12px;color:var(--muted)} .att-times b{font-size:22px}
+button.big{width:100%;padding:14px;font-size:16px}
+.qr-poster{text-align:center;max-width:640px;margin:0 auto 16px;padding:28px}
+.qr-poster h2{font-size:26px;margin:8px 0 4px}.qp-1{font-size:14px;color:var(--muted)}.qp-days{font-size:18px;margin-bottom:10px}
+.qp-code{width:min(78vw,360px);margin:0 auto;background:#fff;padding:8px;border-radius:12px}.qp-code svg{width:100%;height:auto;display:block}
+.qp-steps{text-align:left;max-width:460px;margin:14px auto 6px;font-size:15px;line-height:1.7}.qp-url{word-break:break-all;color:var(--muted)}
+@media print{.qr-poster{break-after:page;box-shadow:none;border:0;max-width:none;padding:10mm 0}.qr-poster:last-child{break-after:auto}.qp-code{width:120mm}.qr-poster h2{font-size:30px}}
