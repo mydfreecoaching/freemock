@@ -65,7 +65,7 @@ export default async function Dashboard({ searchParams }) {
   const unseen = replies.filter((r) => !r.reply_seen).length;
   const today = istToday();
   const attToday = me.coaching_venue && hasClassOn(me.coaching_venue, today) ? today : null;
-  const attStatus = attToday ? (await sql`SELECT status FROM class_attendance WHERE student_id=${sid} AND day=${today}`)[0]?.status || null : null;
+  const attMark = attToday ? (await sql`SELECT in_at, out_at FROM class_attendance WHERE student_id=${sid} AND day=${today}`)[0] || null : null;
   // one pop-up at a time (the notification gate is shown above all of them)
   const dc = PREFIX[me.district];
   const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0');
@@ -87,7 +87,7 @@ export default async function Dashboard({ searchParams }) {
       {prompt === 'class' && <ClassInfoPrompt district={me.district} venues={attVenues(PREFIX[me.district])} />}
       {prompt === 'g4' && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
-      {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} status={attStatus} />}
+      {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
 
       <div className="hello row">

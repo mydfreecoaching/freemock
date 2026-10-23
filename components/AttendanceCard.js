@@ -1,32 +1,16 @@
-'use client';
-import { useState } from 'react';
-
-/** Dashboard card on a class day: the student marks today's attendance (can change it the same day). */
-export default function AttendanceCard({ venue, day, status: initial = null }) {
-  const [status, setStatus] = useState(initial);
-  const [busy, setBusy] = useState(false); const [err, setErr] = useState('');
-  async function mark(s) {
-    setBusy(true); setErr('');
-    const r = await fetch('/api/attendance', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: s }) });
-    const j = await r.json().catch(() => ({}));
-    setBusy(false);
-    if (!r.ok) { setErr(j.error || 'பிழை'); return; }
-    setStatus(s);
-  }
+/** Dashboard card on a class day: attendance is recorded only by scanning the QR at the venue (IN on arrival, OUT when leaving). */
+const t = (d) => (d ? new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : '—');
+export default function AttendanceCard({ venue, day, inAt = null, outAt = null }) {
   return (
     <div className="card att-card">
       <b>📋 இன்றைய பயிற்சி வகுப்பு வருகை – {day}</b>
       <div className="small muted">{venue}</div>
-      {status ? (
-        <p style={{ margin: '8px 0 4px' }}>{status === 'P' ? '✅ இன்று வகுப்பில் கலந்துகொண்டேன் என்று பதிவு செய்யப்பட்டது.' : '❌ இன்று வகுப்புக்கு வரவில்லை என்று பதிவு செய்யப்பட்டது.'}
-          {' '}<button className="linkish" disabled={busy} onClick={() => mark(status === 'P' ? 'A' : 'P')}>மாற்று / Change</button></p>
-      ) : (
-        <div className="row" style={{ marginTop: 8, gap: 8 }}>
-          <button disabled={busy} onClick={() => mark('P')}>✅ வந்தேன் / Present</button>
-          <button className="alt" disabled={busy} onClick={() => mark('A')}>❌ வரவில்லை / Absent</button>
-        </div>
-      )}
-      {err && <div className="err">{err}</div>}
+      <div className="att-times">
+        <div className={inAt ? 'on' : ''}><span>உள்வருகை / IN</span><b>{t(inAt)}</b></div>
+        <div className={outAt ? 'on' : ''}><span>வெளியேற்றம் / OUT</span><b>{t(outAt)}</b></div>
+      </div>
+      <div className="small">{!inAt ? '📷 வகுப்புக்கு வந்ததும், அங்கு ஒட்டப்பட்டுள்ள QR குறியீட்டை கைபேசி கேமராவில் ஸ்கேன் செய்து IN பதிவு செய்யவும்.'
+        : !outAt ? '🚪 கிளம்பும்போது அதே QR-ஐ மீண்டும் ஸ்கேன் செய்து OUT பதிவு செய்யவும்.' : '✅ இன்றைய வருகை பதிவாகிவிட்டது.'}</div>
     </div>
   );
 }
