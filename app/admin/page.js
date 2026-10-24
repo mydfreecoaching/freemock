@@ -4,6 +4,7 @@ import { fmt, endLabel, testStatus, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/u
 import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import TestForm from '@/components/TestForm';
+import UnitChips, { unitCounts } from '@/components/UnitChips';
 import { getSubjects } from '@/lib/subjects';
 import ExamSelect from '@/components/ExamSelect';
 const TT = { class: 'வகுப்பு', full: 'Full Mock', subject: 'பாட வாரி' };
@@ -32,7 +33,13 @@ export default async function Admin({ searchParams }) {
   const ec = {};
   for (const t of tests) { const c = (ec[t.kind] ??= { all: 0, open: 0 }); c.all++; if (t.published && testStatus(t) === 'open') c.open++; }
   const cat = EX[sp?.e] ? sp.e : (exams.find((e) => ec[e.code]?.open) || exams.find((e) => ec[e.code]?.all) || exams[0])?.code;
-  const mineT = tests.filter((t) => t.kind === cat);
+  const catT = tests.filter((t) => t.kind === cat);
+  const subjList = [...new Set(catT.map((t) => t.subject).filter(Boolean))].sort();
+  const subj = subjList.includes(sp?.s) ? sp.s : '';
+  const bySubj = catT.filter((t) => !subj || t.subject === subj);
+  const unitSel = Number(sp?.u) || 0;
+  const mineT = bySubj.filter((t) => !unitSel || t.unit === unitSel);
+  const units = unitCounts(bySubj);
   const running = mineT.filter((t) => testStatus(t) !== 'closed').sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
   const finished = mineT.filter((t) => testStatus(t) === 'closed').sort((a, b) => new Date(b.end_at) - new Date(a.end_at));
   const gst = await sql`SELECT COALESCE(gender,'?') k, count(*)::int n FROM students GROUP BY 1 ORDER BY n DESC`;
@@ -77,13 +84,24 @@ export default async function Admin({ searchParams }) {
         {EX[cat] && <p style={{ margin: '8px 0 0' }}><a className="btn alt" href={`/api/admin/export?type=combined&e=${cat}`}>📥 ஒருங்கிணைந்த தரவரிசை + மதிப்பெண்கள் (Excel)</a> <a className="btn" href={`/combined/${cat}`}>🏆 ஒருங்கிணைந்த தரவரிசை (அனைத்துத் தேர்வுகளும்) / PDF</a></p>}
         {EX[cat]?.description && <p className="small muted" style={{ marginBottom: 0 }}>{EX[cat].description}</p>}
       </div>
+      {(subjList.length > 0) && (
+        <div className="card">
+          <form method="get" className="row" style={{ gap: 8, alignItems: 'center' }}>
+            <input type="hidden" name="e" value={cat} />
+            <label style={{ margin: 0 }}>பாடம் / Subject</label>
+            <select name="s" defaultValue={subj} style={{ width: 'auto', maxWidth: 320 }}><option value="">அனைத்துப் பாடங்களும் ({catT.length})</option>{subjList.map((x) => <option key={x} value={x}>{x} ({catT.filter((t) => t.subject === x).length})</option>)}</select>
+            <button>காட்டு</button>
+          </form>
+          {units.length > 0 && <UnitChips items={units} current={unitSel} total={bySubj.length} href={(x) => `/admin?e=${encodeURIComponent(cat)}${subj ? `&s=${encodeURIComponent(subj)}` : ''}${x ? `&u=${x}` : ''}`} />}
+        </div>
+      )}
       <div className="card">
         <h2>🟢 நடப்பு / வரவிருக்கும் தேர்வுகள் ({running.length})</h2>
         {running.length === 0 ? <p className="muted">இல்லை.</p> : <div className="tablewrap"><table>
           <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
           <tbody>{running.map((t) => (
             <tr key={t.id}>
-              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
+              <td><a href={`/admin/test/${t.id}`}>{t.unit ? `அலகு ${t.unit} · ` : ''}{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
               <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>
@@ -97,7 +115,7 @@ export default async function Admin({ searchParams }) {
           <thead><tr><th>தேர்வு</th><th>நேரம்</th><th>வினாக்கள்</th><th>எழுதியோர் (நடப்பில்)</th><th>நிலை</th></tr></thead>
           <tbody>{finished.map((t) => (
             <tr key={t.id}>
-              <td><a href={`/admin/test/${t.id}`}>{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
+              <td><a href={`/admin/test/${t.id}`}>{t.unit ? `அலகு ${t.unit} · ` : ''}{t.title}</a> <span className={`pill tt-${t.ttype}`}>{TT[t.ttype] || ''}{t.ttype === 'class' && t.districts?.length ? ` · ${t.districts.join(', ')}` : ''}</span></td>
               <td className="small">{fmt(t.start_at)} – {endLabel(t)}</td>
               <td>{t.nq}</td><td>{t.na} ({t.live})</td>
               <td><span className={`pill ${testStatus(t)}`}>{{ open: 'நடைபெறுகிறது', upcoming: 'வரவிருக்கிறது', closed: 'முடிவுற்றது' }[testStatus(t)]}</span> {t.published ? '' : <span className="pill">மறைவு</span>}</td>

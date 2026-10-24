@@ -5,6 +5,7 @@ import { sql, ensureSchema } from '@/lib/db';
 import { studentId, isAdmin } from '@/lib/auth';
 import { getExams, examMap } from '@/lib/exams';
 import TestCard from '@/components/TestCard';
+import UnitChips, { unitCounts } from '@/components/UnitChips';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'தேர்வுகளைத் தேடு / Search tests' };
 
@@ -14,6 +15,7 @@ export default async function Search({ searchParams }) {
   if (await isAdmin()) redirect('/admin');
   const sid = await studentId();
   const q = String((await searchParams)?.q || '').trim().slice(0, 80);
+  const u = Number((await searchParams)?.u) || 0;
   if (!sid) redirect(loginUrl(`/search${q ? `?q=${encodeURIComponent(q)}` : ''}`));
   const EX = examMap(await getExams(true));
   let tests = [], byTest = {};
@@ -28,6 +30,9 @@ export default async function Search({ searchParams }) {
     const v = await viewer();
     tests = tests.filter((t) => testAllowed(t, v, !!byTest[t.id]));
   }
+  const units = unitCounts(tests);
+  const all = tests.length;
+  if (u) tests = tests.filter((t) => t.unit === u);
   return (
     <>
       <div className="card">
@@ -38,6 +43,7 @@ export default async function Search({ searchParams }) {
         </form>
         <p className="small muted" style={{ marginBottom: 0 }}>நடைபெறும் மற்றும் முன்பு நடந்த அனைத்துத் தேர்வுகளிலும் தேடலாம். நீங்கள் எழுதாத தேர்வுகளை இப்போதும் எழுதலாம்.</p>
       </div>
+      {units.length > 0 && <div className="card" style={{ padding: '8px 12px' }}><div className="small muted">பொதுத்தமிழ் – அலகு வாரியாக</div><UnitChips items={units} current={u} total={all} href={(x) => `/search?q=${encodeURIComponent(q)}${x ? `&u=${x}` : ''}`} /></div>}
       {q.length >= 2 && <p className="small"><b>{tests.length}</b> தேர்வுகள் கிடைத்தன – "{q}"</p>}
       {q.length >= 2 && tests.length === 0 && <div className="card muted">இந்தச் சொல்லுடன் தேர்வுகள் இல்லை. வேறு சொல்லில் தேடவும் (எ.கா. பாடத்தின் பெயர்).</div>}
       {tests.map((t) => <TestCard key={t.id} t={t} a={byTest[t.id]} label={EX[t.kind]?.name + (t.subject ? ` · ${t.subject}` : '')} />)}

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import UnitChips, { unitCounts } from './UnitChips';
 
 const f = (iso) => new Date(iso).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
 
@@ -12,6 +13,7 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
   const first = (options.find((o) => data[o.value]?.ongoing?.some((t) => t.open)) || options.find((o) => data[o.value]) || options[0])?.value || '';
   const [sel, setSel] = useState(first);
   const [tab, setTab] = useState('ongoing');
+  const [unit, setUnit] = useState(0);
   useEffect(() => {
     const read = () => {
       const raw = decodeURIComponent(window.location.hash.slice(1));
@@ -25,10 +27,12 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
     read(); window.addEventListener('hashchange', read);
     return () => window.removeEventListener('hashchange', read);
   }, [options, data]);
-  const pick = (v) => { setSel(v); setTab((data[v]?.ongoing?.length || !data[v]?.completed?.length) ? 'ongoing' : 'completed'); try { history.replaceState(null, '', v ? `#${encodeURIComponent(v)}` : location.pathname); } catch {} };
+  const pick = (v) => { setSel(v); setUnit(0); setTab((data[v]?.ongoing?.length || !data[v]?.completed?.length) ? 'ongoing' : 'completed'); try { history.replaceState(null, '', v ? `#${encodeURIComponent(v)}` : location.pathname); } catch {} };
   const opt = options.find((o) => o.value === sel);
   const d = data[sel] || { ongoing: [], completed: [] };
-  const list = d[tab] || [];
+  const units = unitCounts([...(d.ongoing || []), ...(d.completed || [])]);
+  const byUnit = (l) => (l || []).filter((t) => !unit || t.unit === unit);
+  const list = byUnit(d[tab]);
   return (
     <div className="browser">
       <div className="card">
@@ -41,9 +45,10 @@ export default function ExamBrowser({ options, data, loggedIn, label = 'கி�
         {opt?.description && <p className="small muted" style={{ marginBottom: 0 }}>{opt.description}</p>}
       </div>
       {sel && <>
+        {units.length > 0 && <div className="card" style={{ padding: '8px 12px' }}><div className="small muted">பொதுத்தமிழ் – அலகு வாரியாக</div><UnitChips items={units} current={unit} onPick={setUnit} total={(d.ongoing?.length || 0) + (d.completed?.length || 0)} /></div>}
         <div className="seg">
-          <button type="button" className={tab === 'ongoing' ? 'on' : ''} onClick={() => setTab('ongoing')}>நடப்பு / வரவிருக்கும் <b>{d.ongoing.length}</b></button>
-          <button type="button" className={tab === 'completed' ? 'on' : ''} onClick={() => setTab('completed')}>நிறைவடைந்தவை <b>{d.completed.length}</b></button>
+          <button type="button" className={tab === 'ongoing' ? 'on' : ''} onClick={() => setTab('ongoing')}>நடப்பு / வரவிருக்கும் <b>{byUnit(d.ongoing).length}</b></button>
+          <button type="button" className={tab === 'completed' ? 'on' : ''} onClick={() => setTab('completed')}>நிறைவடைந்தவை <b>{byUnit(d.completed).length}</b></button>
         </div>
         {list.length === 0 && <div className="card muted">{tab === 'ongoing' ? 'இப்போது நடப்பு / வரவிருக்கும் தேர்வுகள் இல்லை.' : 'நிறைவடைந்த தேர்வுகள் இல்லை.'}</div>}
         {list.map((t) => (
