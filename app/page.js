@@ -24,6 +24,8 @@ export default async function Home({ searchParams }) {
   if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
   const exams = await getExams();
   const [S, LB] = await Promise.all([publicStats(), leaderboards(exams)]);
+  const sid = loggedIn ? await studentId() : null;
+  const mine = sid ? (await sql`SELECT count(*)::int n FROM attempts WHERE student_id=${sid} AND submitted_at IS NOT NULL`)[0].n : 0;
   const fbs = await sql`SELECT f.id, f.rating, f.comment, s.reg_no, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
     JOIN tests t ON t.id=f.test_id WHERE f.status='approved' AND length(trim(f.comment)) > 0 ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 20`;
   return (
@@ -74,9 +76,8 @@ export default async function Home({ searchParams }) {
       </section>
 
       <section className="statband">
-        <div><b>{S.students}</b><span>பதிவு செய்த மாணவர்கள்</span></div>
-        <div><b>{S.tests}</b><span>நடத்தப்பட்ட தேர்வுகள்</span></div>
-        <div><b>{S.attempts}</b><span>எழுதப்பட்ட விடைத்தாள்கள்</span></div>
+        <div><b>{S.tests}</b><span>பதிவேற்றப்பட்ட தேர்வுகள்</span></div>
+        {loggedIn ? <div><b>{mine}</b><span>நீங்கள் எழுதிய தேர்வுகள்</span></div> : <div><b>{S.writers}</b><span>தேர்வு எழுதியவர்கள்</span></div>}
       </section>
 
       <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>
