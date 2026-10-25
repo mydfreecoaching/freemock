@@ -71,7 +71,9 @@ export default async function Dashboard({ searchParams }) {
   const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0');
   const prompt = dc === 'OTH' && !me.district_other ? 'district' : me.g2_applied === true && !me.g2_hall_ticket ? 'hall'
     : needClass && !sp?.new ? 'class' : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
+  const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
+    enqNew > 0 && <>📨 உங்கள் கோரிக்கைக்கு Admin பதில் அளித்துள்ளார் <span className="pop-new">{enqNew} புதியது</span> – <a href="/contact#mine"><b>பார்க்க</b></a></>,
     me.photo_waived && <>📷 அடுத்த முறை உள்நுழையும்போது <b>பாஸ்போர்ட் புகைப்படம் கட்டாயம்</b> – <a href="/profile">இப்போதே பதிவேற்ற</a></>,
     missingFields(me).length > 0 && <>⚠️ விடுபட்ட விவரங்கள்: <b>{missingFields(me).join(' · ')}</b> – <a href="/profile"><b>நிறைவு செய்ய</b></a></>,
     noFb.length > 0 && <>💬 {noFb.length} தேர்வுக்குக் கருத்து அளிக்கவில்லை – ⭐ ஒரு தட்டலில் அளித்து விடைகளைப் பார்க்க: <a href={`/result/${noFb[0].test_id}#feedback`}><b>இப்போது</b></a></>,
