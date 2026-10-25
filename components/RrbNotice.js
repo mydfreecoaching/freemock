@@ -1,4 +1,4 @@
-import { NTPC } from '@/lib/rrb';
+import { NTPC, NTPC_TN } from '@/lib/rrb';
 
 /** RRB NTPC (Graduate + Undergraduate) notice card. compact = dashboard version. */
 export default function RrbNotice({ compact = false }) {
@@ -14,6 +14,7 @@ export default function RrbNotice({ compact = false }) {
             <div key={l.key} className="rrb-level">
               <b>{l.name}</b> <span className="small muted">{l.cen}</span>
               <div className="small">காலிப்பணியிடங்கள்: <b>{l.posts}</b> · தகுதி: {l.qual} · வயது: {l.age}</div>
+              <div className="small">தொடக்கச் சம்பளம்: {l.pay} · RRB சென்னை: <b>{l.chennai}</b></div>
               {!compact && <div className="small muted">{l.jobs}</div>}
               <div className="g4dates">
                 <div><small>விண்ணப்பிக்கக் கடைசி நாள்</small><b>{l.last}</b><small>Last date: {l.lastEn}</small></div>
@@ -24,8 +25,9 @@ export default function RrbNotice({ compact = false }) {
           );
         })}
       </div>
+      <p className="small" style={{ margin: '6px 0' }}><b>{NTPC_TN}</b></p>
       {!compact && <p className="small" style={{ margin: '6px 0' }}>{NTPC.fee}<br />{NTPC.ageNote}<br />{NTPC.stages}</p>}
-      <div className="row"><a className="btn" href={NTPC.link} target="_blank" rel="noopener">rrbapply.gov.in-இல் விண்ணப்பிக்க →</a></div>
+      <div className="row"><a className="btn" href={NTPC.link} target="_blank" rel="noopener">rrbapply.gov.in-இல் விண்ணப்பிக்க →</a><a className="btn alt" href={NTPC.guide} target="_blank" rel="noopener" download>📄 விண்ணப்பதாரர் வழிகாட்டி (PDF)</a></div>
       <p className="small muted" style={{ margin: '6px 0 0' }}>விவரங்களை அதிகாரப்பூர்வ அறிவிப்பில் உறுதி செய்துகொள்ளவும்.</p>
     </div>
   );
