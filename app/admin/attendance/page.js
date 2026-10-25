@@ -24,7 +24,7 @@ export default async function Attendance({ searchParams }) {
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
         <h1 style={{ margin: 0 }}>📋 வகுப்பு வருகை / Class attendance</h1>
-        <div className="row"><a className="btn" href={`/api/admin/attendance?d=${d}&v=${v.join(',')}&date=${date}`}>Excel பதிவிறக்கு</a><a className="btn alt" href="/admin">← Admin</a></div>
+        <div className="row"><a className="btn" href={`/api/admin/attendance?d=${d}&v=${v.join(',')}&date=${date}&s=present`}>📥 வந்தவர்கள் ({P})</a><a className="btn alt" href={`/api/admin/attendance?d=${d}&v=${v.join(',')}&date=${date}&s=absent`}>📥 வராதவர்கள் ({N})</a><a className="btn alt" href={`/api/admin/attendance?d=${d}&v=${v.join(',')}&date=${date}`}>📥 அனைவரும்</a><a className="btn alt" href="/admin">← Admin</a></div>
       </div>
       <div className="card">
         <AttFilter districts={ATT_DISTRICTS} venuesByDistrict={vb} d={d} v={v} date={date} />
