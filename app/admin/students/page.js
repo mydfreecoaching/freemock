@@ -1,3 +1,4 @@
+import { examsText } from '@/lib/study';
 import { redirect } from 'next/navigation';
 import { isAdmin } from '@/lib/auth';
 import { ensureSchema } from '@/lib/db';
@@ -62,14 +63,14 @@ export default async function Students({ searchParams }) {
         </div>
       </div>
       <div className="tablewrap"><table>
-        <thead><tr><th>#</th><th>புகைப்படம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மின்னஞ்சல்</th><th>பிறந்த தேதி</th><th>பாலினம்</th><th>சமூகம்</th><th>மாவட்டம்</th><th>கல்வித் தகுதி</th><th>முன்னுரிமை</th><th>பயிற்சி இடம்</th><th>குரூப் 2/2A விண்ணப்ப எண்</th><th>குரூப் 2/2A நுழைவுச் சீட்டு எண்</th><th>குரூப் 4 விண்ணப்ப எண்</th><th>வழிகாட்டுதல் நிகழ்ச்சி</th><th>பதிவு நாள்</th></tr></thead>
+        <thead><tr><th>#</th><th>புகைப்படம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மின்னஞ்சல்</th><th>பிறந்த தேதி</th><th>பாலினம்</th><th>சமூகம்</th><th>மாவட்டம்</th><th>கல்வித் தகுதி</th><th>முன்னுரிமை</th><th>பயிற்சி இடம்</th><th>குரூப் 2/2A விண்ணப்ப எண்</th><th>குரூப் 2/2A நுழைவுச் சீட்டு எண்</th><th>குரூப் 4 விண்ணப்ப எண்</th><th>வழிகாட்டுதல் நிகழ்ச்சி</th><th>படிக்கும் தேர்வுகள்</th><th>படிக்கும் இடம்</th><th>படிப்பு / அனுபவம்</th><th>பதிவு நாள்</th></tr></thead>
         <tbody>{rows.map((r, i) => (
           <tr key={r.id}>
             <td>{i + 1}</td>
             <td>{r.has_photo ? <img className="thumb" loading="lazy" src={photoUrl(r.id, r.photo_v, true)} alt="" /> : <span className="muted small">—</span>}</td>
             <td>{r.reg_no}</td><td>{r.name}</td><td>{r.mobile}</td><td>{r.email}</td><td>{r.dob}</td><td>{GENDER_LABEL[r.gender] || ''}</td><td>{r.community}</td>
             <td>{r.district}{r.district_other ? ` – ${r.district_other}` : ''}</td><td>{r.qualification}</td>
-            <td>{(r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; ')}</td><td>{VENUE_LABEL(r.coaching_venue)}</td><td>{r.g2_applied ? r.g2_app_no : r.g2_applied === false ? 'இல்லை' : '—'}</td><td>{r.g2_applied ? r.g2_hall_ticket || '—' : ''}</td><td>{r.g4_applied ? r.g4_app_no : r.g4_applied === false ? 'இல்லை' : '—'}</td><td>{(r.guidance || []).map((k) => GUIDANCE_LABEL[k]).join('; ')}</td><td>{r.reg_at}</td>
+            <td>{(r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; ')}</td><td>{VENUE_LABEL(r.coaching_venue)}</td><td>{r.g2_applied ? r.g2_app_no : r.g2_applied === false ? 'இல்லை' : '—'}</td><td>{r.g2_applied ? r.g2_hall_ticket || '—' : ''}</td><td>{r.g4_applied ? r.g4_app_no : r.g4_applied === false ? 'இல்லை' : '—'}</td><td>{(r.guidance || []).map((k) => GUIDANCE_LABEL[k]).join('; ')}</td><td>{examsText(r)}</td><td>{r.study_place ? r.study_place.split(' / ')[0] : ''}</td><td style={{ whiteSpace: 'pre-wrap', minWidth: 200 }}>{r.study_note || ''}</td><td>{r.reg_at}</td>
           </tr>))}
         </tbody>
       </table></div>

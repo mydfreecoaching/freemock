@@ -8,6 +8,7 @@ export async function POST(req) {
   const sid = await studentId();
   if (!sid) return Response.json({ error: 'மீண்டும் உள்நுழையவும்.' }, { status: 401 });
   const b = await req.json().catch(() => ({}));
+  if (b.defer) { await sql`UPDATE students SET g2_ht_deferred_at=now() WHERE id=${sid} AND g2_applied AND g2_hall_ticket IS NULL`; return Response.json({ ok: true }); }
   const no = String(b.hall_ticket || '').trim().toUpperCase();
   if (!HALL_RE.test(no)) return Response.json({ error: 'நுழைவுச் சீட்டு எண்ணைச் சரியாக உள்ளிடவும் (4–25 எழுத்து / எண்கள்).' }, { status: 400 });
   await sql`UPDATE students SET g2_hall_ticket=${no} WHERE id=${sid} AND g2_applied`;

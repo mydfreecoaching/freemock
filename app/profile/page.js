@@ -9,6 +9,7 @@ import PhotoChoice from '@/components/PhotoChoice';
 import DistrictVenue from '@/components/DistrictVenue';
 import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
+import StudyFields from '@/components/StudyFields';
 import { g4Asking } from '@/lib/venues';
 import { PREFIX } from '@/lib/util';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
@@ -35,6 +36,7 @@ export default async function Profile({ searchParams }) {
         <StudentFields s={me} />
         <PhotoChoice current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} allowLater={!me.photo_skipped_at} waived={me.photo_waived} />
         <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} hallTicket={me.g2_hall_ticket || ''} />
+        <StudyFields place={me.study_place || ''} note={me.study_note || ''} exams={me.study_exams || []} examOther={me.study_exam_other || ''} />
         {(g4Asking() || me.g4_applied != null) && <G4Fields applied={me.g4_applied} appNo={me.g4_app_no || ''} />}
       </Form>
     </div>

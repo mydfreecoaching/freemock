@@ -1,3 +1,4 @@
+import { studyFields } from '@/lib/study';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId, setPhotoSkip, photoSkipActive } from '@/lib/auth';
 import { profileFields, venueFields, g4Fields, g2Fields } from '@/lib/profile';
@@ -18,6 +19,8 @@ export async function POST(req) {
   if (gf.error) return Response.json({ error: gf.error }, { status: 400 });
   const g2 = g2Fields(b);
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
+  const sf = studyFields(b);
+  if (sf.error) return Response.json({ error: sf.error }, { status: 400 });
   let ph = null;
   if (b.photo || b.photo_thumb) { ph = parsePhoto(b); if (ph.error) return Response.json({ error: ph.error }, { status: 400 }); }
   else {
@@ -31,7 +34,8 @@ export async function POST(req) {
     priority_other=${v.priority_other}, qualification=${v.qualification} WHERE id=${sid}`;
   if (ph) await savePhoto(sid, ph);
   await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=COALESCE(${vf.values.answered ? new Date() : null}, guidance_at),
-    g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket} WHERE id=${sid}`;
+    g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket},
+    g2_ht_deferred_at=${g2.deferHall ? new Date() : null}, study_place=${sf.values.study_place}, study_note=${sf.values.study_note}, study_exams=${sf.values.study_exams}, study_exam_other=${sf.values.study_exam_other} WHERE id=${sid}`;
   if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${sid}`;
   const next = typeof b.next === 'string' && b.next.startsWith('/') && !b.next.startsWith('//') ? b.next : '/dashboard';
   return Response.json({ redirect: next });

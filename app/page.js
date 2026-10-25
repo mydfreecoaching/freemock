@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
-import { G4, g4Showing } from '@/lib/venues';
 import { studentId, isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
 import { getExams } from '@/lib/exams';
 import { publicStats } from '@/lib/public';
+import ExamNotices from '@/components/ExamNotices';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
 import LoginCard from '@/components/LoginCard';
 import Leaderboard from '@/components/Leaderboard';
@@ -33,18 +33,7 @@ export default async function Home({ searchParams }) {
       <section className="hero">
         <div>
           <h1>அரசு போட்டித் தேர்வுகளுக்கான <span>இலவச பயிற்சி</span> மற்றும் <span>மாதிரித் தேர்வுகள்</span></h1>
-          {g4Showing() && (
-            <div className="g4note" role="note">
-              <h2>📢 {G4.title}</h2>
-              <div className="small">{G4.titleEn} · காலிப்பணியிடங்கள் / Vacancies: <b>{G4.posts}</b></div>
-              <div className="g4dates">
-                <div><small>விண்ணப்பிக்கக் கடைசி நாள்</small><b>{G4.lastDate}</b><small>Last date: {G4.lastDateEn}</small></div>
-                <div><small>விண்ணப்பத் திருத்தம்</small><b style={{ fontSize: 17 }}>{G4.correction}</b><small>Correction window</small></div>
-                <div><small>எழுத்துத் தேர்வு</small><b>{G4.examDate}</b><small>Written exam: {G4.examDateEn}</small></div>
-              </div>
-              <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a></div>
-            </div>
-          )}
+          <ExamNotices />
           <p>தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – முற்றிலும் இலவசம், எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
           <ul className="ticks">
             <li>TNPSC மாதிரியில் 200 வினாக்கள், 3 மணி நேரம்</li>
