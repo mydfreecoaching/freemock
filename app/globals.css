@@ -697,3 +697,5 @@ button.big{width:100%;padding:14px;font-size:16px}
 .qp-code{width:min(78vw,360px);margin:0 auto;background:#fff;padding:8px;border-radius:12px}.qp-code svg{width:100%;height:auto;display:block}
 .qp-steps{text-align:left;max-width:460px;margin:14px auto 6px;font-size:15px;line-height:1.7}.qp-url{word-break:break-all;color:var(--muted)}
 @media print{.qr-poster{break-after:page;box-shadow:none;border:0;max-width:none;padding:10mm 0}.qr-poster:last-child{break-after:auto}.qp-code{width:120mm}.qr-poster h2{font-size:30px}}
+.enq{border-top:1px solid var(--line);padding:10px 0}.enq:first-of-type{border-top:0}
+.enq-reply{background:var(--soft);border-radius:12px;padding:8px 12px;margin-top:6px}
