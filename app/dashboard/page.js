@@ -20,8 +20,7 @@ import { studentTests } from '@/lib/student';
 import NewTestsPopup from '@/components/NewTestsPopup';
 import TestCard from '@/components/TestCard';
 import GuidanceWa from '@/components/GuidanceWa';
-import RrbNotice from '@/components/RrbNotice';
-import { ntpcShowing } from '@/lib/rrb';
+import ExamNotices from '@/components/ExamNotices';
 import { guidanceGroups, venueGroup } from '@/lib/venues';
 export const dynamic = 'force-dynamic';
 
@@ -97,7 +96,7 @@ export default async function Dashboard({ searchParams }) {
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
-      {ntpcShowing() && <RrbNotice compact />}
+      <ExamNotices />
 
       <div className="hello row">
         {me.has_photo ? <img className="avatar sm" src={photoUrl(me.id, me.photo_v)} alt="" /> : <a className="avatar sm" href="/profile" style={{ display: 'grid', placeItems: 'center', fontSize: 11, textAlign: 'center' }}>📷</a>}

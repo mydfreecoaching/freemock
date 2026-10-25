@@ -708,3 +708,17 @@ button.big{width:100%;padding:14px;font-size:16px}
 .msel[open]>summary::after{content:' ▴'}
 .msel-list{display:grid;gap:2px;padding:4px 12px 10px;max-height:280px;overflow:auto}
 .msel-list .chk{display:flex;gap:8px;align-items:center;font-weight:normal;margin:0;padding:4px 0}
+.examnotes{min-width:0;max-width:100%}
+.examnotes .tablewrap{overflow-x:auto;margin:8px 0;max-width:100%}
+.extable{width:100%;border-collapse:collapse;font-size:13px;background:var(--card)}
+.extable th,.extable td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.extable th{font-size:12px}
+.extable .exlast{color:var(--bad);font-weight:700;white-space:nowrap}
+@media (max-width:600px){
+.extable thead{display:none}
+.extable,.extable tbody,.extable tr,.extable td{display:block;width:100%}
+.extable tr{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;padding:6px 10px;background:var(--card)}
+.extable td{border:0;padding:3px 0;display:flex;gap:8px;justify-content:space-between}
+.extable td::before{content:attr(data-l);color:var(--muted);font-size:12px;flex:0 0 45%}
+.extable td:first-child{display:block}.extable td:first-child::before{content:none}
+}
