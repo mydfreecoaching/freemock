@@ -5,6 +5,8 @@ import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
 import { getExams } from '@/lib/exams';
 import { publicStats } from '@/lib/public';
+import RrbNotice from '@/components/RrbNotice';
+import { ntpcShowing } from '@/lib/rrb';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
 import LoginCard from '@/components/LoginCard';
 import Leaderboard from '@/components/Leaderboard';
@@ -45,6 +47,7 @@ export default async function Home({ searchParams }) {
               <div className="row"><a className="btn" href={G4.link} target="_blank" rel="noopener">tnpsc.gov.in-இல் விண்ணப்பிக்க →</a></div>
             </div>
           )}
+          {ntpcShowing() && <RrbNotice />}
           <p>தினசரி, வாராந்திர, முழு மாதிரித் தேர்வுகள் – முற்றிலும் இலவசம், எங்கிருந்தும் கைபேசியில் எழுதலாம்.</p>
           <ul className="ticks">
             <li>TNPSC மாதிரியில் 200 வினாக்கள், 3 மணி நேரம்</li>

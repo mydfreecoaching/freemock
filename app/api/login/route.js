@@ -12,6 +12,7 @@ export async function POST(req) {
   if (!id || !/^\d{4}-\d{2}-\d{2}$/.test(dob)) return Response.json({ error: 'விவரங்களை முழுமையாக உள்ளிடவும்.' }, { status: 400 });
   const [s] = await sql`SELECT id FROM students WHERE (reg_no=${id} OR mobile=${id} OR old_reg_no=${id}) AND dob=${dob}`;
   if (!s) return Response.json({ error: 'பதிவு எண் / கைபேசி எண் அல்லது பிறந்த தேதி தவறு.' }, { status: 401 });
+  await sql`UPDATE students SET last_login_at=now() WHERE id=${s.id}`;
   await setStudent(s.id);
   const to = safeNext(b.next) || '/dashboard?login=1';
   // details added later (photo, priority, venue, Group 2/2A …) are collected before anything else

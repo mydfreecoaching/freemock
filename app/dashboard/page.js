@@ -10,6 +10,8 @@ import ClassInfoPrompt from '@/components/ClassInfoPrompt';
 import { hasClassOn, istToday, venueTitle, fmtDay, dayName, attVenues } from '@/lib/attendance';
 import G4Prompt from '@/components/G4Prompt';
 import G2HallPrompt from '@/components/G2HallPrompt';
+import StudyPrompt from '@/components/StudyPrompt';
+import { hallPrompt } from '@/lib/profile';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
 import { G4, g4Asking } from '@/lib/venues';
 import { openEnded, fmt, fmtDate, testStatus } from '@/lib/util';
@@ -18,6 +20,8 @@ import { studentTests } from '@/lib/student';
 import NewTestsPopup from '@/components/NewTestsPopup';
 import TestCard from '@/components/TestCard';
 import GuidanceWa from '@/components/GuidanceWa';
+import RrbNotice from '@/components/RrbNotice';
+import { ntpcShowing } from '@/lib/rrb';
 import { guidanceGroups, venueGroup } from '@/lib/venues';
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +73,8 @@ export default async function Dashboard({ searchParams }) {
   // one pop-up at a time (the notification gate is shown above all of them)
   const dc = PREFIX[me.district];
   const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0');
-  const prompt = dc === 'OTH' && !me.district_other ? 'district' : me.g2_applied === true && !me.g2_hall_ticket ? 'hall'
+  const hall = hallPrompt(me);
+  const prompt = dc === 'OTH' && !me.district_other ? 'district' : hall ? 'hall' : !me.study_place || !me.study_exams?.length ? 'study'
     : needClass && !sp?.new ? 'class' : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
   const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
@@ -85,12 +90,14 @@ export default async function Dashboard({ searchParams }) {
       {/* right after registering with a venue that has a WhatsApp group, show that first – no pop-up on top of it */}
       {!(sp?.new && (guidanceGroups(me.guidance).length || venueGroup(me.coaching_venue))) && <NewTestsPopup items={popItems} force={!!(sp?.login || sp?.new)} />}
       {prompt === 'district' && <OtherDistrictPrompt />}
-      {prompt === 'hall' && <G2HallPrompt appNo={me.g2_app_no || ''} />}
+      {prompt === 'hall' && <G2HallPrompt appNo={me.g2_app_no || ''} mandatory={hall === 'must'} />}
+      {prompt === 'study' && <StudyPrompt />}
       {prompt === 'class' && <ClassInfoPrompt district={me.district} venues={attVenues(PREFIX[me.district])} />}
       {prompt === 'g4' && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
+      {ntpcShowing() && <RrbNotice compact />}
 
       <div className="hello row">
         {me.has_photo ? <img className="avatar sm" src={photoUrl(me.id, me.photo_v)} alt="" /> : <a className="avatar sm" href="/profile" style={{ display: 'grid', placeItems: 'center', fontSize: 11, textAlign: 'center' }}>📷</a>}
