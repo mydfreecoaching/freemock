@@ -76,7 +76,9 @@ export default async function Dashboard({ searchParams }) {
   const prompt = dc === 'OTH' && !me.district_other ? 'district' : hall ? 'hall' : !me.study_place || !me.study_exams?.length ? 'study'
     : needClass && !sp?.new ? 'class' : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
   const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
+  const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
+    cfNew > 0 && <>🗣️ உங்கள் வகுப்புக் கருத்துக்கு Admin பதில் அளித்துள்ளார் <span className="pop-new">{cfNew} புதியது</span> – <a href="/contact#myfb"><b>பார்க்க</b></a></>,
     enqNew > 0 && <>📨 உங்கள் கோரிக்கைக்கு Admin பதில் அளித்துள்ளார் <span className="pop-new">{enqNew} புதியது</span> – <a href="/contact#mine"><b>பார்க்க</b></a></>,
     me.photo_waived && <>📷 அடுத்த முறை உள்நுழையும்போது <b>பாஸ்போர்ட் புகைப்படம் கட்டாயம்</b> – <a href="/profile">இப்போதே பதிவேற்ற</a></>,
     missingFields(me).length > 0 && <>⚠️ விடுபட்ட விவரங்கள்: <b>{missingFields(me).join(' · ')}</b> – <a href="/profile"><b>நிறைவு செய்ய</b></a></>,

@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/auth';
 import { fmt } from '@/lib/util';
 import { VENUE_LABEL } from '@/lib/venues';
 import { attVenues, ATT_DISTRICTS } from '@/lib/attendance';
+import Form from '@/components/Form';
 export const dynamic = 'force-dynamic';
 
 const stars = (n) => (n ? '★'.repeat(n) + '☆'.repeat(5 - n) : '—');
@@ -46,6 +47,14 @@ export default async function AdminClassFeedback({ searchParams }) {
           <div className="small">ஒட்டுமொத்தம் {stars(c.rating)} · பாடம் {stars(c.teaching)} · வசதிகள் {stars(c.facility)}</div>
           <p style={{ whiteSpace: 'pre-wrap', margin: '6px 0' }}>{c.comment}</p>
           {c.suggestion && <p className="small" style={{ whiteSpace: 'pre-wrap', margin: 0 }}><b>ஆலோசனை:</b> {c.suggestion}</p>}
+          {c.reply && <div className="enq-reply"><b>💬 அனுப்பிய பதில்</b> <span className="small muted">{fmt(c.replied_at)} · {c.reply_seen ? 'மாணவர் பார்த்தார் ✓' : 'இன்னும் பார்க்கவில்லை'}</span><div style={{ whiteSpace: 'pre-wrap' }}>{c.reply}</div></div>}
+          <details open={!c.reply}>
+            <summary className="small">{c.reply ? 'பதிலைத் திருத்து' : 'பதில் அளி / Reply'}</summary>
+            <Form action="/api/admin/class-feedback" submit="பதில் அனுப்பு">
+              <input type="hidden" name="id" value={c.id} />
+              <textarea name="reply" required rows={3} maxLength={2000} defaultValue={c.reply || ''} placeholder="பதில் / Reply" />
+            </Form>
+          </details>
         </div>
       ))}
     </>
