@@ -1,3 +1,4 @@
+import { classSourceFields } from '@/lib/classSource';
 import { studyFields } from '@/lib/study';
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId, setPhotoSkip, photoSkipActive } from '@/lib/auth';
@@ -19,6 +20,8 @@ export async function POST(req) {
   if (gf.error) return Response.json({ error: gf.error }, { status: 400 });
   const g2 = g2Fields(b);
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
+  const cs = classSourceFields(b, vf.values.coaching_venue);
+  if (cs.error) return Response.json({ error: cs.error }, { status: 400 });
   const sf = studyFields(b);
   if (sf.error) return Response.json({ error: sf.error }, { status: 400 });
   let ph = null;
@@ -36,6 +39,7 @@ export async function POST(req) {
   await sql`UPDATE students SET coaching_venue=${vf.values.coaching_venue}, guidance=${sql.json(vf.values.guidance)}, guidance_at=COALESCE(${vf.values.answered ? new Date() : null}, guidance_at),
     g2_applied=${g2.values.g2_applied}, g2_app_no=${g2.values.g2_app_no}, g2_hall_ticket=${g2.values.g2_hall_ticket},
     g2_ht_deferred_at=${g2.deferHall ? new Date() : null}, study_place=${sf.values.study_place}, study_note=${sf.values.study_note}, study_exams=${sf.values.study_exams}, study_exam_other=${sf.values.study_exam_other} WHERE id=${sid}`;
+  if (cs.values) await sql`UPDATE students SET class_source=${cs.values.class_source}, class_source_other=${cs.values.class_source_other} WHERE id=${sid}`;
   if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${sid}`;
   const next = typeof b.next === 'string' && b.next.startsWith('/') && !b.next.startsWith('//') ? b.next : '/dashboard';
   return Response.json({ redirect: next });
