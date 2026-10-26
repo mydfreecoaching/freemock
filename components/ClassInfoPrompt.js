@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { CLASS_SOURCES } from '@/lib/classSource';
 
 /**
  * Thiruvarur / Mayiladuthurai students who registered for mock tests only: tell them about the free classes once
@@ -8,6 +9,7 @@ import { useState } from 'react';
 export default function ClassInfoPrompt({ district, venues }) {
   const [show, setShow] = useState(true);
   const [pick, setPick] = useState('');
+  const [src, setSrc] = useState([]); const [other, setOther] = useState('');
   const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
   async function send(body) {
     setBusy(true); setErr('');
@@ -30,9 +32,14 @@ export default function ClassInfoPrompt({ district, venues }) {
             {list.map((v) => <label key={v.code} className="choice"><input type="radio" name="ci_venue" value={v.code} checked={pick === v.code} onChange={() => setPick(v.code)} /> {v.title}</label>)}
           </div>
         ))}
+        {pick && <div className="g4q">
+          <label>📣 இந்தப் பயிற்சி வகுப்புகள் பற்றி உங்களுக்கு எவ்வாறு தெரிய வந்தது? <span className="req">*</span> <span className="small muted">(ஒன்றுக்கு மேல் தேர்வு செய்யலாம்)</span></label>
+          <div className="src-list">{CLASS_SOURCES.map(([k, l]) => <label key={k} className={`choice ${src.includes(k) ? 'on' : ''}`}><input type="checkbox" checked={src.includes(k)} onChange={() => setSrc((x) => (x.includes(k) ? x.filter((y) => y !== k) : [...x, k]))} /> {l}</label>)}</div>
+          {src.includes('OTHER') && <input value={other} onChange={(e) => setOther(e.target.value)} maxLength={200} placeholder="எவ்வாறு தெரிய வந்தது? / Please specify" />}
+        </div>}
         {err && <div className="err">{err}</div>}
         <div className="row" style={{ marginTop: 10, gap: 8 }}>
-          <button disabled={busy || !pick} onClick={() => send({ venue: pick })}>✅ பயிற்சி வகுப்பில் சேர / Join</button>
+          <button disabled={busy || !pick || !src.length} onClick={() => send({ venue: pick, class_source: src, class_source_other: other })}>✅ பயிற்சி வகுப்பில் சேர / Join</button>
           <button className="alt" disabled={busy} onClick={() => send({ skip: true })}>மாதிரித் தேர்வு மட்டும் போதும்</button>
         </div>
       </div>

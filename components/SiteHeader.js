@@ -5,7 +5,7 @@ import Icon from './Icon';
 
 const NAV = [['/', 'முகப்பு', 'Home'], ['/tests', 'தேர்வுகள்', 'Tests'], ['/rankings', 'தரவரிசை', 'Rankings'], ['/contact', 'தொடர்புக்கு', 'Contact']];
 const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/subjects', 'பாடங்கள்', 'Subjects'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
-  ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/attendance', 'வகுப்பு வருகை', 'Class attendance'], ['/admin/class-tests', 'மைய வாரியான தேர்வு', 'Class tests by venue'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/class-feedback', 'வகுப்புக் கருத்துகள்', 'Class feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/volunteers', 'பயிற்றுநர்கள்', 'Resource persons'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
+  ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/attendance', 'வகுப்பு வருகை', 'Class attendance'], ['/admin/class-tests', 'மைய வாரியான தேர்வு', 'Class tests by venue'], ['/admin/class-source', 'அறிந்த விதம்', 'Class source'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/class-feedback', 'வகுப்புக் கருத்துகள்', 'Class feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/volunteers', 'பயிற்றுநர்கள்', 'Resource persons'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
 
 /**
  * Material top app bar. Phones: ☰ drawer + compact title + icon actions (bottom navigation is in BottomNav).

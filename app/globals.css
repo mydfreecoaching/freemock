@@ -730,3 +730,5 @@ button.big{width:100%;padding:14px;font-size:16px}
 .cf-rate label small{font-size:11px}
 .cf-rate label:has(input:checked){border-color:var(--pri);background:color-mix(in srgb,var(--pri) 12%,transparent)}
 .cf-rate input{margin:0 0 2px}
+.src-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px}
+.src-list .choice{margin:0}
