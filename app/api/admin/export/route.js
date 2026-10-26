@@ -23,6 +23,13 @@ export async function GET(req) {
       ...s.map((r) => [r.reg_no, r.name, r.mobile, r.email || '', r.dob, GENDER_LABEL[r.gender] || '', r.community || '',
         (r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; '), r.district_other ? `${r.district} – ${r.district_other}` : r.district, r.qualification || '', VENUE_LABEL(r.coaching_venue), r.g2_applied ? 'Yes' : r.g2_applied === false ? 'No' : '', r.g2_app_no || '', r.g2_hall_ticket || '', r.g4_applied ? 'Yes' : r.g4_applied === false ? 'No' : '', r.g4_app_no || '', (r.guidance || []).map((k) => GUIDANCE_LABEL[k]).join('; '), examsText(r), r.study_place || '', r.study_note || '', r.reg_at])];
     name = 'students';
+  } else if (type === 'classfeedback') {
+    const v = u.searchParams.get('v') || '';
+    const f = await sql`SELECT to_char(c.created_at AT TIME ZONE 'Asia/Kolkata','DD.MM.YYYY HH24:MI') at, s.reg_no, s.name, s.mobile, s.district, c.venue, c.rating, c.teaching, c.facility, c.comment, c.suggestion
+      FROM class_feedback c JOIN students s ON s.id=c.student_id WHERE (${v} = '' OR c.venue=${v}) ORDER BY c.created_at DESC`;
+    rows = [['Date', 'Reg No', 'Name', 'Mobile', 'District', 'Venue', 'Overall (1-5)', 'Teaching (1-5)', 'Facilities (1-5)', 'Feedback', 'Suggestions'],
+      ...f.map((r) => [r.at, r.reg_no, r.name, r.mobile, r.district, VENUE_LABEL(r.venue), r.rating, r.teaching, r.facility, r.comment, r.suggestion || ''])];
+    name = 'class_feedback';
   } else if (type === 'items') {
     const id = Number(u.searchParams.get('test'));
     const A = await testAnalysis(id);

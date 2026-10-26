@@ -5,14 +5,15 @@ import Icon from './Icon';
 
 const NAV = [['/', 'முகப்பு', 'Home'], ['/tests', 'தேர்வுகள்', 'Tests'], ['/rankings', 'தரவரிசை', 'Rankings'], ['/contact', 'தொடர்புக்கு', 'Contact']];
 const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/subjects', 'பாடங்கள்', 'Subjects'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
-  ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/attendance', 'வகுப்பு வருகை', 'Class attendance'], ['/admin/class-tests', 'மைய வாரியான தேர்வு', 'Class tests by venue'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/volunteers', 'பயிற்றுநர்கள்', 'Resource persons'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
+  ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/attendance', 'வகுப்பு வருகை', 'Class attendance'], ['/admin/class-tests', 'மைய வாரியான தேர்வு', 'Class tests by venue'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/class-feedback', 'வகுப்புக் கருத்துகள்', 'Class feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/volunteers', 'பயிற்றுநர்கள்', 'Resource persons'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
 
 /**
  * Material top app bar. Phones: ☰ drawer + compact title + icon actions (bottom navigation is in BottomNav).
  * Desktop: full title, menu tabs with dropdowns, action buttons.
  */
-export default function SiteHeader({ loggedIn, admin = false, menus = { tests: [] } }) {
-  const nav = admin ? ADMIN_NAV : NAV;
+export default function SiteHeader({ loggedIn, classStudent = false, admin = false, menus = { tests: [] } }) {
+  // Mayiladuthurai / Thiruvarur class students: "Contact us / Feedback" (class feedback form on the same page)
+  const nav = admin ? ADMIN_NAV : loggedIn && classStudent ? NAV.map((n) => (n[0] === '/contact' ? ['/contact', 'தொடர்பு / கருத்து', 'Contact us / Feedback'] : n)) : NAV;
   const link = ([h, ta, en]) => h === '/tests' ? <NavDrop key={h} label={en} sub={ta} href={h} items={menus.tests || []} />
     : <a key={h} href={h}><span>{en}</span><small>{ta}</small></a>;
   return (
