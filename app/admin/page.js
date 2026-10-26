@@ -28,6 +28,7 @@ export default async function Admin({ searchParams }) {
   const [{ pending }] = await sql`SELECT count(*)::int pending FROM submissions WHERE status='pending'`;
   const [{ newEnq }] = await sql`SELECT count(*)::int "newEnq" FROM enquiries WHERE status='new'`;
   const [{ fbPend }] = await sql`SELECT count(*)::int "fbPend" FROM feedback WHERE status='pending'`;
+  const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE NOT seen`;
   const sp = await searchParams;
   const exams = await getExams(true); const EX = examMap(exams);
   const ec = {};
@@ -73,6 +74,7 @@ export default async function Admin({ searchParams }) {
         <div className="card agroup">
           <h2>💬 செய்திகள் / Messages</h2>
           <a href="/admin/feedback">மாணவர் கருத்துகள்{fbPend ? <b className="pop-new">{fbPend}</b> : null}<span>Feedback</span></a>
+          <a href="/admin/class-feedback">🗣️ வகுப்புக் கருத்துகள்{cfNew ? <b className="pop-new">{cfNew}</b> : null}<span>Class feedback</span></a>
           <a href="/admin/volunteers">பயிற்றுநர்கள்<span>Resource persons</span></a>
           <a href="/admin/enquiries">கோரிக்கைகள்{newEnq ? <b className="pop-new">{newEnq}</b> : null}<span>Enquiries</span></a>
           <a href="/admin/notify">🔔 அறிவிப்புகள் <span>Push notifications</span></a>
