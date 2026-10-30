@@ -7,7 +7,7 @@ import { venueOptions, upcomingGuidance, GUIDANCE_TIME, TVR_START, TVR_MODES, tv
 
 /**
  * District select (optional) + "free coaching venue" for that district.
- * Mayiladuthurai: choose DECGC (Mon–Fri) or Collectorate (Sat–Sun); Thiruvarur: DECGC + guidance programme venues.
+ * Mayiladuthurai: choose DECGC (Mon–Fri 10–4:30) or Collectorate (Mon–Fri 4:30–6, Sat–Sun 10:30–5:30); Thiruvarur: DECGC + guidance programme venues.
  */
 export default function DistrictVenue({ districts = null, firstCount = 0, fixed = null, venue = '', guidance = [], source = [], sourceOther = '', sc = {} }) {
   const [code, setCode] = useState(fixed?.code || '');

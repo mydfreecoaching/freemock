@@ -776,3 +776,5 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .sig-img{max-width:240px;max-height:80px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px}
 .sig-hidden{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .scf-sign{height:16mm;max-width:55mm;object-fit:contain;display:block;margin:0 0 2px auto}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:6px}
+.slot-grid input[type=time]{width:auto}
