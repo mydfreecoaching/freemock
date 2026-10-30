@@ -60,7 +60,7 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
             </label>
           ))}
           <input type="hidden" name="coaching_venue" value={chosen || ''} />
-          {(code === 'TVR' || code === 'MYD') && attendsClass(chosen) && <><ClassSourceFields value={source} other={sourceOther} /><StudyCircleFields v={sc} /></>}
+          {(code === 'TVR' || code === 'MYD') && attendsClass(chosen) && <><ClassSourceFields value={source} other={sourceOther} /><StudyCircleFields v={sc} signUrl={sc.has_sign ? `/api/sign/${sc.id}?v=${sc.sign_v || 0}` : ''} /></>}
           {code === 'TVR' && upcomingGuidance().length > 0 && (
             <div className="guidance">
               <label>🧭 வழிகாட்டுதல் நிகழ்ச்சி நடைபெறும் இடங்கள் / Career guidance programme <span className="req">*</span></label>

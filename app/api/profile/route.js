@@ -1,4 +1,4 @@
-import { studyCircleFields, saveStudyCircle } from '@/lib/studyCircle';
+import { studyCircleFields, saveStudyCircle, storeSign, SIGN_MISSING } from '@/lib/studyCircle';
 import { classSourceFields } from '@/lib/classSource';
 import { studyFields } from '@/lib/study';
 import { sql, ensureSchema } from '@/lib/db';
@@ -25,6 +25,7 @@ export async function POST(req) {
   if (cs.error) return Response.json({ error: cs.error }, { status: 400 });
   const sc = studyCircleFields(b, vf.values.coaching_venue);
   if (sc.error) return Response.json({ error: sc.error }, { status: 400 });
+  if (sc.values && !(await storeSign(sql, sid, sc.sign))) return Response.json({ error: SIGN_MISSING }, { status: 400 });
   const sf = studyFields(b);
   if (sf.error) return Response.json({ error: sf.error }, { status: 400 });
   let ph = null;

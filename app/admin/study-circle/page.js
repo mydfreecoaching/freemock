@@ -38,10 +38,10 @@ export default async function AdminStudyCircle({ searchParams }) {
       <div className="card">
         <p className="small" style={{ marginTop: 0 }}>மாணவர்கள்: <b>{list.length}</b> · விவரங்களை நிறைவு செய்தவர்கள்: <b>{filled}</b> · இன்னும் நிறைவு செய்யாதவர்கள்: <b>{list.length - filled}</b> (அடுத்த உள்நுழைவில் கட்டாயம் கேட்கப்படும்; அதுவரை படிவத்தில் அந்த இடங்கள் காலியாக இருக்கும்).</p>
         <div className="tablewrap"><table className="small">
-          <thead><tr><th>#</th><th>பதிவு நாள் & நேரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மையம்</th><th>விவரங்கள்</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>பதிவு நாள் & நேரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மையம்</th><th>விவரங்கள்</th><th>கையொப்பம்</th><th></th></tr></thead>
           <tbody>{list.map((s, i) => (
             <tr key={s.id}><td>{i + 1}</td><td>{s.reg_at}</td><td>{s.reg_no}</td><td>{s.name}</td><td>{s.mobile}</td><td>{VENUE_LABEL(s.coaching_venue)}</td>
-              <td>{s.sc_at ? '✅' : <span className="muted">இல்லை</span>}</td>
+              <td>{s.sc_at ? '✅' : <span className="muted">இல்லை</span>}</td><td>{s.has_sign ? '✍️' : <span className="muted">இல்லை</span>}</td>
               <td><a href={`/admin/study-circle/print?ids=${s.id}&course=${encodeURIComponent(f.course)}`} target="_blank" rel="noopener">🖨️</a></td></tr>
           ))}</tbody>
         </table></div>

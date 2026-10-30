@@ -1,9 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { EDU_LEVELS, MEDIUMS, MODES } from '@/lib/studyCircle';
+import SignaturePad from './SignaturePad';
 
 /** Study Circle registration details (printed on the DECGC form). `v` = saved student row (profile / prompt). */
-export default function StudyCircleFields({ v = {} }) {
+export default function StudyCircleFields({ v = {}, signUrl = '' }) {
   const edu0 = v.edu || {};
   const [lv, setLv] = useState(Object.keys(edu0));
   const [dis, setDis] = useState(v.disabled === true ? 'yes' : v.disabled === false ? 'no' : '');
@@ -55,6 +56,7 @@ export default function StudyCircleFields({ v = {} }) {
         <div><label>பயிற்சி முறை / Mode of training <span className="req">*</span></label>
           <div className="row" style={{ gap: 12 }}>{MODES.map(([k, l]) => <label key={k} className="choice"><input type="radio" name="sc_mode" value={k} required defaultChecked={(v.train_mode || 'OFFLINE') === k} /> {l}</label>)}</div></div>
       </div>
+      <SignaturePad existing={signUrl} />
     </div>
   );
 }

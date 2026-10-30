@@ -68,7 +68,7 @@ function FormPage({ s, course }) {
         <tr><td>14.</td><td>PREVIOUS EXAM EXPERIENCE (EXAM NAME &amp; REGISTRATION NUMBER)</td><td>: <V>{s.prev_exams}</V></td></tr>
         <tr><td>15.</td><td>MEDIUM: {pick([['TAMIL', 'TAMIL'], ['ENGLISH', 'ENGLISH']], s.train_medium)}</td><td>MODE OF TRAINING: {pick([['OFFLINE', 'OFFLINE'], ['ONLINE', 'ONLINE']], s.train_mode)}</td></tr>
       </tbody></table>
-      <footer className="scf-foot"><span>Date: <V>{s.reg_date}</V></span><span>Signature of the Candidate</span></footer>
+      <footer className="scf-foot"><span>Date: <V>{s.reg_date}</V></span><span className="scf-signbox">{s.has_sign && <img className="scf-sign" src={`/api/sign/${s.id}?v=${s.sign_v || 0}`} alt="" />}Signature of the Candidate</span></footer>
     </section>
   );
 }

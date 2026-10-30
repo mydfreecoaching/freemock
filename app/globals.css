@@ -761,7 +761,8 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .scf-photo{outline:1.5px solid #000;outline-offset:-1px}
 .scf-edu{width:100%;border-collapse:collapse;margin:4px 0 10px;font-size:13px}
 .scf-edu th,.scf-edu td{border:1px solid #000;padding:7px 4px;text-align:center}
-.scf-foot{margin-top:auto;display:flex;justify-content:space-between;font-weight:700;padding-top:30px}
+.scf-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-weight:700;padding-top:20px}
+.scf-signbox{text-align:center}
 @media print{
   body:has(.scf-print) .site-head,body:has(.scf-print) .site-foot,body:has(.scf-print) .botnav{display:none!important}
   body:has(.scf-print){background:#fff}
@@ -770,3 +771,8 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
   .scf:last-child{break-after:auto;page-break-after:auto}
   @page{size:A4;margin:10mm}
 }
+.sigpad{margin-top:10px}
+.sig-canvas{width:100%;max-width:420px;height:140px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;display:block}
+.sig-img{max-width:240px;max-height:80px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px}
+.sig-hidden{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.scf-sign{height:16mm;max-width:55mm;object-fit:contain;display:block;margin:0 0 2px auto}
