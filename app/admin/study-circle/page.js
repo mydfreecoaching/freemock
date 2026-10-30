@@ -28,7 +28,7 @@ export default async function AdminStudyCircle({ searchParams }) {
           <div><label>பதிவு – இருந்து (நாள் & நேரம்) / From</label><input type="datetime-local" name="from" defaultValue={f.from} /></div>
           <div><label>பதிவு – வரை (நாள் & நேரம்) / To</label><input type="datetime-local" name="to" defaultValue={f.to} /></div>
           <div><label>Course Name (படிவத்தில் அச்சிட)</label><input name="course" defaultValue={f.course} maxLength={80} placeholder="எ.கா. TNPSC Group 4" /></div>
-          <div><label>&nbsp;</label><label className="choice"><input type="checkbox" name="done" value="1" defaultChecked={f.done} /> விவரங்களை நிறைவு செய்தவர்கள் மட்டும்</label></div>
+          <div><label>&nbsp;</label><label className="choice"><input type="checkbox" name="done" value="1" defaultChecked={f.done} /> விவரங்களை நிறைவு செய்தவர்கள் மட்டும்</label><label className="choice"><input type="checkbox" name="np" value="1" defaultChecked={f.np} /> இன்னும் அச்சிடாதவை மட்டும்</label></div>
         </div>
         <div className="row" style={{ gap: 8, marginTop: 10 }}>
           <button>காட்டு / Show</button>
@@ -38,10 +38,10 @@ export default async function AdminStudyCircle({ searchParams }) {
       <div className="card">
         <p className="small" style={{ marginTop: 0 }}>மாணவர்கள்: <b>{list.length}</b> · விவரங்களை நிறைவு செய்தவர்கள்: <b>{filled}</b> · இன்னும் நிறைவு செய்யாதவர்கள்: <b>{list.length - filled}</b> (அடுத்த உள்நுழைவில் கட்டாயம் கேட்கப்படும்; அதுவரை படிவத்தில் அந்த இடங்கள் காலியாக இருக்கும்).</p>
         <div className="tablewrap"><table className="small">
-          <thead><tr><th>#</th><th>பதிவு நாள் & நேரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மையம்</th><th>விவரங்கள்</th><th>கையொப்பம்</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>பதிவு நாள் & நேரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>கைபேசி</th><th>மையம்</th><th>விவரங்கள்</th><th>கையொப்பம்</th><th>அச்சிட்டது</th><th></th></tr></thead>
           <tbody>{list.map((s, i) => (
             <tr key={s.id}><td>{i + 1}</td><td>{s.reg_at}</td><td>{s.reg_no}</td><td>{s.name}</td><td>{s.mobile}</td><td>{VENUE_LABEL(s.coaching_venue)}</td>
-              <td>{s.sc_at ? '✅' : <span className="muted">இல்லை</span>}</td><td>{s.has_sign ? '✍️' : <span className="muted">இல்லை</span>}</td>
+              <td>{s.sc_at ? '✅' : <span className="muted">இல்லை</span>}</td><td>{s.has_sign ? '✍️' : <span className="muted">இல்லை</span>}</td><td>{s.sc_printed_at ? new Date(s.sc_printed_at).toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' }) : ''}</td>
               <td><a href={`/admin/study-circle/print?ids=${s.id}&course=${encodeURIComponent(f.course)}`} target="_blank" rel="noopener">🖨️</a></td></tr>
           ))}</tbody>
         </table></div>

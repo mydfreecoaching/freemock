@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { ensureSchema } from '@/lib/db';
+import { ensureSchema, sql } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { DISTRICT_EN } from '@/lib/util';
 import { photoUrl } from '@/lib/photo';
@@ -68,7 +68,7 @@ function FormPage({ s, course }) {
         <tr><td>14.</td><td>PREVIOUS EXAM EXPERIENCE (EXAM NAME &amp; REGISTRATION NUMBER)</td><td>: <V>{s.prev_exams}</V></td></tr>
         <tr><td>15.</td><td>MEDIUM: {pick([['TAMIL', 'TAMIL'], ['ENGLISH', 'ENGLISH']], s.train_medium)}</td><td>MODE OF TRAINING: {pick([['OFFLINE', 'OFFLINE'], ['ONLINE', 'ONLINE']], s.train_mode)}</td></tr>
       </tbody></table>
-      <footer className="scf-foot"><span>Date: <V>{s.reg_date}</V></span><span className="scf-signbox">{s.has_sign && <img className="scf-sign" src={`/api/sign/${s.id}?v=${s.sign_v || 0}`} alt="" />}Signature of the Candidate</span></footer>
+      <footer className="scf-foot"><span>Date: <V>{s.reg_date}</V></span><span className="scf-signbox">{s.sign && <img className="scf-sign" src={s.sign} alt="" />}Signature of the Candidate</span></footer>
     </section>
   );
 }
@@ -81,11 +81,17 @@ export default async function PrintStudyCircle({ searchParams }) {
   const ids = String(sp?.ids || '').split(',').map(Number).filter(Boolean);
   let list = await scStudents(ids.length ? { ...f, from: '', to: '', v: '', d: '', done: false } : f);
   if (ids.length) list = list.filter((s) => ids.includes(s.id));
+  // signatures embedded in the page, so the forms still print after the stored copies are deleted
+  const signs = list.length ? await sql`SELECT student_id, sign FROM student_signs WHERE student_id = ANY(${list.map((s) => s.id)})` : [];
+  const sg = Object.fromEntries(signs.map((r) => [r.student_id, `data:image/png;base64,${Buffer.from(r.sign).toString('base64')}`]));
+  list = list.map((s) => ({ ...s, sign: sg[s.id] || null }));
+  const printedBefore = list.filter((s) => s.sc_printed_at && !s.sign).length;
   return (
     <div className="scf-print">
       <div className="noprint card row" style={{ justifyContent: 'space-between' }}>
-        <span>{list.length} படிவங்கள் · அச்சுப் பெட்டியில் "Save as PDF" தேர்வு செய்தால் PDF ஆகக் கிடைக்கும் (A4, Margins: Default).</span>
-        <PrintNow />
+        <span>{list.length} படிவங்கள் · கையொப்பம் உள்ளவை: {signs.length} · அச்சுப் பெட்டியில் "Save as PDF" தேர்வு செய்தால் PDF ஆகக் கிடைக்கும் (A4).
+          {printedBefore > 0 && <><br /><b>{printedBefore} பேரின் படிவம் ஏற்கனவே அச்சிடப்பட்டதால் கையொப்பம் நீக்கப்பட்டுள்ளது.</b></>}</span>
+        <PrintNow ids={list.filter((s) => s.sign).map((s) => s.id)} signs={signs.length} />
       </div>
       {list.map((s) => <FormPage key={s.id} s={s} course={f.course} />)}
     </div>

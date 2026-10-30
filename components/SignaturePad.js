@@ -9,12 +9,19 @@ export default function SignaturePad({ name = 'sc_sign', existing = '', required
   const cv = useRef(null), drawing = useRef(false), last = useRef(null);
   const [data, setData] = useState('');
   const [keep, setKeep] = useState(!!existing);
+  const [mode, setMode] = useState('upload');
+  const [err, setErr] = useState('');
   useEffect(() => {
-    const c = cv.current; if (!c || keep) return;
+    const c = cv.current; if (!c || keep || mode !== 'draw') return;
     const r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
     c.width = r.width * dpr; c.height = r.height * dpr;
     const g = c.getContext('2d'); g.scale(dpr, dpr); g.lineWidth = 2.4; g.lineCap = g.lineJoin = 'round'; g.strokeStyle = '#000';
-  }, [keep]);
+  }, [keep, mode]);
+  async function fromUpload(f) {
+    setErr('');
+    try { const d = await processUpload(f); if (!d) setErr('கையொப்பம் தெளிவாகத் தெரியவில்லை – வெள்ளைத் தாளில் கருப்பு மையில் இட்டு மீண்டும் எடுக்கவும்.'); return d; }
+    catch { setErr('படத்தைத் திறக்க இயலவில்லை.'); return ''; }
+  }
   const pos = (e) => { const r = cv.current.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   const down = (e) => { e.preventDefault(); cv.current.setPointerCapture(e.pointerId); drawing.current = true; last.current = pos(e); };
   const move = (e) => {
@@ -33,18 +40,49 @@ export default function SignaturePad({ name = 'sc_sign', existing = '', required
           <button type="button" className="alt" onClick={() => setKeep(false)}>மாற்ற / Re-sign</button>
         </div>
       ) : <>
-        <p className="small muted" style={{ margin: '0 0 4px' }}>கீழே உள்ள பெட்டியில் விரலால் (அல்லது mouse-ஆல்) உங்கள் கையொப்பத்தை இடவும். இது பதிவுப் படிவத்தில் அச்சிடப்படும்.</p>
-        <canvas ref={cv} className="sig-canvas" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={up} />
-        <div className="row" style={{ gap: 8, marginTop: 4 }}>
-          <button type="button" className="alt" onClick={clear}>அழி / Clear</button>
-          {existing && <button type="button" className="alt" onClick={() => { setKeep(true); setData(''); }}>பழைய கையொப்பம்</button>}
-          {data ? <span className="small" style={{ color: 'var(--ok, green)' }}>✓</span> : null}
+        <div className="row" style={{ gap: 6, margin: '0 0 6px' }}>
+          <button type="button" className={mode === 'upload' ? '' : 'alt'} onClick={() => { setMode('upload'); setData(''); }}>📷 படமாகப் பதிவேற்று / Upload</button>
+          <button type="button" className={mode === 'draw' ? '' : 'alt'} onClick={() => { setMode('draw'); setData(''); }}>✍️ இங்கே வரை / Draw</button>
         </div>
-        {/* required check: an empty text input with `required` blocks submit until something is drawn */}
+        {mode === 'upload' ? <>
+          <p className="small muted" style={{ margin: '0 0 4px' }}>வெள்ளைத் தாளில் கருப்பு / நீல மையில் கையொப்பமிட்டு, அதை மட்டும் புகைப்படம் எடுத்துப் பதிவேற்றவும். பின்னணி தானாக நீக்கப்படும்.</p>
+          <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files?.[0]; if (f) setData(await fromUpload(f)); }} />
+          {data && <img src={data} alt="signature" className="sig-img" style={{ marginTop: 6 }} />}
+          {data === '' && err && <div className="err">{err}</div>}
+        </> : <>
+          <p className="small muted" style={{ margin: '0 0 4px' }}>கீழே உள்ள பெட்டியில் விரலால் (அல்லது mouse-ஆல்) உங்கள் கையொப்பத்தை இடவும்.</p>
+          <canvas ref={cv} className="sig-canvas" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={up} />
+        </>}
+        <div className="row" style={{ gap: 8, marginTop: 4 }}>
+          {mode === 'draw' && <button type="button" className="alt" onClick={clear}>அழி / Clear</button>}
+          {existing && <button type="button" className="alt" onClick={() => { setKeep(true); setData(''); }}>பழைய கையொப்பம்</button>}
+          {data ? <span className="small" style={{ color: 'var(--ok, green)' }}>✓ கையொப்பம் தயார்</span> : null}
+        </div>
+        <p className="small muted" style={{ margin: '4px 0 0' }}>இது பதிவுப் படிவத்தில் அச்சிடப்படும்; அச்சிட்ட பின் இணையதளத்திலிருந்து நீக்கப்படும்.</p>
+        {/* required check: an empty text input with `required` blocks submit until a signature is ready */}
         <input name={name} value={data} onChange={() => {}} required={required} className="sig-hidden" tabIndex={-1} aria-hidden="true" />
       </>}
     </div>
   );
+}
+
+/** Photo of a signature on paper → ink only (background made transparent), via exportPng. */
+async function processUpload(file) {
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+  URL.revokeObjectURL(url);
+  const s = Math.min(1, 1200 / img.width, 1200 / img.height);
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+  const d = g.getImageData(0, 0, c.width, c.height), px = d.data;
+  let sum = 0; for (let i = 0; i < px.length; i += 4) sum += 0.3 * px[i] + 0.59 * px[i + 1] + 0.11 * px[i + 2];
+  const thr = Math.min(150, (sum / (px.length / 4)) * 0.72); // ink = clearly darker than the paper
+  for (let i = 0; i < px.length; i += 4) {
+    const l = 0.3 * px[i] + 0.59 * px[i + 1] + 0.11 * px[i + 2];
+    if (l < thr) { const a = Math.min(255, Math.round(((thr - l) / thr) * 255 * 2.2) + 60); px[i] = px[i + 1] = px[i + 2] = 0; px[i + 3] = a; } else px[i + 3] = 0;
+  }
+  g.putImageData(d, 0, 0);
+  return exportPng(c);
 }
 
 /** Crop to the drawn area and scale to ≤ 480×160 PNG. */
