@@ -733,3 +733,46 @@ button.big{width:100%;padding:14px;font-size:16px}
 .src-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px}
 .src-list .choice{margin:0}
 tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,var(--pri) 6%,transparent)}
+.sc-fields .sc-h{font-weight:700;margin-bottom:2px}
+.sc-edu{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}
+.sc-edu-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
+@media (max-width:600px){.sc-edu-row{grid-template-columns:1fr 1fr}}
+/* Study Circle registration form printout (A4, one page per candidate) */
+.scf{background:#fff;color:#000;width:190mm;min-height:270mm;margin:0 auto 12px;padding:7mm 8mm;border:1.5px solid #000;font:14px/1.4 "Times New Roman",Roboto,"Noto Sans Tamil",serif;box-sizing:border-box;display:flex;flex-direction:column}
+.scf-head{display:flex;gap:10px;align-items:center;border-bottom:1.5px solid #000;padding-bottom:6px;margin-bottom:6px}
+.scf-logo{width:24mm;height:auto}
+.scf-title{flex:1;text-align:center;font:600 13px/1.5 Roboto,Arial,sans-serif}
+.scf-title b{display:block;font-size:14px}
+.scf-title div{text-align:left;margin-top:2px}
+.scf .v{display:inline-block;min-width:30mm;border-bottom:1px dotted #000;font-weight:400;padding:0 3px}
+.scf .v.blank{min-width:62mm}
+.scf .v.sm{min-width:12mm}
+.scf .nw{white-space:nowrap}
+.scf .sel{border:1.5px solid #000;border-radius:50%;padding:0 5px;font-weight:700}
+.scf-top{display:flex;gap:8px;align-items:flex-start}
+.scf-top .scf-rows{flex:1}
+.scf-rows{width:100%;border-collapse:collapse;font-weight:700}
+.scf-rows td{padding:7.5px 3px;vertical-align:top;border:0}
+.scf-rows td:first-child{width:7mm}
+.scf-rows td:nth-child(2){width:62mm}
+.scf-rows td:nth-child(3){font-weight:700}
+.scf-photo{width:35mm;height:45mm;border:1.5px solid #000;overflow:hidden;flex:0 0 35mm;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:11px;margin-top:4px}
+.scf-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.scf-photo{outline:1.5px solid #000;outline-offset:-1px}
+.scf-edu{width:100%;border-collapse:collapse;margin:4px 0 10px;font-size:13px}
+.scf-edu th,.scf-edu td{border:1px solid #000;padding:7px 4px;text-align:center}
+.scf-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-weight:700;padding-top:20px}
+.scf-signbox{text-align:center}
+@media print{
+  body:has(.scf-print) .site-head,body:has(.scf-print) .site-foot,body:has(.scf-print) .botnav{display:none!important}
+  body:has(.scf-print){background:#fff}
+  body:has(.scf-print) main.wrap{padding:0;max-width:none;margin:0}
+  .scf{margin:0;border:1.5px solid #000;break-after:page;page-break-after:always;width:auto;min-height:277mm}
+  .scf:last-child{break-after:auto;page-break-after:auto}
+  @page{size:A4;margin:10mm}
+}
+.sigpad{margin-top:10px}
+.sig-canvas{width:100%;max-width:420px;height:140px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;display:block}
+.sig-img{max-width:240px;max-height:80px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px}
+.sig-hidden{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.scf-sign{height:16mm;max-width:55mm;object-fit:contain;display:block;margin:0 0 2px auto}
