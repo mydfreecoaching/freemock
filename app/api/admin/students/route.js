@@ -5,7 +5,7 @@ import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
 import { DISTRICT_EN, GENDER_LABEL, PRIORITY_LABEL } from '@/lib/util';
 import { studentList, XLSX_PAGE, listFilters } from '@/lib/studentList';
-import { VENUE_LABEL, GUIDANCE_LABEL } from '@/lib/venues';
+import { VENUE_LABEL } from '@/lib/venues';
 
 /** Excel of registered students with their passport photos embedded (400 per file: ?p=1,2,…). */
 export async function GET(req) {
@@ -24,13 +24,13 @@ export async function GET(req) {
   ws.columns = [
     { header: 'S.No', width: 6 }, { header: 'Photo', width: 12 }, { header: 'Reg No', width: 16 }, { header: 'Name', width: 26 },
     { header: 'Mobile', width: 13 }, { header: 'Email', width: 28 }, { header: 'DOB', width: 11 }, { header: 'Gender', width: 9 },
-    { header: 'Community', width: 11 }, { header: 'District', width: 18 }, { header: 'Qualification', width: 18 }, { header: 'Priority', width: 22 }, { header: 'Coaching venue', width: 34 }, { header: 'Group 2/2A applied', width: 10 }, { header: 'Group 2/2A application no.', width: 20 }, { header: 'Group 2/2A hall ticket no.', width: 20 }, { header: 'Group 4 applied', width: 10 }, { header: 'Group 4 application no.', width: 20 }, { header: 'Guidance programme', width: 34 }, { header: 'Heard about classes via', width: 30 }, { header: 'Exams preparing for', width: 30 }, { header: 'Study place', width: 24 }, { header: 'How preparing / experience', width: 50 }, { header: 'Registered on', width: 13 },
+    { header: 'Community', width: 11 }, { header: 'District', width: 18 }, { header: 'Qualification', width: 18 }, { header: 'Priority', width: 22 }, { header: 'Coaching venue', width: 34 }, { header: 'Group 2/2A applied', width: 10 }, { header: 'Group 2/2A application no.', width: 20 }, { header: 'Group 2/2A hall ticket no.', width: 20 }, { header: 'Group 4 applied', width: 10 }, { header: 'Group 4 application no.', width: 20 }, { header: 'Heard about classes via', width: 30 }, { header: 'Exams preparing for', width: 30 }, { header: 'Study place', width: 24 }, { header: 'How preparing / experience', width: 50 }, { header: 'Registered on', width: 13 },
   ];
   ws.getRow(1).font = { bold: true }; ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3E3D3' } };
   rows.forEach((r, i) => {
     const row = ws.addRow([(page - 1) * XLSX_PAGE + i + 1, r.has_photo ? '' : 'No photo', r.reg_no, r.name, r.mobile, r.email || '', r.dob,
       GENDER_LABEL[r.gender] || '', r.community || '', r.district_other ? `${r.district} – ${r.district_other}` : `${r.district} – ${DISTRICT_EN[r.district] || ''}`, r.qualification || '',
-      (r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; '), VENUE_LABEL(r.coaching_venue), r.g2_applied ? 'Yes' : r.g2_applied === false ? 'No' : '', r.g2_app_no || '', r.g2_hall_ticket || '', r.g4_applied ? 'Yes' : r.g4_applied === false ? 'No' : '', r.g4_app_no || '', (r.guidance || []).map((k) => GUIDANCE_LABEL[k]).join('; '), sourceText(r), examsText(r), r.study_place || '', r.study_note || '', r.reg_at]);
+      (r.priority || []).map((p) => (p === 'OTHER' ? `Other: ${r.priority_other || ''}` : PRIORITY_LABEL[p] || p)).join('; '), VENUE_LABEL(r.coaching_venue), r.g2_applied ? 'Yes' : r.g2_applied === false ? 'No' : '', r.g2_app_no || '', r.g2_hall_ticket || '', r.g4_applied ? 'Yes' : r.g4_applied === false ? 'No' : '', r.g4_app_no || '', sourceText(r), examsText(r), r.study_place || '', r.study_note || '', r.reg_at]);
     row.height = 78; row.alignment = { vertical: 'middle', wrapText: true };
     if (thumb[r.id]) {
       const img = wb.addImage({ buffer: thumb[r.id], extension: 'jpeg' });
