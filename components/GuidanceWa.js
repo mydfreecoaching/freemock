@@ -10,9 +10,14 @@ export default function GuidanceWa({ guidance, venue = null, fresh = false }) {
     {vg && (
       <div className="card wa-join">
         <div>
-          <b>📲 {fresh ? '👉 ' : ''}{vg.title.split(' – ')[0]} இலவசப் பயிற்சி வகுப்புக்கான WhatsApp குழுவில் இப்போதே இணையுங்கள்</b>
-          <div className="small">நீங்கள் தேர்வு செய்த பயிற்சி வகுப்பு இடம்: <b>{vg.title}</b>{vg.when ? ` · ${vg.when}` : ''}</div>
-          <div className="small">வகுப்பு நேரம், அறிவிப்புகள் இந்தக் குழுவில் பகிரப்படும் / Join the WhatsApp group of your coaching class.</div>
+          {vg.mock ? <>
+            <b>📲 {fresh ? '👉 ' : ''}மயிலாடுதுறை – இணையவழி மாதிரித் தேர்வுகளுக்கான WhatsApp குழுவில் இப்போதே இணையுங்கள்</b>
+            <div className="small">புதிய தேர்வுகள், முடிவுகள், அறிவிப்புகள் இந்தக் குழுவில் பகிரப்படும் / Join the WhatsApp group for the online mock tests.</div>
+          </> : <>
+            <b>📲 {fresh ? '👉 ' : ''}{vg.title.split(' – ')[0]} இலவசப் பயிற்சி வகுப்புக்கான WhatsApp குழுவில் இப்போதே இணையுங்கள்</b>
+            <div className="small">நீங்கள் தேர்வு செய்த பயிற்சி வகுப்பு இடம்: <b>{vg.title}</b>{vg.when ? ` · ${vg.when.split(' / ')[0]}` : ''}</div>
+            <div className="small">வகுப்பு நேரம், அறிவிப்புகள் இந்தக் குழுவில் பகிரப்படும் / Join the WhatsApp group of your coaching class.</div>
+          </>}
         </div>
         <a className="btn wa-btn" href={vg.link} target="_blank" rel="noopener noreferrer">WhatsApp குழுவில் இணைய →</a>
       </div>
