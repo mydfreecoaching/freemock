@@ -32,7 +32,7 @@ export default async function Profile({ searchParams }) {
         (பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம் மாற்ற வேண்டுமெனில் WhatsApp-இல் தொடர்பு கொள்ளவும்.)</p>
       <Form action="/api/profile" submit="சேமி / Save">
         <input type="hidden" name="next" value={next} />
-        <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} source={me.class_source || []} sourceOther={me.class_source_other || ''} />
+        <DistrictVenue fixed={{ code: PREFIX[me.district] }} venue={me.coaching_venue || ''} guidance={me.guidance || []} source={me.class_source || []} sourceOther={me.class_source_other || ''} sc={me} />
         <StudentFields s={me} />
         <PhotoChoice current={me.has_photo ? photoUrl(me.id, me.photo_v) : null} allowLater={!me.photo_skipped_at} waived={me.photo_waived} />
         <G2Fields applied={me.g2_applied} appNo={me.g2_app_no || ''} hallTicket={me.g2_hall_ticket || ''} />

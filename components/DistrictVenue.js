@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import ClassSourceFields from './ClassSourceFields';
+import StudyCircleFields from './StudyCircleFields';
 import { attendsClass } from '@/lib/classSource';
 import { venueOptions, upcomingGuidance, GUIDANCE_TIME, TVR_START, TVR_MODES, tvrModeOf } from '@/lib/venues';
 
@@ -8,7 +9,7 @@ import { venueOptions, upcomingGuidance, GUIDANCE_TIME, TVR_START, TVR_MODES, tv
  * District select (optional) + "free coaching venue" for that district.
  * Mayiladuthurai: choose DECGC (Mon–Fri) or Collectorate (Sat–Sun); Thiruvarur: DECGC + guidance programme venues.
  */
-export default function DistrictVenue({ districts = null, firstCount = 0, fixed = null, venue = '', guidance = [], source = [], sourceOther = '' }) {
+export default function DistrictVenue({ districts = null, firstCount = 0, fixed = null, venue = '', guidance = [], source = [], sourceOther = '', sc = {} }) {
   const [code, setCode] = useState(fixed?.code || '');
   const opts = venueOptions(code);
   const [pick, setPick] = useState(venue || '');
@@ -59,7 +60,7 @@ export default function DistrictVenue({ districts = null, firstCount = 0, fixed 
             </label>
           ))}
           <input type="hidden" name="coaching_venue" value={chosen || ''} />
-          {(code === 'TVR' || code === 'MYD') && attendsClass(chosen) && <ClassSourceFields value={source} other={sourceOther} />}
+          {(code === 'TVR' || code === 'MYD') && attendsClass(chosen) && <><ClassSourceFields value={source} other={sourceOther} /><StudyCircleFields v={sc} /></>}
           {code === 'TVR' && upcomingGuidance().length > 0 && (
             <div className="guidance">
               <label>🧭 வழிகாட்டுதல் நிகழ்ச்சி நடைபெறும் இடங்கள் / Career guidance programme <span className="req">*</span></label>

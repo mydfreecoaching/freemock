@@ -69,6 +69,7 @@ export default async function Admin({ searchParams }) {
           <a href="/weekly">வாராந்திரப் பகுப்பாய்வு <span>Weekly analysis</span></a>
           <a href="/admin/faculty">ஆசிரியர்கள் <span>Faculty accounts</span></a>
           <a href="/admin/attendance">📋 வகுப்பு வருகை <span>Class attendance</span></a>
+          <a href="/admin/study-circle">🖨️ பயிற்சி வட்டப் பதிவுப் படிவம் <span>Study Circle forms (PDF)</span></a>
           <a href="/admin/class-source">📣 வகுப்பு பற்றி அறிந்த விதம் <span>How students heard about classes</span></a>
           <a href="/admin/class-tests">📝 வகுப்புத் தேர்வு – மைய வாரியாக <span>Class tests by venue</span></a>
         </div>
