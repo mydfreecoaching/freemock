@@ -28,6 +28,7 @@ export default async function Admin({ searchParams }) {
   const [{ pending }] = await sql`SELECT count(*)::int pending FROM submissions WHERE status='pending'`;
   const [{ newEnq }] = await sql`SELECT count(*)::int "newEnq" FROM enquiries WHERE status='new'`;
   const [{ fbPend }] = await sql`SELECT count(*)::int "fbPend" FROM feedback WHERE status='pending'`;
+  const [{ clashNew }] = await sql`SELECT count(*)::int "clashNew" FROM faculty_session_clashes WHERE NOT seen`;
   const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE NOT seen`;
   const sp = await searchParams;
   const exams = await getExams(true); const EX = examMap(exams);
@@ -68,6 +69,7 @@ export default async function Admin({ searchParams }) {
           <a href="/admin/students">📷 தேர்வர் பட்டியல் <span>Students with photos (Excel / PDF)</span></a>
           <a href="/weekly">வாராந்திரப் பகுப்பாய்வு <span>Weekly analysis</span></a>
           <a href="/admin/faculty">ஆசிரியர்கள் <span>Faculty accounts</span></a>
+          <a href="/admin/coaching">🧑‍🏫 பயிற்றுநர் வருகை{clashNew ? <b className="pop-new">{clashNew}</b> : null}<span>Coaching classes & faculty attendance</span></a>
           <a href="/admin/attendance">📋 வகுப்பு வருகை <span>Class attendance</span></a>
           <a href="/admin/study-circle">🖨️ பயிற்சி வட்டப் பதிவுப் படிவம் <span>Study Circle forms (PDF)</span></a>
           <a href="/admin/class-source">📣 வகுப்பு பற்றி அறிந்த விதம் <span>How students heard about classes</span></a>

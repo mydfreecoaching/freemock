@@ -20,7 +20,8 @@ export default function ClassInfoPrompt({ district, venues }) {
     if (body.venue) window.location.reload(); else setShow(false);
   }
   if (!show) return null;
-  const groups = [['திங்கள் – வெள்ளி', venues.filter((v) => v.days === 'திங்கள் – வெள்ளி')], ['சனி & ஞாயிறு', venues.filter((v) => v.days === 'சனி & ஞாயிறு')]].filter(([, l]) => l.length);
+  // one group per class timing text (e.g. Mayiladuthurai DECGC weekdays, Collectorate every day; Thiruvarur weekdays / weekends)
+  const groups = [...new Set(venues.map((v) => v.days))].map((d) => [d, venues.filter((v) => v.days === d)]);
   return (
     <div className="modal g4modal">
       <div className="card" role="dialog" aria-modal="true" aria-labelledby="ci-h" style={{ maxHeight: '90vh', overflow: 'auto' }}>
@@ -29,7 +30,7 @@ export default function ClassInfoPrompt({ district, venues }) {
         {groups.map(([days, list]) => (
           <div key={days} style={{ marginBottom: 8 }}>
             <div className="small"><b>📅 {days}</b></div>
-            {list.map((v) => <label key={v.code} className="choice"><input type="radio" name="ci_venue" value={v.code} checked={pick === v.code} onChange={() => setPick(v.code)} /> {v.title}</label>)}
+            {list.map((v) => <label key={v.code} className="choice"><input type="radio" name="ci_venue" value={v.code} checked={pick === v.code} onChange={() => setPick(v.code)} /> {v.title}{v.when && venues.length < 4 && <span className="small muted"> – {v.when.split(' / ')[0]}</span>}</label>)}
           </div>
         ))}
         {pick && <div className="g4q">

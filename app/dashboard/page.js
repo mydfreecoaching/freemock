@@ -74,7 +74,7 @@ export default async function Dashboard({ searchParams }) {
   const attMark = attToday ? (await sql`SELECT in_at, out_at FROM class_attendance WHERE student_id=${sid} AND day=${today}`)[0] || null : null;
   // one pop-up at a time (the notification gate is shown above all of them)
   const dc = PREFIX[me.district];
-  const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0');
+  const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0' || me.coaching_venue === 'MYD_MOCK');
   const hall = hallPrompt(me);
   const prompt = dc === 'OTH' && !me.district_other ? 'district' : hall ? 'hall' : !me.study_place || !me.study_exams?.length ? 'study'
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && !me.class_source?.length ? 'source'
