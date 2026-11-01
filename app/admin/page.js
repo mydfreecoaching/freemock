@@ -72,6 +72,7 @@ export default async function Admin({ searchParams }) {
           <a href="/admin/coaching">🧑‍🏫 பயிற்றுநர் வருகை{clashNew ? <b className="pop-new">{clashNew}</b> : null}<span>Coaching classes & faculty attendance</span></a>
           <a href="/admin/attendance">📋 வகுப்பு வருகை <span>Class attendance</span></a>
           <a href="/admin/study-circle">🖨️ பயிற்சி வட்டப் பதிவுப் படிவம் <span>Study Circle forms (PDF)</span></a>
+          <a href="/admin/g4-offline">📝 குரூப் 4 நேரடி மாதிரித் தேர்வு விருப்பம் <span>Offline Group 4 mock tests (MYD / TVR)</span></a>
           <a href="/admin/class-source">📣 வகுப்பு பற்றி அறிந்த விதம் <span>How students heard about classes</span></a>
           <a href="/admin/class-tests">📝 வகுப்புத் தேர்வு – மைய வாரியாக <span>Class tests by venue</span></a>
         </div>

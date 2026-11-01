@@ -13,6 +13,8 @@ import G2HallPrompt from '@/components/G2HallPrompt';
 import StudyPrompt from '@/components/StudyPrompt';
 import ClassSourcePrompt from '@/components/ClassSourcePrompt';
 import StudyCirclePrompt from '@/components/StudyCirclePrompt';
+import G4OfflinePrompt from '@/components/G4OfflinePrompt';
+import { g4OffAsking, G4_OFF_Q, G4_OFF_EN } from '@/lib/g4Offline';
 import { attendsClass } from '@/lib/classSource';
 import { hallPrompt } from '@/lib/profile';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
@@ -79,7 +81,9 @@ export default async function Dashboard({ searchParams }) {
   const prompt = dc === 'OTH' && !me.district_other ? 'district' : hall ? 'hall' : !me.study_place || !me.study_exams?.length ? 'study'
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && !me.class_source?.length ? 'source'
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && (!me.sc_at || (!me.has_sign && !me.sc_printed_at)) ? 'sc'
-    : needClass && !sp?.new ? 'class' : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
+    : needClass && !sp?.new ? 'class'
+    : (dc === 'TVR' || dc === 'MYD') && me.g4_offline == null && g4OffAsking() ? 'g4off'
+    : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
   const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
@@ -101,6 +105,7 @@ export default async function Dashboard({ searchParams }) {
       {prompt === 'source' && <ClassSourcePrompt venue={venueTitle(me.coaching_venue)} />}
       {prompt === 'sc' && <StudyCirclePrompt signRequired={!me.sc_printed_at} v={{ father_name: me.father_name, mother_name: me.mother_name, address: me.address, pincode: me.pincode, disabled: me.disabled, disability: me.disability, edu: me.edu, prev_exams: me.prev_exams, train_medium: me.train_medium, train_mode: me.train_mode }} signUrl={me.has_sign ? `/api/sign/${me.id}?v=${me.sign_v || 0}` : ''} />}
       {prompt === 'class' && <ClassInfoPrompt district={me.district} venues={attVenues(PREFIX[me.district])} />}
+      {prompt === 'g4off' && <G4OfflinePrompt q={G4_OFF_Q} en={G4_OFF_EN} district={me.district} />}
       {prompt === 'g4' && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
