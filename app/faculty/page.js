@@ -53,7 +53,7 @@ export default async function Faculty() {
   await seedCourses();
   const today = istToday();
   const courses = (await activeCourses()).filter((c) => !c.end_date || isoDay(c.end_date) >= isoDay(new Date(Date.now() - 30 * 864e5)))
-    .map((c) => ({ id: c.id, name: c.name, place: c.place, days: c.days, slots: c.slots, start: isoDay(c.start_date), end: c.end_date ? isoDay(c.end_date) : '' }));
+    .map((c) => ({ id: c.id, name: c.name, exam: c.exam || '', place: c.place, days: c.days, slots: c.slots, start: isoDay(c.start_date), end: c.end_date ? isoDay(c.end_date) : '' }));
   const mine = await sql`SELECT s.*, to_char(s.day,'YYYY-MM-DD') d, c.name course, s.created_at > now() - interval '2 days' AS can_del
     FROM faculty_sessions s JOIN coaching_courses c ON c.id=s.course_id WHERE s.faculty_id=${f.id} ORDER BY s.day DESC, s.t_from DESC LIMIT 60`;
   const todays = await sql`SELECT s.t_from, s.t_to, s.subject, f.name, c.name course FROM faculty_sessions s JOIN faculty f ON f.id=s.faculty_id JOIN coaching_courses c ON c.id=s.course_id

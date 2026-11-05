@@ -1,5 +1,5 @@
 import Form from './Form';
-import { DAY_NAMES } from '@/lib/coaching';
+import { DAY_NAMES, COURSE_EXAMS } from '@/lib/coaching';
 
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
 /** Admin: create / edit a coaching course (name, place, days, allowed time slots, dates). */
@@ -11,9 +11,11 @@ export default function CourseForm({ c = null, places = [] }) {
       <input type="hidden" name="action" value="save" />
       {c && <input type="hidden" name="id" value={c.id} />}
       <div className="grid2">
-        <div><label>பயிற்சி வகுப்பின் பெயர் <span className="req">*</span></label><input name="name" required maxLength={120} defaultValue={c?.name || ''} placeholder="எ.கா. TNPSC Group 4 – வார இறுதி வகுப்பு" /></div>
+        <div><label>எந்தத் தேர்வுக்கான பயிற்சி? <span className="req">*</span></label><input name="exam" required maxLength={80} list="course-exams" defaultValue={c?.exam || ''} placeholder="எ.கா. TNPSC குரூப் 4 / Group 4" />
+          <datalist id="course-exams">{COURSE_EXAMS.map((x) => <option key={x} value={x} />)}</datalist></div>
         <div><label>மாவட்டம்</label><select name="district" defaultValue={c?.district || 'MYD'}><option value="MYD">மயிலாடுதுறை</option><option value="TVR">திருவாரூர்</option></select></div>
       </div>
+      <label>வகுப்பின் பெயர் (விருப்பம் – காலியாக விட்டால் "தேர்வு – இடம்")</label><input name="name" maxLength={120} defaultValue={c?.name || ''} />
       <label>நடைபெறும் இடம் <span className="req">*</span></label>
       <input name="place" required maxLength={200} list={`places-${c?.id || 'new'}`} defaultValue={c?.place || ''} placeholder="எ.கா. மாவட்ட ஆட்சியர் அலுவலகம், மயிலாடுதுறை" />
       <datalist id={`places-${c?.id || 'new'}`}>{places.map((p) => <option key={p} value={p} />)}</datalist>
