@@ -18,7 +18,7 @@ import { g4OffAsking, G4_OFF_Q, G4_OFF_EN } from '@/lib/g4Offline';
 import { attendsClass } from '@/lib/classSource';
 import { hallPrompt } from '@/lib/profile';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
-import { G4, g4Asking } from '@/lib/venues';
+import { G4, g4Asking, g4ApplyOpen } from '@/lib/venues';
 import { openEnded, fmt, fmtDate, testStatus } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import { studentTests } from '@/lib/student';
@@ -87,6 +87,7 @@ export default async function Dashboard({ searchParams }) {
   const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
+    g4ApplyOpen() && me.g4_applied !== true && <>📢 <b>TNPSC குரூப் 4 – விண்ணப்பிக்கக் கடைசி நாள் {G4.lastDate} வரை நீட்டிப்பு.</b> இன்னும் விண்ணப்பிக்கவில்லையெனில் உடனே <a href={G4.link} target="_blank" rel="noopener"><b>tnpsc.gov.in</b></a>-இல் விண்ணப்பியுங்கள்.</>,
     cfNew > 0 && <>🗣️ உங்கள் வகுப்புக் கருத்துக்கு Admin பதில் அளித்துள்ளார் <span className="pop-new">{cfNew} புதியது</span> – <a href="/contact#myfb"><b>பார்க்க</b></a></>,
     enqNew > 0 && <>📨 உங்கள் கோரிக்கைக்கு Admin பதில் அளித்துள்ளார் <span className="pop-new">{enqNew} புதியது</span> – <a href="/contact#mine"><b>பார்க்க</b></a></>,
     me.photo_waived && <>📷 அடுத்த முறை உள்நுழையும்போது <b>பாஸ்போர்ட் புகைப்படம் கட்டாயம்</b> – <a href="/profile">இப்போதே பதிவேற்ற</a></>,
