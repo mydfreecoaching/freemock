@@ -16,6 +16,7 @@ export default async function AdminNotify() {
   const total = byDist.reduce((n, r) => n + r.students, 0), devices = byDist.reduce((n, r) => n + r.devices, 0);
   const log = await sql`SELECT * FROM push_log ORDER BY id DESC LIMIT 20`;
   const ready = fcmReady() && !!VAPID_KEY;
+  const [{ g4na }] = await sql`SELECT count(DISTINCT p.student_id)::int g4na FROM push_tokens p JOIN students s ON s.id=p.student_id WHERE s.g4_applied IS NOT TRUE`;
   return (
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
@@ -43,6 +44,7 @@ export default async function AdminNotify() {
               {byDist.map((r) => <option key={r.district} value={r.district}>{r.district} ({r.students})</option>)}
             </select></div>
           </div>
+          <label className="choice"><input type="checkbox" name="g4na" value="1" /> குரூப் 4-க்கு விண்ணப்பிக்காதவர்களுக்கு மட்டும் ({g4na} பேர் அறிவிப்பு இயக்கியுள்ளனர்)</label>
         </Form>
       </div>
       {log.length > 0 && <div className="card">
