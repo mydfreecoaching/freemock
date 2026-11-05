@@ -29,10 +29,11 @@ export default function CourseForm({ c = null, places = [] }) {
             <input type="time" name="slot_from" defaultValue={s.from} step={900} />
             <span>–</span>
             <input type="time" name="slot_to" defaultValue={s.to} step={900} />
+            <span className="slot-days">{ORDER.map((d) => <label key={d} title={DAY_NAMES[d]}><input type="checkbox" name={`slot_days_${i}`} value={d} defaultChecked={s.days?.includes(d)} />{DAY_NAMES[d].slice(0, 2)}</label>)}</span>
           </div>
         ))}
       </div>
-      <p className="small muted" style={{ margin: '2px 0 6px' }}>எ.கா. 10:00–13:00, 10:30–13:30, 14:00–17:00, 14:30–17:30. ஒன்றோடொன்று மேற்பொருந்தும் நேரங்களில் (எ.கா. 10:00–13:00 & 10:30–13:30) ஒரு நாளில் ஒருவர் மட்டுமே பதிவிட முடியும்.</p>
+      <p className="small muted" style={{ margin: '2px 0 6px' }}>எ.கா. 10:00–13:00, 10:30–13:30, 14:00–17:00, 14:30–17:30. ஒன்றோடொன்று மேற்பொருந்தும் நேரங்களில் (எ.கா. 10:00–13:00 & 10:30–13:30) ஒரு நாளில் ஒருவர் மட்டுமே பதிவிட முடியும். ஒவ்வொரு நேரத்துக்கும் அருகில் உள்ள நாட்களைத் தேர்வு செய்தால் அந்த நாட்களில் மட்டும் அந்த நேரம் காட்டப்படும் (எ.கா. திங்கள்–வெள்ளி 4:30–6:00, சனி–ஞாயிறு 10:30–1:30); எதையும் தேர்வு செய்யாவிட்டால் எல்லா வகுப்பு நாட்களுக்கும்.</p>
       <div className="grid2">
         <div><label>தொடங்கும் தேதி <span className="req">*</span></label><input type="date" name="start_date" required defaultValue={iso(c?.start_date)} /></div>
         <div><label>முடியும் தேதி (தெரிந்தால்)</label><input type="date" name="end_date" defaultValue={iso(c?.end_date)} /></div>
