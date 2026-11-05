@@ -26,9 +26,9 @@ export default function FacultyClassForm({ courses, subjects, today }) {
       <input type="date" name="day" required value={day} max={today} min={c?.start} onChange={(e) => setDay(e.target.value)} />
       {c && day && !okDay && <div className="err">இந்தத் தேதியில் ({DN[dowOf(day)]}) இந்த வகுப்பு நடைபெறுவதில்லை.</div>}
       <label>வகுப்பு நேரம் / Time <span className="req">*</span></label>
-      <select name="slot" required defaultValue="" key={cid}>
+      <select name="slot" required defaultValue="" key={cid + day}>
         <option value="" disabled>தேர்வு செய்யவும்</option>
-        {(c?.slots || []).map((s) => <option key={s.from + s.to} value={`${s.from}-${s.to}`}>{t12(s.from)} – {t12(s.to)} ({hrs(s.from, s.to)} மணி)</option>)}
+        {(c?.slots || []).filter((s) => !s.days?.length || s.days.includes(dowOf(day))).map((s) => <option key={s.from + s.to} value={`${s.from}-${s.to}`}>{t12(s.from)} – {t12(s.to)} ({hrs(s.from, s.to)} மணி)</option>)}
       </select>
       <label>நடத்திய பாடம் / Subject <span className="req">*</span></label>
       <select name={subj === '__other' ? undefined : 'subject'} required value={subj} onChange={(e) => setSubj(e.target.value)}>
