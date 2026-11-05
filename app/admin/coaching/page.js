@@ -84,7 +84,7 @@ export default async function AdminCoaching({ searchParams }) {
         {courses.map((c) => (
           <div key={c.id} className="enq">
             <div className="row" style={{ justifyContent: 'space-between' }}>
-              <div><b>{c.name}</b> {!c.active && <span className="pill closed">நிறுத்தப்பட்டது</span>}
+              <div><b>{c.name}</b> {c.exam && <span className="pill open">{c.exam}</span>} {!c.active && <span className="pill closed">நிறுத்தப்பட்டது</span>}
                 <div className="small">📍 {c.place} · 📅 {daysText(c.days)} · {dmy(c.start_date)}{c.end_date ? ` – ${dmy(c.end_date)}` : ' முதல்'}</div>
                 <div className="small muted">⏰ {c.slots.map(slotLabel).join(' · ')} · வருகைப் பதிவுகள்: {c.n}</div></div>
               <div className="row" style={{ gap: 6 }}>

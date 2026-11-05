@@ -16,12 +16,12 @@ export default function FacultyClassForm({ courses, subjects, today }) {
   const [subj, setSubj] = useState('');
   return (
     <Form action="/api/faculty/class" submit="✅ வருகையைப் பதிவு செய்">
-      <label>பயிற்சி வகுப்பு / Course <span className="req">*</span></label>
+      <label>பயிற்சி வகுப்பு (தேர்வு – இடம்) / Course <span className="req">*</span></label>
       <select name="course" required value={cid} onChange={(e) => setCid(e.target.value)}>
         <option value="" disabled>தேர்வு செய்யவும்</option>
         {courses.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
       </select>
-      {c && <p className="small muted" style={{ margin: '2px 0 0' }}>📍 {c.place} · 📅 {c.days.map((d) => DN[d]).join(', ')}</p>}
+      {c && <p className="small muted" style={{ margin: '2px 0 0' }}>{c.exam && <>📚 <b>{c.exam}</b> · </>}📍 {c.place} · 📅 {c.days.map((d) => DN[d]).join(', ')}</p>}
       <label>வகுப்பு நடத்திய தேதி / Date <span className="req">*</span></label>
       <input type="date" name="day" required value={day} max={today} min={c?.start} onChange={(e) => setDay(e.target.value)} />
       {c && day && !okDay && <div className="err">இந்தத் தேதியில் ({DN[dowOf(day)]}) இந்த வகுப்பு நடைபெறுவதில்லை.</div>}

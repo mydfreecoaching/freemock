@@ -11,8 +11,8 @@ export async function POST(req) {
     const f = courseFields(b);
     if (f.error) return Response.json({ error: f.error }, { status: 400 });
     const v = f.values;
-    if (id) await sql`UPDATE coaching_courses SET name=${v.name}, place=${v.place}, district=${v.district}, days=${v.days}, slots=${sql.json(v.slots)}, start_date=${v.start_date}, end_date=${v.end_date}, note=${v.note} WHERE id=${id}`;
-    else await sql`INSERT INTO coaching_courses (name, place, district, days, slots, start_date, end_date, note) VALUES (${v.name}, ${v.place}, ${v.district}, ${v.days}, ${sql.json(v.slots)}, ${v.start_date}, ${v.end_date}, ${v.note})`;
+    if (id) await sql`UPDATE coaching_courses SET name=${v.name}, exam=${v.exam}, place=${v.place}, district=${v.district}, days=${v.days}, slots=${sql.json(v.slots)}, start_date=${v.start_date}, end_date=${v.end_date}, note=${v.note} WHERE id=${id}`;
+    else await sql`INSERT INTO coaching_courses (name, exam, place, district, days, slots, start_date, end_date, note) VALUES (${v.name}, ${v.exam}, ${v.place}, ${v.district}, ${v.days}, ${sql.json(v.slots)}, ${v.start_date}, ${v.end_date}, ${v.note})`;
     return Response.json({ message: id ? 'மாற்றங்கள் சேமிக்கப்பட்டன.' : 'பயிற்சி வகுப்பு சேர்க்கப்பட்டது.', reload: true });
   }
   if (b.action === 'toggle') { await sql`UPDATE coaching_courses SET active = NOT active WHERE id=${id}`; return Response.json({ reload: true }); }
