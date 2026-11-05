@@ -15,13 +15,38 @@ export default async function Faculty() {
   const f = await currentFaculty();
   if (!f) {
     return (
-      <div className="card" style={{ maxWidth: 440, margin: '0 auto' }}>
-        <h1>ஆசிரியர் உள்நுழைவு / Faculty Login</h1>
-        <Form action="/api/faculty/login" submit="உள்நுழை">
-          <label>கைபேசி எண்</label><input name="mobile" required inputMode="numeric" autoComplete="username" />
-          <label>கடவுச்சொல்</label><input name="password" type="password" required autoComplete="current-password" />
-        </Form>
-        <p className="small muted">கணக்கு இல்லையெனில் Admin-ஐத் தொடர்பு கொள்ளவும்.</p>
+      <div className="grid2" style={{ alignItems: 'start' }}>
+        <div className="card">
+          <h1>பயிற்றுநர் உள்நுழைவு / Faculty Login</h1>
+          <Form action="/api/faculty/login" submit="உள்நுழை">
+            <label>கைபேசி எண்</label><input name="mobile" required inputMode="numeric" autoComplete="username" />
+            <label>கடவுச்சொல்</label><input name="password" type="password" required autoComplete="current-password" />
+          </Form>
+          <p className="small muted">கணக்கு இல்லையெனில் அருகில் உள்ள படிவத்தில் பதிவு செய்யவும். Admin ஒப்புதல் அளித்த பின் உள்நுழைந்து வினாக்களைப் பதிவேற்றலாம், வகுப்பு வருகையைப் பதிவிடலாம்.</p>
+        </div>
+        <div className="card" id="register">
+          <h2 style={{ marginTop: 0 }}>🧑‍🏫 புதிய பயிற்றுநர் பதிவு / New faculty registration</h2>
+          <Form action="/api/faculty/register" submit="பதிவு செய் / Register">
+            <label>பெயர் <span className="req">*</span></label><input name="name" required maxLength={80} />
+            <div className="grid2">
+              <div><label>கைபேசி எண் (உள்நுழைவுக்கு) <span className="req">*</span></label><input name="mobile" required inputMode="numeric" pattern="[6-9][0-9]{9}" maxLength={10} /></div>
+              <div><label>மின்னஞ்சல்</label><input name="email" type="email" maxLength={120} /></div>
+            </div>
+            <div className="grid2">
+              <div><label>பதவி <span className="req">*</span></label><input name="designation" required maxLength={100} placeholder="எ.கா. பட்டதாரி ஆசிரியர் / உதவியாளர் / ஓய்வுபெற்ற தலைமையாசிரியர்" /></div>
+              <div><label>மாவட்டம் <span className="req">*</span></label><select name="district" required defaultValue=""><option value="" disabled>தேர்வு செய்யவும்</option><option value="MYD">மயிலாடுதுறை</option><option value="TVR">திருவாரூர்</option><option value="OTH">இதர மாவட்டம்</option></select></div>
+            </div>
+            <label>பணியிடம் / அலுவலகம் <span className="req">*</span></label><input name="office" required maxLength={150} placeholder="எ.கா. அரசு மேல்நிலைப் பள்ளி, குத்தாலம்" />
+            <label>நீங்கள் நடத்தும் பாடங்கள் <span className="req">*</span></label>
+            <div className="src-list">{(await getSubjects()).map((s) => <label key={s.id} className="choice"><input type="checkbox" name="subjects" value={s.name} /> {s.name}</label>)}</div>
+            <input name="subjects_other" maxLength={200} placeholder="பிற பாடங்கள் (இருந்தால்)" />
+            <div className="grid2">
+              <div><label>கடவுச்சொல் (6+ எழுத்துகள்) <span className="req">*</span></label><input name="password" type="password" required minLength={6} autoComplete="new-password" /></div>
+              <div><label>கடவுச்சொல் மீண்டும் <span className="req">*</span></label><input name="password2" type="password" required minLength={6} autoComplete="new-password" /></div>
+            </div>
+          </Form>
+          <p className="small muted">பதிவு Admin ஒப்புதலுக்காகக் காத்திருக்கும்.</p>
+        </div>
       </div>
     );
   }
