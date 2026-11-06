@@ -6,6 +6,8 @@ import { studentId } from '@/lib/auth';
 import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import AttendanceCard from '@/components/AttendanceCard';
+import RateClassCard from '@/components/RateClassCard';
+import { sessionsToRate } from '@/lib/coaching';
 import ClassInfoPrompt from '@/components/ClassInfoPrompt';
 import { hasClassOn, istToday, venueTitle, fmtDay, dayName, attVenues } from '@/lib/attendance';
 import G4Prompt from '@/components/G4Prompt';
@@ -109,6 +111,7 @@ export default async function Dashboard({ searchParams }) {
       {prompt === 'g4off' && <G4OfflinePrompt q={G4_OFF_Q} en={G4_OFF_EN} district={me.district} />}
       {prompt === 'g4' && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
+      <RateClassCard sessions={me.coaching_venue ? await sessionsToRate(me.id) : []} />
       {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
       <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!sp?.new} />
       <ExamNotices />

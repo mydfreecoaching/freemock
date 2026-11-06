@@ -3,7 +3,7 @@ import { DAY_NAMES, COURSE_EXAMS } from '@/lib/coaching';
 
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
 /** Admin: create / edit a coaching course (name, place, days, allowed time slots, dates). */
-export default function CourseForm({ c = null, places = [] }) {
+export default function CourseForm({ c = null, places = [], venues = [] }) {
   const slots = [...(c?.slots || []), ...Array(Math.max(0, 6 - (c?.slots?.length || 0))).fill({ from: '', to: '' })];
   const iso = (d) => (d ? new Date(new Date(d).getTime() + 5.5 * 3600e3).toISOString().slice(0, 10) : '');
   return (
@@ -19,6 +19,9 @@ export default function CourseForm({ c = null, places = [] }) {
       <label>நடைபெறும் இடம் <span className="req">*</span></label>
       <input name="place" required maxLength={200} list={`places-${c?.id || 'new'}`} defaultValue={c?.place || ''} placeholder="எ.கா. மாவட்ட ஆட்சியர் அலுவலகம், மயிலாடுதுறை" />
       <datalist id={`places-${c?.id || 'new'}`}>{places.map((p) => <option key={p} value={p} />)}</datalist>
+      <label>மாணவர் பதிவில் உள்ள பயிற்சி இடம் (வருகை & கருத்துக்கு)</label>
+      <select name="venue_code" defaultValue={c?.venue_code || ''}><option value="">— இணைக்க வேண்டாம் —</option>{venues.map((v) => <option key={v.code} value={v.code}>{v.title}</option>)}</select>
+      <p className="small muted" style={{ margin: '2px 0 6px' }}>இணைத்தால், அந்த இடத்தில் QR வருகை பதிவான மாணவர்கள் அன்று நடந்த வகுப்புகளின் பயிற்றுநர்கள் பற்றிக் கருத்து தெரிவிக்கலாம்.</p>
       <label>வகுப்பு நடைபெறும் நாட்கள் <span className="req">*</span></label>
       <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
         {ORDER.map((d) => <label key={d} className="choice"><input type="checkbox" name="days" value={d} defaultChecked={c?.days?.includes(d)} /> {DAY_NAMES[d]}</label>)}

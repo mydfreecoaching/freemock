@@ -32,7 +32,8 @@ export default async function AdminCoaching({ searchParams }) {
     LEFT JOIN faculty_sessions e ON e.id=x.existing_id LEFT JOIN faculty ef ON ef.id=e.faculty_id LEFT JOIN coaching_courses ec ON ec.id=e.course_id
     ORDER BY x.created_at DESC LIMIT 50`;
   const unseen = clashes.filter((x) => !x.seen).length;
-  const places = [...new Set(['MYD', 'TVR'].flatMap((d) => attVenues(d).map((v) => v.title)))];
+  const venues = ['MYD', 'TVR'].flatMap((d) => attVenues(d));
+  const places = [...new Set(venues.map((v) => v.title))];
   const total = rows.reduce((t, r) => t + hours(r.t_from, r.t_to), 0);
   const qs = (o) => new URLSearchParams(Object.entries({ ...f, ...o }).filter(([, v]) => v)).toString();
   return (
@@ -92,12 +93,12 @@ export default async function AdminCoaching({ searchParams }) {
                 {c.n === 0 && <Form action="/api/admin/coaching" submit="நீக்கு" confirm="இந்தப் பயிற்சி வகுப்பை நீக்கவா?" className="inline-form"><input type="hidden" name="action" value="delete" /><input type="hidden" name="id" value={c.id} /></Form>}
               </div>
             </div>
-            <details><summary className="small">திருத்து / Edit</summary><CourseForm c={c} places={places} /></details>
+            <details><summary className="small">திருத்து / Edit</summary><CourseForm c={c} places={places} venues={venues} /></details>
           </div>
         ))}
         <details open={courses.length === 0} style={{ marginTop: 10 }}>
           <summary><b>➕ புதிய பயிற்சி வகுப்பு / New course</b></summary>
-          <CourseForm places={places} />
+          <CourseForm places={places} venues={venues} />
         </details>
       </div>
     </>
