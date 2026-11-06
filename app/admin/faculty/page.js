@@ -12,7 +12,7 @@ export default async function AdminFaculty() {
     (SELECT count(*) FROM submissions s WHERE s.faculty_id=f.id AND s.status='approved')::int ok,
     (SELECT count(*) FROM faculty_sessions c WHERE c.faculty_id=f.id)::int cls FROM faculty f ORDER BY f.created_at`;
   const pending = all.filter((f) => f.status === 'pending'), list = all.filter((f) => f.status === 'approved'), rejected = all.filter((f) => f.status === 'rejected');
-  const DN = { MYD: 'மயிலாடுதுறை', TVR: 'திருவாரூர்', OTH: 'இதர' };
+  const DN = { MYD: 'மயிலாடுதுறை', NGP: 'நாகப்பட்டினம்', TVR: 'திருவாரூர்', OTH: 'இதர' };
   const info = (f) => [f.designation, f.office, DN[f.district], f.email].filter(Boolean).join(' · ');
   return (
     <>
