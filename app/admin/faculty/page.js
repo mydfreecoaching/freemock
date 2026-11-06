@@ -17,7 +17,7 @@ export default async function AdminFaculty() {
   return (
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>ஆசிரியர்கள் / Faculty</h1><a className="btn alt" href="/admin">← Admin</a></div>
-      <div className="card" style={pending.length ? { borderColor: 'var(--pri)' } : null}>
+      <div className="card" style={pending.length ? { borderColor: 'var(--brand)' } : null}>
         <h2 style={{ marginTop: 0 }}>⏳ ஒப்புதலுக்காகக் காத்திருக்கும் பதிவுகள் ({pending.length})</h2>
         {pending.length === 0 && <p className="muted" style={{ margin: 0 }}>இல்லை. பயிற்றுநர்கள் /faculty பக்கத்தில் தாங்களே பதிவு செய்யலாம்.</p>}
         {pending.map((f) => (

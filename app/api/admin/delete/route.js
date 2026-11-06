@@ -5,5 +5,5 @@ export async function POST(req) {
   const b = await req.json().catch(() => ({}));
   if (b.confirm !== 'DELETE') return Response.json({ error: 'உறுதிப்படுத்த DELETE என்று தட்டச்சு செய்யவும்.' }, { status: 400 });
   await sql`DELETE FROM tests WHERE id=${Number(b.test_id)}`;
-  return Response.json({ redirect: '/admin' });
+  return Response.json({ redirect: '/admin/tests' });
 }

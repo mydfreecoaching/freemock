@@ -1,11 +1,12 @@
+import { ADMIN_TABS } from '@/lib/adminNav';
 import ThemeToggle from './ThemeToggle';
 import NavDrop from './NavDrop';
 import NavDrawer from './NavDrawer';
 import Icon from './Icon';
 
 const NAV = [['/', 'முகப்பு', 'Home'], ['/tests', 'தேர்வுகள்', 'Tests'], ['/rankings', 'தரவரிசை', 'Rankings'], ['/contact', 'தொடர்புக்கு', 'Contact']];
-const ADMIN_NAV = [['/admin', 'முகப்பு', 'Admin Home'], ['/admin/exams', 'கிடைக்கும் தேர்வுகள்', 'Exams'], ['/admin/students', 'தேர்வர்கள்', 'Students'], ['/admin/subjects', 'பாடங்கள்', 'Subjects'], ['/admin/submissions', 'ஆசிரியர் வினாத்தாள்கள்', 'Submissions'],
-  ['/admin/faculty', 'ஆசிரியர்கள்', 'Faculty'], ['/admin/attendance', 'வகுப்பு வருகை', 'Class attendance'], ['/admin/coaching', 'பயிற்றுநர் வருகை', 'Faculty attendance'], ['/admin/class-tests', 'மைய வாரியான தேர்வு', 'Class tests by venue'], ['/admin/class-source', 'அறிந்த விதம்', 'Class source'], ['/admin/g4-offline', 'குரூப் 4 நேரடித் தேர்வு', 'G4 offline mocks'], ['/admin/study-circle', 'பதிவுப் படிவம்', 'Study Circle forms'], ['/admin/feedback', 'கருத்துகள்', 'Feedback'], ['/admin/class-feedback', 'வகுப்புக் கருத்துகள்', 'Class feedback'], ['/admin/enquiries', 'கோரிக்கைகள்', 'Enquiries'], ['/admin/volunteers', 'பயிற்றுநர்கள்', 'Resource persons'], ['/admin/notify', 'அறிவிப்புகள்', 'Notifications'], ['/weekly', 'வாராந்திரம்', 'Weekly']];
+// admin drawer / header: the main admin tabs (sub-tabs are on each admin page)
+const ADMIN_NAV = ADMIN_TABS.map((t) => [t.subs[0][0], t.ta, t.en]);
 
 /**
  * Material top app bar. Phones: ☰ drawer + compact title + icon actions (bottom navigation is in BottomNav).
@@ -44,7 +45,8 @@ export default function SiteHeader({ loggedIn, classStudent = false, admin = fal
           </>}
         </div>
       </div></div>
-      <nav className="mainnav" aria-label="Main"><div className="nav-in"><div className="navlinks wide">{nav.map(link)}</div></div></nav>
+      {/* admin: the tabs are on the admin pages themselves (AdminNav); the drawer above still lists them */}
+      {!admin && <nav className="mainnav" aria-label="Main"><div className="nav-in"><div className="navlinks wide">{nav.map(link)}</div></div></nav>}
     </header>
   );
 }
