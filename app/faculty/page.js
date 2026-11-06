@@ -34,7 +34,7 @@ export default async function Faculty() {
             </div>
             <div className="grid2">
               <div><label>பதவி <span className="req">*</span></label><input name="designation" required maxLength={100} placeholder="எ.கா. பட்டதாரி ஆசிரியர் / உதவியாளர் / ஓய்வுபெற்ற தலைமையாசிரியர்" /></div>
-              <div><label>மாவட்டம் <span className="req">*</span></label><select name="district" required defaultValue=""><option value="" disabled>தேர்வு செய்யவும்</option><option value="MYD">மயிலாடுதுறை</option><option value="TVR">திருவாரூர்</option><option value="OTH">இதர மாவட்டம்</option></select></div>
+              <div><label>மாவட்டம் <span className="req">*</span></label><select name="district" required defaultValue=""><option value="" disabled>தேர்வு செய்யவும்</option><option value="MYD">மயிலாடுதுறை</option><option value="NGP">நாகப்பட்டினம்</option><option value="TVR">திருவாரூர்</option><option value="OTH">இதர மாவட்டம்</option></select></div>
             </div>
             <label>பணியிடம் / அலுவலகம் <span className="req">*</span></label><input name="office" required maxLength={150} placeholder="எ.கா. அரசு மேல்நிலைப் பள்ளி, குத்தாலம்" />
             <label>நீங்கள் நடத்தும் பாடங்கள் <span className="req">*</span></label>

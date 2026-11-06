@@ -8,7 +8,7 @@ const head = (ws) => { const r = ws.getRow(1); r.font = { bold: true }; r.fill =
 export async function GET(req) {
   const g = await guard(); if (g) return g;
   const q = new URL(req.url).searchParams;
-  const f = { d: ['MYD', 'TVR', 'OTH'].includes(q.get('d')) ? q.get('d') : '', a: ['yes', 'no', 'none'].includes(q.get('a')) ? q.get('a') : '', x: CX_LABEL[q.get('x')] ? q.get('x') : '' };
+  const f = { d: ['MYD', 'NGP', 'TVR', 'OTH'].includes(q.get('d')) ? q.get('d') : '', a: ['yes', 'no', 'none'].includes(q.get('a')) ? q.get('a') : '', x: CX_LABEL[q.get('x')] ? q.get('x') : '' };
   const { list, perExam } = await cxList(f);
   const wb = new ExcelJS.Workbook();
   const s = wb.addWorksheet('Students', { views: [{ state: 'frozen', ySplit: 1 }] });

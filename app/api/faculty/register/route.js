@@ -7,7 +7,7 @@ export async function POST(req) {
   await ensureSchema();
   const b = await req.json().catch(() => ({}));
   const name = clean(b.name, 80), mobile = clean(b.mobile, 10), designation = clean(b.designation, 100), office = clean(b.office, 150);
-  const email = clean(b.email, 120), district = ['MYD', 'TVR', 'OTH'].includes(b.district) ? b.district : '';
+  const email = clean(b.email, 120), district = ['MYD', 'NGP', 'TVR', 'OTH'].includes(b.district) ? b.district : '';
   const subjects = [...new Set([].concat(b.subjects || []).map((s) => clean(s, 80)).filter(Boolean))];
   const other = clean(b.subjects_other, 200);
   if (name.length < 3) return Response.json({ error: 'பெயரை உள்ளிடவும்.' }, { status: 400 });

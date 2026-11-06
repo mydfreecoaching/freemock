@@ -10,7 +10,7 @@ export default async function AdminCentralExams({ searchParams }) {
   await ensureSchema();
   if (!(await isAdmin())) redirect('/admin');
   const sp = await searchParams;
-  const f = { d: ['MYD', 'TVR', 'OTH'].includes(sp?.d) ? sp.d : '', a: ['yes', 'no', 'none'].includes(sp?.a) ? sp.a : '', x: CX_LABEL[sp?.x] ? sp.x : '' };
+  const f = { d: ['MYD', 'NGP', 'TVR', 'OTH'].includes(sp?.d) ? sp.d : '', a: ['yes', 'no', 'none'].includes(sp?.a) ? sp.a : '', x: CX_LABEL[sp?.x] ? sp.x : '' };
   const { list, perExam, total, answered, yes, applied } = await cxList(f);
   const qs = (o) => new URLSearchParams(Object.entries({ ...f, ...o }).filter(([, v]) => v)).toString();
   return (
@@ -26,7 +26,7 @@ export default async function AdminCentralExams({ searchParams }) {
         <div className="hstat"><b>{yes}</b><span>பயிற்சியில் சேர விருப்பம்</span></div>
         <div className="hstat"><b>{applied}</b><span>ஏற்கனவே விண்ணப்பித்தவர்</span></div>
       </div>
-      <nav className="tabs">{[['', 'அனைத்து மாவட்டங்களும்'], ['MYD', 'மயிலாடுதுறை'], ['TVR', 'திருவாரூர்'], ['OTH', 'இதர (நாகப்பட்டினம் உட்பட)']].map(([k, l]) => <a key={k} className={`tab ${f.d === k ? 'on' : ''}`} href={`?${qs({ d: k })}`}>{l}</a>)}</nav>
+      <nav className="tabs">{[['', 'அனைத்து மாவட்டங்களும்'], ['MYD', 'மயிலாடுதுறை'], ['NGP', 'நாகப்பட்டினம்'], ['TVR', 'திருவாரூர்'], ['OTH', 'இதர']].map(([k, l]) => <a key={k} className={`tab ${f.d === k ? 'on' : ''}`} href={`?${qs({ d: k })}`}>{l}</a>)}</nav>
       <div className="card"><h2 style={{ marginTop: 0 }}>தேர்வு வாரியாக</h2><div className="tablewrap"><table className="small">
         <thead><tr><th>தேர்வு</th><th className="num">பயிற்சி விருப்பம்</th><th className="num">விண்ணப்பித்தவர்</th></tr></thead>
         <tbody>{perExam.filter((r) => r.want || r.applied).map((r) => <tr key={r.k}><td><a href={`?${qs({ x: r.k })}`}>{r.l}</a></td><td className="num"><b>{r.want}</b></td><td className="num">{r.applied}</td></tr>)}</tbody>
