@@ -728,11 +728,11 @@ button.big{width:100%;padding:14px;font-size:16px}
 .cf-rate label{display:flex;flex-direction:column;align-items:center;border:1px solid var(--line);border-radius:10px;padding:6px 8px;min-width:58px;cursor:pointer;font-weight:normal;margin:0}
 .cf-rate label span{color:#e3a008;font-size:13px;letter-spacing:-1px}
 .cf-rate label small{font-size:11px}
-.cf-rate label:has(input:checked){border-color:var(--pri);background:color-mix(in srgb,var(--pri) 12%,transparent)}
+.cf-rate label:has(input:checked){border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,transparent)}
 .cf-rate input{margin:0 0 2px}
 .src-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:4px}
 .src-list .choice{margin:0}
-tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,var(--pri) 6%,transparent)}
+tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,var(--brand) 6%,transparent)}
 .sc-fields .sc-h{font-weight:700;margin-bottom:2px}
 .sc-edu{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:6px 0;background:var(--card)}
 .sc-edu-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
@@ -780,3 +780,21 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .slot-days{display:inline-flex;flex-wrap:wrap;gap:2px 6px;font-size:12px}
 .slot-days label{display:inline-flex;align-items:center;gap:2px;margin:0;font-weight:normal}
 .slot-grid input[type=time]{width:auto}
+/* Admin tabs */
+.admin-nav{margin:0 0 12px}
+.admin-tabs{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:4px}
+@media (max-width:600px){.admin-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}}
+.admin-tabs a{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
+.admin-tabs a small{font-weight:400;color:var(--muted);font-size:11px}
+.admin-tabs a.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.admin-tabs a.on small{color:inherit;opacity:.8}
+.admin-subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;padding:8px;border-radius:14px;background:color-mix(in srgb,var(--brand) 6%,transparent)}
+.admin-subtabs a{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;color:var(--ink);text-decoration:none;font-size:14px;border:1px solid transparent}
+.admin-subtabs a small{color:var(--muted);font-size:11px}
+.admin-subtabs a.on{background:var(--card);border-color:var(--brand);font-weight:700}
+@media (max-width:600px){.admin-tabs a small,.admin-subtabs a small{display:none}}
+.hstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.hstat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column}
+.hstat b{font-size:28px;line-height:1.1}
+.hstat span{font-size:13px;color:var(--muted)}
+.hstat small{font-size:12px;color:var(--ok)}
