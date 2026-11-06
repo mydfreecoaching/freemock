@@ -11,6 +11,7 @@ import { hasClassOn, istToday, venueTitle, fmtDay, dayName, attVenues } from '@/
 import G4Prompt from '@/components/G4Prompt';
 import G2HallPrompt from '@/components/G2HallPrompt';
 import StudyPrompt from '@/components/StudyPrompt';
+import CentralExamPrompt from '@/components/CentralExamPrompt';
 import ClassSourcePrompt from '@/components/ClassSourcePrompt';
 import StudyCirclePrompt from '@/components/StudyCirclePrompt';
 import G4OfflinePrompt from '@/components/G4OfflinePrompt';
@@ -79,6 +80,7 @@ export default async function Dashboard({ searchParams }) {
   const needClass = (dc === 'TVR' || dc === 'MYD') && !me.class_info_at && (!me.coaching_venue || me.coaching_venue === 'TVC0' || me.coaching_venue === 'MYD_MOCK');
   const hall = hallPrompt(me);
   const prompt = dc === 'OTH' && !me.district_other ? 'district' : hall ? 'hall' : !me.study_place || !me.study_exams?.length ? 'study'
+    : !me.cx_at ? 'cx'
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && !me.class_source?.length ? 'source'
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && (!me.sc_at || (!me.has_sign && !me.sc_printed_at)) ? 'sc'
     : needClass && !sp?.new ? 'class'
@@ -103,6 +105,7 @@ export default async function Dashboard({ searchParams }) {
       {prompt === 'district' && <OtherDistrictPrompt />}
       {prompt === 'hall' && <G2HallPrompt appNo={me.g2_app_no || ''} mandatory={hall === 'must'} />}
       {prompt === 'study' && <StudyPrompt />}
+      {prompt === 'cx' && <CentralExamPrompt v={{ cx_interest: me.cx_interest, cx_exams: me.cx_exams, cx_apps: me.cx_apps, cx_none: me.cx_none }} district={dc} />}
       {prompt === 'source' && <ClassSourcePrompt venue={venueTitle(me.coaching_venue)} />}
       {prompt === 'sc' && <StudyCirclePrompt signRequired={!me.sc_printed_at} v={{ father_name: me.father_name, mother_name: me.mother_name, address: me.address, pincode: me.pincode, disabled: me.disabled, disability: me.disability, edu: me.edu, prev_exams: me.prev_exams, train_medium: me.train_medium, train_mode: me.train_mode }} signUrl={me.has_sign ? `/api/sign/${me.id}?v=${me.sign_v || 0}` : ''} />}
       {prompt === 'class' && <ClassInfoPrompt district={me.district} venues={attVenues(PREFIX[me.district])} />}

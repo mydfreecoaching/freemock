@@ -798,3 +798,5 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .hstat b{font-size:28px;line-height:1.1}
 .hstat span{font-size:13px;color:var(--muted)}
 .hstat small{font-size:12px;color:var(--ok)}
+.cx-row{display:grid;grid-template-columns:1.3fr 1fr 1.2fr auto;gap:6px;margin:4px 0;align-items:center}
+@media (max-width:600px){.cx-row{grid-template-columns:1fr 1fr}.cx-row input:last-of-type{grid-column:1/-1}}
