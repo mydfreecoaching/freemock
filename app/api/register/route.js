@@ -1,6 +1,5 @@
 import { cxFields, saveCx } from '@/lib/centralExams';
 import { g4OffField } from '@/lib/g4Offline';
-import { studyCircleFields, saveStudyCircle, storeSign, SIGN_MISSING } from '@/lib/studyCircle';
 import { classSourceFields } from '@/lib/classSource';
 import { studyFields } from '@/lib/study';
 import { sql, ensureSchema } from '@/lib/db';
@@ -35,9 +34,6 @@ export async function POST(req) {
   if (g2.error) return Response.json({ error: g2.error }, { status: 400 });
   const cs = classSourceFields(b, vf.values.coaching_venue);
   if (cs.error) return Response.json({ error: cs.error }, { status: 400 });
-  const sc = studyCircleFields(b, vf.values.coaching_venue);
-  if (sc.error) return Response.json({ error: sc.error }, { status: 400 });
-  if (sc.values && !sc.sign) return Response.json({ error: SIGN_MISSING }, { status: 400 });
   const go = g4OffField(b, district);
   if (go.error) return Response.json({ error: go.error }, { status: 400 });
   const cx = cxFields(b);
@@ -63,7 +59,6 @@ export async function POST(req) {
         g2_ht_deferred_at=${g2.deferHall ? new Date() : null}, last_login_at=now(), study_place=${sf.values.study_place}, study_note=${sf.values.study_note}, study_exams=${sf.values.study_exams}, study_exam_other=${sf.values.study_exam_other} WHERE id=${s.id}`;
       await saveCx(sql, s.id, cx.values);
       if (go.value !== undefined) await sql`UPDATE students SET g4_offline=${go.value}, g4_offline_at=now() WHERE id=${s.id}`;
-      if (sc.values) { await saveStudyCircle(sql, s.id, sc.values); await storeSign(sql, s.id, sc.sign); }
       if (cs.values) await sql`UPDATE students SET class_source=${cs.values.class_source}, class_source_other=${cs.values.class_source_other} WHERE id=${s.id}`;
       if (gf.values) await sql`UPDATE students SET g4_applied=${gf.values.g4_applied}, g4_app_no=${gf.values.g4_app_no}, g4_at=now() WHERE id=${s.id}`;
       await setStudent(s.id);
