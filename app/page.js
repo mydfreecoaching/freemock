@@ -26,8 +26,6 @@ export default async function Home({ searchParams }) {
   const [S, LB] = await Promise.all([publicStats(), leaderboards(exams)]);
   const sid = loggedIn ? await studentId() : null;
   const mine = sid ? (await sql`SELECT count(*)::int n FROM attempts WHERE student_id=${sid} AND submitted_at IS NOT NULL`)[0].n : 0;
-  const fbs = await sql`SELECT f.id, f.rating, f.comment, s.reg_no, s.district, t.title FROM feedback f JOIN students s ON s.id=f.student_id
-    JOIN tests t ON t.id=f.test_id WHERE f.status='approved' AND length(trim(f.comment)) > 0 ORDER BY f.reviewed_at DESC NULLS LAST, f.id DESC LIMIT 20`;
   return (
     <>
       <section className="hero">
@@ -49,18 +47,6 @@ export default async function Home({ searchParams }) {
           {loggedIn ? (
             <div className="card login-card"><h2>மீண்டும் வருக!</h2><p>நடப்புத் தேர்வுகள், உங்கள் மதிப்பெண்கள், முன்னேற்றம் – அனைத்தும் உங்கள் Dashboard-இல்.</p><a className="btn" href="/dashboard">Dashboard →</a></div>
           ) : <LoginCard next={next} testTitle={testTitle} />}
-          {fbs.length > 0 && (
-            <div className="card fb-wall">
-              <h3>💬 மாணவர்களின் கருத்துகள் / What students say</h3>
-              <div className="fb-scroll">{fbs.map((f) => (
-                <figure key={f.id} className="fb-item">
-                  <div className="fb-stars" aria-label={`${f.rating} / 5`}>{'★'.repeat(f.rating)}<span>{'★'.repeat(5 - f.rating)}</span></div>
-                  <blockquote>{f.comment}</blockquote>
-                  <figcaption><b>{f.reg_no}</b> · {f.district}<small>{f.title}</small></figcaption>
-                </figure>))}
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
