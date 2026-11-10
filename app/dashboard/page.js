@@ -7,6 +7,9 @@ import { missingFields } from '@/lib/profile';
 import { studentWithPhoto, photoUrl } from '@/lib/photo';
 import AttendanceCard from '@/components/AttendanceCard';
 import RateClassCard from '@/components/RateClassCard';
+import DashLeaderboard from '@/components/DashLeaderboard';
+import { combinedRanking } from '@/lib/combined';
+import { memo } from '@/lib/memo';
 import { sessionsToRate } from '@/lib/coaching';
 import ClassInfoPrompt from '@/components/ClassInfoPrompt';
 import { hasClassOn, istToday, venueTitle, fmtDay, dayName, attVenues } from '@/lib/attendance';
@@ -60,6 +63,11 @@ export default async function Dashboard({ searchParams }) {
     closed: mine.filter((t) => testStatus(t) === 'closed').slice(0, 40),
   };
   const tab = lists[sp?.s] ? sp.s : lists.open.length ? 'open' : lists.done.length ? 'done' : 'upcoming';
+
+  // overall leaderboard of each exam the student has written a test in (cached 1 min – same list for everyone)
+  const doneKinds = [...new Set(lists.done.map((t) => t.kind))];
+  const boards = (await Promise.all(doneKinds.map(async (k) => ({ code: k, name: EX[k]?.name || k, ...(await memo(`comb:${k}`, 60000, () => combinedRanking(k))) }))))
+    .filter((b) => b.rows.length);
 
   // pop-up: ongoing tests the student has not yet submitted
   const popItems = lists.open.filter((t) => !byTest[t.id]?.submitted_at)
@@ -140,6 +148,8 @@ export default async function Dashboard({ searchParams }) {
         <span>கடைசித் தேர்வு: <b>{lastT.title}</b> — <b>{Number(lastA.score)} / {lastMax}</b></span>
         <span className="row" style={{ gap: 8 }}><a className="btn alt" href={`/result/${lastT.id}`}>விடைகள்</a><a className="btn tonal" href="/rankings?v=me">📊 என் செயல்திறன்</a></span>
       </div>}
+
+      <DashLeaderboard boards={boards} me={me.id} />
 
       {notices.length > 0 && <ul className="card notices">{notices.map((n, i) => <li key={i}>{n}</li>)}</ul>}
       <PushOptIn gate />
