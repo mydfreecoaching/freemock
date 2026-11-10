@@ -149,7 +149,7 @@ export default function LeaderboardPro({ exams, initial, admin = false }) {
           {(opts.subject || []).map((x) => <option key={x.k} value={x.k}>{x.label}</option>)}</select></label>}
         {mode === 'test' && <label>தேர்வு / Test<select value={s || ''} onChange={(e) => change({ sel: { ...sel, test: e.target.value } })} disabled={!opts.test?.length}>
           {(opts.test || []).map((t) => <option key={t.id} value={t.id}>{t.title} · {dmy(t.at)}</option>)}</select></label>}
-        <label className="lbx-search">தேடு / Search<input type="search" value={q} onChange={(e) => { setQ(e.target.value); setShown(admin ? shown : PAGE); }} placeholder={admin ? 'பெயர் / பதிவு எண் / மாவட்டம்' : data?.display === 'name' ? 'பெயர் / பதிவு எண் / மாவட்டம்' : 'பதிவு எண் / மாவட்டம்'} /></label>
+        {admin && <label className="lbx-search">தேடு / Search<input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="பெயர் / பதிவு எண் / மாவட்டம்" /></label>}
         <label>வரிசைப்படுத்து / Sort<select value={`${sort}:${dir}`} onChange={(e) => { const [k, d] = e.target.value.split(':'); setSort(k); setDir(Number(d)); }}>
           <option value="rank:1">தரம் / Rank</option><option value="score:1">மதிப்பெண் / Score</option><option value="pct:1">சதவீதம் / %</option>
           <option value="acc:1">துல்லியம் / Accuracy</option><option value="secs:1">குறைந்த நேரம் / Time</option></select></label>
