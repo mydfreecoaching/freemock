@@ -14,6 +14,8 @@ const ST = { pending: ['காத்திருப்பு', 'upcoming'], appr
 export default async function Faculty() {
   const f = await currentFaculty();
   if (!f) {
+    await seedCourses();
+    const regCourses = await activeCourses();
     return (
       <div className="grid2" style={{ alignItems: 'start' }}>
         <div className="card">
@@ -37,6 +39,10 @@ export default async function Faculty() {
               <div><label>மாவட்டம் <span className="req">*</span></label><select name="district" required defaultValue=""><option value="" disabled>தேர்வு செய்யவும்</option><option value="MYD">மயிலாடுதுறை</option><option value="NGP">நாகப்பட்டினம்</option><option value="TVR">திருவாரூர்</option><option value="OTH">இதர மாவட்டம்</option></select></div>
             </div>
             <label>பணியிடம் / அலுவலகம் <span className="req">*</span></label><input name="office" required maxLength={150} placeholder="எ.கா. அரசு மேல்நிலைப் பள்ளி, குத்தாலம்" />
+            {regCourses.length > 0 && <>
+              <label>பாடம் நடத்த விரும்பும் பயிற்சி வகுப்புகள் <span className="req">*</span> <span className="small muted">(ஒன்று அல்லது அதற்கு மேல் தேர்வு செய்யலாம்)</span></label>
+              <div className="src-list">{regCourses.map((c) => <label key={c.id} className="choice"><input type="checkbox" name="courses" value={c.id} /> {c.name}</label>)}</div>
+            </>}
             <label>நீங்கள் நடத்தும் பாடங்கள் <span className="req">*</span></label>
             <div className="src-list">{(await getSubjects()).map((s) => <label key={s.id} className="choice"><input type="checkbox" name="subjects" value={s.name} /> {s.name}</label>)}</div>
             <input name="subjects_other" maxLength={200} placeholder="பிற பாடங்கள் (இருந்தால்)" />
@@ -52,8 +58,11 @@ export default async function Faculty() {
   }
   await seedCourses();
   const today = istToday();
-  const courses = (await activeCourses()).filter((c) => !c.end_date || isoDay(c.end_date) >= isoDay(new Date(Date.now() - 30 * 864e5)))
+  const [{ course_ids: myIds }] = await sql`SELECT course_ids FROM faculty WHERE id=${f.id}`;
+  const allCourses = (await activeCourses()).filter((c) => !c.end_date || isoDay(c.end_date) >= isoDay(new Date(Date.now() - 30 * 864e5)))
     .map((c) => ({ id: c.id, name: c.name, exam: c.exam || '', place: c.place, days: c.days, slots: c.slots, start: isoDay(c.start_date), end: c.end_date ? isoDay(c.end_date) : '' }));
+  // classes this faculty member teaches in (chosen at registration / below); none chosen yet → all
+  const courses = myIds?.length ? allCourses.filter((c) => myIds.includes(c.id)) : allCourses;
   const mine = await sql`SELECT s.*, to_char(s.day,'YYYY-MM-DD') d, c.name course, s.created_at > now() - interval '2 days' AS can_del
     FROM faculty_sessions s JOIN coaching_courses c ON c.id=s.course_id WHERE s.faculty_id=${f.id} ORDER BY s.day DESC, s.t_from DESC LIMIT 60`;
   const todays = await sql`SELECT s.t_from, s.t_to, s.subject, f.name, c.name course FROM faculty_sessions s JOIN faculty f ON f.id=s.faculty_id JOIN coaching_courses c ON c.id=s.course_id
@@ -73,6 +82,15 @@ export default async function Faculty() {
           {courses.length === 0 ? <p className="muted">Admin இன்னும் பயிற்சி வகுப்புகளைச் சேர்க்கவில்லை.</p>
             : <FacultyClassForm courses={courses} subjects={(await getSubjects()).map((s) => s.name)} today={today} />}
           <p className="small muted">ஒரு வகுப்பின் ஒரு நேரத்துக்கு ஒரு நாளில் ஒரு பயிற்றுநர் மட்டுமே பதிவிட முடியும். ஏற்கனவே பதிவாகியிருந்தால், யார் பதிவிட்டார் என்பது காட்டப்பட்டு Admin-க்குத் தெரிவிக்கப்படும்.</p>
+          {allCourses.length > 1 && (
+            <details open={!myIds?.length} style={{ marginTop: 8 }}>
+              <summary className="small"><b>📍 நான் பாடம் நடத்தும் பயிற்சி வகுப்புகள்</b> ({myIds?.length ? courses.map((c) => c.place.split(',')[0]).join(' · ') : 'இன்னும் தேர்வு செய்யவில்லை'})</summary>
+              <Form action="/api/faculty/courses" submit="சேமி">
+                <p className="small muted" style={{ margin: '4px 0' }}>ஒன்று அல்லது அதற்கு மேல் தேர்வு செய்யலாம். தேர்வு செய்தவை மட்டுமே வருகைப் பதிவில் காட்டப்படும்.</p>
+                {allCourses.map((c) => <label key={c.id} className="choice"><input type="checkbox" name="courses" value={c.id} defaultChecked={myIds?.includes(c.id)} /> {c.name}</label>)}
+              </Form>
+            </details>
+          )}
         </div>
         <div className="card">
           <h2>📅 இன்று பதிவானவை ({dmy(today)})</h2>
