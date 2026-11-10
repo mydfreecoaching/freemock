@@ -2,13 +2,12 @@ import { redirect } from 'next/navigation';
 import { studentId, isAdmin } from '@/lib/auth';
 import { safeNext } from '@/lib/next';
 import { ensureSchema, sql } from '@/lib/db';
-import { getExams } from '@/lib/exams';
 import { publicStats } from '@/lib/public';
 import ExamNotices from '@/components/ExamNotices';
 import { fmt, testStatus, tnpscMinutes } from '@/lib/util';
 import LoginCard from '@/components/LoginCard';
-import Leaderboard from '@/components/Leaderboard';
-import { leaderboards } from '@/lib/leaderboard';
+import LeaderboardPro from '@/components/LeaderboardPro';
+import { initialBoard } from '@/lib/lb';
 export const dynamic = 'force-dynamic';
 
 const STEPS = [['1', 'பதிவு செய்யவும்', 'பெயர், கைபேசி, பிறந்த தேதி, மாவட்டம்'], ['2', 'தேர்வைத் தேர்வு செய்யவும்', 'கிடைக்கும் தேர்வுகளில் நடப்புத் தேர்வு'], ['3', 'எழுதி சமர்ப்பிக்கவும்', 'நேரம் முடிந்ததும் தானாகச் சமர்ப்பிப்பு'], ['4', 'முடிவு & முன்னேற்றம்', 'தவறுகளைத் திருத்தி அடுத்த தேர்வில் முன்னேறுங்கள்']];
@@ -22,9 +21,8 @@ export default async function Home({ searchParams }) {
   let testTitle = null;
   const tm = next?.match(/^\/test\/(\d+)/);
   if (tm) { const [t] = await sql`SELECT title FROM tests WHERE id=${Number(tm[1])} AND published`; testTitle = t?.title || null; }
-  const exams = await getExams();
-  const [S, LB] = await Promise.all([publicStats(), leaderboards(exams)]);
   const sid = loggedIn ? await studentId() : null;
+  const [S, LB] = await Promise.all([publicStats(), initialBoard(sid)]);
   const mine = sid ? (await sql`SELECT count(*)::int n FROM attempts WHERE student_id=${sid} AND submitted_at IS NOT NULL`)[0].n : 0;
   return (
     <>
@@ -55,7 +53,7 @@ export default async function Home({ searchParams }) {
         {loggedIn ? <div><b>{mine}</b><span>நீங்கள் எழுதிய தேர்வுகள்</span></div> : <div><b>{S.writers}</b><span>தேர்வு எழுதியவர்கள்</span></div>}
       </section>
 
-      <section className="sec"><Leaderboard exams={exams.map((e) => ({ code: e.code, name: e.name }))} data={LB} /></section>
+      {LB?.initial && <section className="sec"><LeaderboardPro exams={LB.exams} initial={LB.initial} /></section>}
 
       <section className="sec">
         <h2 className="sec-h">எப்படிச் செயல்படுகிறது? / How it works</h2>
