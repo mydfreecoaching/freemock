@@ -12,8 +12,10 @@ export default async function AdminFaculty() {
     (SELECT count(*) FROM submissions s WHERE s.faculty_id=f.id AND s.status='approved')::int ok,
     (SELECT count(*) FROM faculty_sessions c WHERE c.faculty_id=f.id)::int cls FROM faculty f ORDER BY f.created_at`;
   const pending = all.filter((f) => f.status === 'pending'), list = all.filter((f) => f.status === 'approved'), rejected = all.filter((f) => f.status === 'rejected');
+  const CN = Object.fromEntries((await sql`SELECT id, name FROM coaching_courses`).map((c) => [c.id, c.name]));
   const DN = { MYD: 'மயிலாடுதுறை', NGP: 'நாகப்பட்டினம்', TVR: 'திருவாரூர்', OTH: 'இதர' };
   const info = (f) => [f.designation, f.office, DN[f.district], f.email].filter(Boolean).join(' · ');
+  const crs = (f) => (f.course_ids || []).map((id) => CN[id]).filter(Boolean).join(' · ');
   return (
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>ஆசிரியர்கள் / Faculty</h1><a className="btn alt" href="/admin">← Admin</a></div>
@@ -25,6 +27,7 @@ export default async function AdminFaculty() {
             <b>{f.name}</b> · {f.mobile} <span className="small muted">· பதிவு {fmt(f.created_at)}</span>
             <div className="small">{info(f)}</div>
             <div className="small">📚 {f.subjects}</div>
+            {crs(f) && <div className="small">📍 {crs(f)}</div>}
             <div className="row" style={{ gap: 8, marginTop: 6, alignItems: 'flex-start' }}>
               <Form action="/api/admin/faculty" submit="✅ ஒப்புதல் / Approve" className="inline-form"><input type="hidden" name="action" value="approve" /><input type="hidden" name="id" value={f.id} /></Form>
               <details><summary className="small">நிராகரி / Reject</summary>
@@ -51,7 +54,7 @@ export default async function AdminFaculty() {
           {list.map((f) => (
             <div key={f.id} style={{ borderBottom: '1px solid var(--line)', padding: '8px 0' }}>
               <div className="row" style={{ justifyContent: 'space-between' }}>
-                <div><b>{f.name}</b> · {f.mobile} {!f.active && <span className="pill closed">முடக்கம்</span>}{info(f) && <div className="small">{info(f)}</div>}{f.subjects && <div className="small">📚 {f.subjects}</div>}<div className="small muted">அனுப்பியவை {f.n} · ஒப்புதல் {f.ok} · வகுப்புகள் {f.cls} · சேர்ந்தது {fmt(f.created_at)}</div></div>
+                <div><b>{f.name}</b> · {f.mobile} {!f.active && <span className="pill closed">முடக்கம்</span>}{info(f) && <div className="small">{info(f)}</div>}{f.subjects && <div className="small">📚 {f.subjects}</div>}{crs(f) && <div className="small">📍 {crs(f)}</div>}<div className="small muted">அனுப்பியவை {f.n} · ஒப்புதல் {f.ok} · வகுப்புகள் {f.cls} · சேர்ந்தது {fmt(f.created_at)}</div></div>
                 <Form action="/api/admin/faculty" submit={f.active ? 'முடக்கு' : 'செயல்படுத்து'}><input type="hidden" name="action" value="toggle" /><input type="hidden" name="id" value={f.id} /></Form>
               </div>
               <details className="small"><summary>கடவுச்சொல் மாற்று</summary>
