@@ -1,10 +1,10 @@
-import { G4, g4Showing } from '@/lib/venues';
+import { G4, g4ApplyOpen } from '@/lib/venues';
 import { NTPC, ntpcShowing } from '@/lib/rrb';
 
 /** Current recruitment notifications (TNPSC Group 4 + RRB NTPC Graduate / UG) in one table. */
 export function examNotices() {
   const rows = [];
-  if (g4Showing()) rows.push({ name: 'TNPSC குரூப் 4 (CCSE-IV)', qual: '10-ஆம் வகுப்பு', posts: G4.posts, lastDate: G4.lastDate, correction: G4.correction, examDate: G4.examDate, site: 'tnpsc.gov.in', link: G4.link });
+  if (g4ApplyOpen()) rows.push({ name: 'TNPSC குரூப் 4 (CCSE-IV)', qual: '10-ஆம் வகுப்பு', posts: G4.posts, lastDate: G4.lastDate, correction: G4.correction, examDate: G4.examDate, site: 'tnpsc.gov.in', link: G4.link });
   if (ntpcShowing()) {
     rows.push({ name: 'RRB NTPC – பட்டதாரி நிலை (CEN 06/2026)', qual: 'பட்டப்படிப்பு', ...NTPC.grad, site: 'rrbapply.gov.in', link: NTPC.link });
     rows.push({ name: 'RRB NTPC – 12-ஆம் வகுப்பு நிலை (CEN 07/2026)', qual: '12-ஆம் வகுப்பு', ...NTPC.ug, site: 'rrbapply.gov.in', link: NTPC.link });

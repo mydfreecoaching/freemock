@@ -11,7 +11,7 @@ import G4Fields from '@/components/G4Fields';
 import G2Fields from '@/components/G2Fields';
 import StudyFields from '@/components/StudyFields';
 import CentralExamFields from '@/components/CentralExamFields';
-import { g4Asking } from '@/lib/venues';
+import { g4Showing } from '@/lib/venues';
 
 export const dynamic = 'force-dynamic';
 export default async function Register({ searchParams }) {
@@ -36,7 +36,7 @@ export default async function Register({ searchParams }) {
         <G2Fields />
         <StudyFields />
         <CentralExamFields />
-        {g4Asking() && <G4Fields />}
+        {g4Showing() && <G4Fields optional />}
         <p className="small muted"><span className="req">*</span> குறியிட்டவை கட்டாயம் / Mandatory. பிறந்த தேதியே உங்கள் கடவுச்சொல். பதிவு எண் அல்லது கைபேசி எண்ணுடன் அதைப் பயன்படுத்தி உள்நுழையலாம்.</p>
       </Form>
     </div>

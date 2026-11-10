@@ -2,15 +2,15 @@
 import { useState } from 'react';
 
 /** "Have you applied for <exam>?" — Yes requires the application number. field: 'g4' | 'g2'. */
-export default function AppliedFields({ field, exam, applied = null, appNo = '', noNote, hallTicket = null }) {
+export default function AppliedFields({ field, exam, applied = null, appNo = '', noNote, hallTicket = null, optional = false }) {
   const [v, setV] = useState(applied === true ? 'yes' : applied === false ? 'no' : '');
   const [have, setHave] = useState(hallTicket ? 'yes' : '');
   return (
     <div className="g4q">
-      <label>📝 {exam} தேர்வுக்கு விண்ணப்பித்துள்ளீர்களா? / Have you applied for {exam}? <span className="req">*</span></label>
+      <label>📝 {exam} தேர்வுக்கு விண்ணப்பித்துள்ளீர்களா? / Have you applied for {exam}? {!optional && <span className="req">*</span>}</label>
       <div className="choices">
-        <label className="choice"><input type="radio" name={field} value="yes" required checked={v === 'yes'} onChange={() => setV('yes')} /> ஆம் / Yes</label>
-        <label className="choice"><input type="radio" name={field} value="no" required checked={v === 'no'} onChange={() => setV('no')} /> இல்லை / No</label>
+        <label className="choice"><input type="radio" name={field} value="yes" required={!optional} checked={v === 'yes'} onChange={() => setV('yes')} /> ஆம் / Yes</label>
+        <label className="choice"><input type="radio" name={field} value="no" required={!optional} checked={v === 'no'} onChange={() => setV('no')} /> இல்லை / No</label>
       </div>
       {v === 'yes' && <>
         <label>{exam} விண்ணப்ப எண் / Application number <span className="req">*</span></label>
@@ -28,7 +28,7 @@ export default function AppliedFields({ field, exam, applied = null, appNo = '',
           {have === 'no' && <p className="small" style={{ margin: '4px 0 0' }}>நுழைவுச் சீட்டு கிடைத்ததும் இணையதளத்தில் உள்நுழைந்து எண்ணைப் பதிவேற்றவும். <b>அடுத்த முறை உள்நுழையும்போது இது கட்டாயம் கேட்கப்படும்.</b></p>}
         </>}
       </>}
-      {v === 'no' && noNote && <p className="small muted" style={{ margin: '4px 0 0' }}>{noNote}</p>}
+      {v === 'no' && noNote && !optional && <p className="small" style={{ margin: '4px 0 0' }}>{noNote}</p>}
     </div>
   );
 }
