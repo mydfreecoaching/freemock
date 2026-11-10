@@ -1,6 +1,7 @@
 import { sql } from '@/lib/db';
 import { current, cleanAnswers } from '@/lib/attempt';
 import { finalize, lateSync, isStale } from '@/lib/scoring';
+import { clearLbCache } from '@/lib/lb';
 
 /**
  * Submit. Works also for answers written offline: the browser keeps the answers on the phone and sends them
@@ -25,8 +26,10 @@ export async function POST(req) {
   if (!c.a.submitted_at) {
     if (answers) await sql`UPDATE attempts SET answers=${sql.json(answers)}, tab_switches=${tabs} WHERE id=${c.a.id} AND submitted_at IS NULL`;
     await finalize(c.a.id, syncOnly ? null : 'student', doneAt);
+    clearLbCache(); // leaderboard shows the new result on its next refresh
   } else if (answers) {
     synced = await lateSync(c.a, answers, tabs, doneAt);
+    if (synced) clearLbCache();
   }
   return Response.json({ redirect: `/result/${id}`, synced });
 }

@@ -6,6 +6,7 @@ import { fmtDate, secLabel, secSort } from '@/lib/util';
 import { getExams } from '@/lib/exams';
 import { ranking } from '@/lib/rank';
 import Chart from '@/components/LineChart';
+import { weekKey, monthKey } from '@/lib/lb';
 export const dynamic = 'force-dynamic';
 
 const pc = (x) => Math.round(x * 1000) / 10;
@@ -39,6 +40,16 @@ export default async function Progress({ searchParams, embedded = false }) {
   const best = rows.reduce((b, r) => (!b || r.pct > b.pct ? r : b), null);
   const delta = rows.length > 1 ? Math.round((last.pct - rows[rows.length - 2].pct) * 10) / 10 : null;
   const labels = rows.map((r, i) => `T${i + 1}`);
+  // accuracy (correct ÷ attempted), lowest score, previous rank, subject strengths, weekly / monthly averages
+  for (const r of rows) { const c = Number(r.me.correct) || 0, w = Number(r.me.wrong) || 0; r.acc = c + w ? pc(c / (c + w)) : null; }
+  const worst = rows.reduce((b, r) => (!b || r.pct < b.pct ? r : b), null);
+  const prevRow = rows.length > 1 ? rows[rows.length - 2] : null;
+  const secAll = secKeys.map((k) => { let c = 0, t = 0; for (const r of rows) if (r.sec[k]) { c += r.sec[k].correct; t += r.sec[k].total; } return { k, acc: t ? pc(c / t) : null, t }; }).filter((x) => x.acc != null).sort((a, b) => b.acc - a.acc);
+  const strong = secAll.length > 1 ? secAll[0] : null, weak = secAll.length > 1 ? secAll[secAll.length - 1] : null;
+  const groupBy = (keyOf) => { const g = new Map(); for (const r of rows) { const k = keyOf(r.me.submitted_at || r.t.start_at); const x = g.get(k) || { s: 0, n: 0 }; x.s += r.pct; x.n++; g.set(k, x); } return [...g.entries()].sort().map(([k, x]) => ({ k, avg: Math.round((x.s / x.n) * 10) / 10, n: x.n })); };
+  const weeks = groupBy(weekKey).slice(-12), months = groupBy(monthKey).slice(-12);
+  const ddmm = (k) => `${k.slice(8, 10)}.${k.slice(5, 7)}`;
+  const MON = ['ஜன', 'பிப்', 'மார்', 'ஏப்', 'மே', 'ஜூன்', 'ஜூலை', 'ஆக', 'செப்', 'அக்', 'நவ', 'டிச'];
   const weakest = last ? secKeys.map((k) => [k, acc(last.sec[k])]).filter(([, v]) => v != null).sort((a, b) => a[1] - b[1])[0] : null;
 
   return (
@@ -57,7 +68,11 @@ export default async function Progress({ searchParams, embedded = false }) {
           <div className="stat"><b>{pc(rows.reduce((s, r) => s + r.pct, 0) / rows.length / 100)}%</b>சராசரி</div>
           <div className="stat"><b>{last.me.rank} / {last.n}</b>கடைசித் தரம்</div>
           {rows.length > 1 && <div className="stat"><b>{first.pct}% → {last.pct}%</b>தொடக்கம் → இப்போது</div>}
+          <div className="stat"><b>{worst.pct}%</b>குறைந்த மதிப்பெண் / Lowest</div>
+          {prevRow && <div className="stat"><b>{prevRow.me.rank} → {last.me.rank}</b>முந்தைய → தற்போதைய தரம்{prevRow.me.rank !== last.me.rank && <span className={last.me.rank < prevRow.me.rank ? 'up' : 'down'}> {last.me.rank < prevRow.me.rank ? '▲' : '▼'} {Math.abs(prevRow.me.rank - last.me.rank)}</span>}</div>}
+          {first.acc != null && last.acc != null && <div className="stat"><b>{rows.length > 1 ? `${first.acc}% → ${last.acc}%` : `${last.acc}%`}</b>துல்லியம் / Accuracy{rows.length > 1 && last.acc !== first.acc && <span className={last.acc >= first.acc ? 'up' : 'down'}> {last.acc >= first.acc ? '▲' : '▼'} {Math.abs(Math.round((last.acc - first.acc) * 10) / 10)}</span>}</div>}
         </div>}
+        {rows.length > 0 && <p className="small" style={{ marginBottom: 0 }}><a href="/rankings">🏅 தரவரிசையில் என் இடம் / My rank on the leaderboard →</a></p>}
       </div>
 
       {rows.length > 0 && <div className="card">
@@ -72,6 +87,25 @@ export default async function Progress({ searchParams, embedded = false }) {
         <Chart labels={labels} series={[{ name: 'Percentile', cls: 's-me', values: rows.map((r) => r.pctile) }]} />
       </div>}
 
+      {(strong || weeks.length > 1) && <div className="card">
+        {strong && <>
+          <h2>வலுவான & கவனம் தேவைப்படும் பாடங்கள் / Strong & weak subjects</h2>
+          <p className="small muted">எழுதிய அனைத்துத் தேர்வுகளிலும் ஒவ்வொரு பகுதியிலும் சரியாக விடையளித்த வினாக்களின் சதவீதம்</p>
+          {secAll.map((x) => (
+            <div key={x.k} className="area"><span>{x === strong ? '💪 ' : x === weak ? '⚠️ ' : ''}{secLabel(x.k)}</span>
+              <span className="lb-bar"><i style={{ width: `${Math.max(2, x.acc)}%`, background: x.acc < 50 ? 'var(--bad)' : x.acc < 70 ? 'var(--warn)' : 'var(--ok)' }} /></span><b>{x.acc}%</b></div>))}
+          <p className="small">வலுவானது: <b>{secLabel(strong.k)}</b> ({strong.acc}%) · கவனம் தேவை: <b>{secLabel(weak.k)}</b> ({weak.acc}%)</p>
+        </>}
+        {weeks.length > 1 && <>
+          <h2 style={{ marginTop: 18 }}>வாராந்திர முன்னேற்றம் / Weekly progress (சராசரி %)</h2>
+          <Chart labels={weeks.map((w) => ddmm(w.k))} series={[{ name: 'வாரம்', cls: 's-me', values: weeks.map((w) => w.avg) }]} />
+        </>}
+        {months.length > 1 && <>
+          <h2 style={{ marginTop: 18 }}>மாதாந்திர முன்னேற்றம் / Monthly progress (சராசரி %)</h2>
+          <Chart labels={months.map((m) => MON[Number(m.k.slice(5, 7)) - 1])} series={[{ name: 'மாதம்', cls: 's-me', values: months.map((m) => m.avg) }]} />
+        </>}
+      </div>}
+
       {rows.length > 0 && secKeys.length > 0 && <div className="card">
         <h2>பகுதி வாரியான துல்லியம் / Section accuracy (%)</h2>
         <Chart labels={labels} series={secKeys.map((k, i) => ({ name: secLabel(k), cls: `s-${i}`, values: rows.map((r) => acc(r.sec[k])) }))} />
@@ -82,10 +116,10 @@ export default async function Progress({ searchParams, embedded = false }) {
       {rows.length > 0 && <div className="card">
         <h2>தேர்வு வாரியாக / Test by test</h2>
         <div className="tablewrap"><table className="small">
-          <thead><tr><th></th><th>தேர்வு</th><th className="num">மதிப்பெண்</th><th className="num">%</th><th className="num">சராசரி %</th><th className="num">தரம்</th>{secKeys.map((k) => <th key={k} className="num">{secLabel(k)}</th>)}<th></th></tr></thead>
+          <thead><tr><th></th><th>தேர்வு</th><th className="num">மதிப்பெண்</th><th className="num">%</th><th className="num">சராசரி %</th><th className="num">துல்லியம்</th><th className="num">தரம்</th>{secKeys.map((k) => <th key={k} className="num">{secLabel(k)}</th>)}<th></th></tr></thead>
           <tbody>{rows.map((r, i) => (
             <tr key={r.t.id}><td>T{i + 1}</td><td>{r.t.title}<div className="muted">{fmtDate(r.t.start_at)}</div></td>
-              <td className="num">{r.me.score} / {r.max}</td><td className="num"><b>{r.pct}</b></td><td className="num">{r.avgPct}</td><td className="num">{r.me.rank} / {r.n}</td>
+              <td className="num">{r.me.score} / {r.max}</td><td className="num"><b>{r.pct}</b></td><td className="num">{r.avgPct}</td><td className="num">{r.acc != null ? `${r.acc}%` : '–'}</td><td className="num">{r.me.rank} / {r.n}{i > 0 && rows[i - 1].me.rank !== r.me.rank && <span className={r.me.rank < rows[i - 1].me.rank ? 'lbx-up' : 'lbx-down'}> {r.me.rank < rows[i - 1].me.rank ? '▲' : '▼'}</span>}</td>
               {secKeys.map((k) => <td key={k} className="num">{r.sec[k] ? `${r.sec[k].correct}/${r.sec[k].total}` : '–'}</td>)}
               <td><a href={`/result/${r.t.id}`}>விடைகள்</a></td></tr>
           ))}</tbody>

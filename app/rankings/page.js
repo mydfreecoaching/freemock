@@ -10,7 +10,7 @@ import MyPerformance from '@/components/MyPerformance';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'தரவரிசை / Rankings – இலவச இணையவழி மாதிரி தேர்வு' };
 
-const TABS = [['combined', 'ஒருங்கிணைந்த', 'Overall'], ['test', 'தேர்வு வாரியாக', 'Per test'], ['me', 'என் முன்னேற்றம்', 'My progress']];
+const TABS = [['combined', 'தரவரிசை', 'Leaderboard'], ['test', 'தேர்வு வாரியாக', 'Per test'], ['me', 'என் முன்னேற்றம்', 'My progress']];
 
 /** One Rankings page: overall (combined) leaderboard · per-test rank lists · my progress. */
 export default async function Rankings({ searchParams }) {
