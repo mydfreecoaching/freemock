@@ -1,6 +1,7 @@
 import Form from '@/components/Form';
 import { ensureSchema, sql } from '@/lib/db';
-import { studentId } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { studentId, isAdmin } from '@/lib/auth';
 import { fmt } from '@/lib/util';
 import { isClassStudent } from '@/lib/access';
 import { VENUE_LABEL } from '@/lib/venues';
@@ -8,9 +9,12 @@ import ClassFeedbackForm from '@/components/ClassFeedbackForm';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Contact us – இலவச இணையவழி மாதிரி தேர்வு' };
 
-export default async function Contact() {
+export default async function Contact({ searchParams }) {
   await ensureSchema();
   const sid = await studentId();
+  // enquiries are for registered students only: send everyone else to the login page (which links to registration)
+  if (!sid) redirect((await isAdmin()) ? '/admin/enquiries' : '/login?next=/contact');
+  const newReg = String((await searchParams)?.new || '').replace(/[^\w-]/g, '');
   const [me] = sid ? await sql`SELECT name, mobile, district, coaching_venue FROM students WHERE id=${sid}` : [];
   const mine = sid ? await sql`SELECT id, message, reply, replied_at, reply_seen, created_at FROM enquiries WHERE student_id=${sid} ORDER BY created_at DESC LIMIT 20` : [];
   if (mine.some((e) => e.reply && !e.reply_seen)) await sql`UPDATE enquiries SET reply_seen=true WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
@@ -20,6 +24,7 @@ export default async function Contact() {
   return (
     <>
       <section className="pagehead"><h1>{cls ? 'தொடர்பு / கருத்து – Contact us / Feedback' : 'தொடர்புக்கு / Contact us'}</h1><p>{cls ? 'பயிற்சி வகுப்புகள் பற்றிய உங்கள் கருத்தைக் கீழே பதிவு செய்யவும். பதிவு, தேர்வு தொடர்பான சந்தேகங்களுக்குக் "கோரிக்கை அனுப்ப" படிவத்தைப் பயன்படுத்தவும்.' : 'பதிவு செய்த மாணவர்கள், தேர்வு தொடர்பான சந்தேகங்களுக்குக் கீழே உள்ள படிவம் மூலம் கோரிக்கை அனுப்பலாம்.'}</p></section>
+      {newReg && <div className="okmsg" style={{ maxWidth: 640, margin: '0 auto 12px' }}>✅ பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{newReg}</b> (குறித்துக்கொள்ளவும்). இப்போது கீழே உங்கள் கோரிக்கையை அனுப்பலாம்.</div>}
       {cls && <ClassFeedbackForm venue={VENUE_LABEL(me.coaching_venue)} />}
       {myFb.length > 0 && (
         <div className="card" id="myfb" style={{ maxWidth: 640, margin: '0 auto 12px' }}>
@@ -52,15 +57,11 @@ export default async function Contact() {
       )}
       <div className="card" style={{ maxWidth: 640, margin: '0 auto' }}>
         <h2>✉️ கோரிக்கை அனுப்ப / Send an enquiry</h2>
-        {!sid ? <>
-          <p>கோரிக்கை அனுப்ப முதலில் <b>பதிவு செய்து உள்நுழையவும்</b>. பதில் இணையதளத்தில் "என் கோரிக்கைகள்" பகுதியில் தெரியும்.</p>
-          <p className="small muted">Please register and log in to send an enquiry. The reply will appear on this page.</p>
-          <div className="row"><a className="btn" href="/register">புதிய பதிவு / Register</a><a className="btn alt" href="/login?next=/contact">உள்நுழைய / Login</a></div>
-        </> : <Form action="/api/enquiry" submit="அனுப்பு / Send">
+        <Form action="/api/enquiry" submit="அனுப்பு / Send">
           <p className="small muted" style={{ marginTop: 0 }}>{me?.name} · {me?.mobile}{me?.district ? ` · ${me.district}` : ''}</p>
           <label>உங்கள் கோரிக்கை – விவரமாக / Your request in detail <span className="req">*</span></label>
           <textarea name="message" required minLength={10} maxLength={1000} rows={5} placeholder="எ.கா. தேர்வு 8-இல் வினா 25-இன் விடை சரியா? / புகைப்படம் பதிவேற்ற இயலவில்லை" />
-        </Form>}
+        </Form>
       </div>
     </>
   );
