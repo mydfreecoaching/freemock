@@ -1,5 +1,4 @@
 import Form from '@/components/Form';
-import { DISTRICT_LIST } from '@/lib/util';
 import { ensureSchema, sql } from '@/lib/db';
 import { studentId } from '@/lib/auth';
 import { fmt } from '@/lib/util';
@@ -18,10 +17,9 @@ export default async function Contact() {
   const cls = isClassStudent(me);
   const myFb = cls ? await sql`SELECT id, created_at, rating, teaching, facility, comment, suggestion, reply, replied_at, reply_seen FROM class_feedback WHERE student_id=${sid} ORDER BY created_at DESC LIMIT 10` : [];
   if (myFb.some((f) => f.reply && !f.reply_seen)) await sql`UPDATE class_feedback SET reply_seen=true WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
-  const districts = DISTRICT_LIST.filter(([ta], i, a) => a.findIndex((x) => x[0] === ta) === i);
   return (
     <>
-      <section className="pagehead"><h1>{cls ? 'தொடர்பு / கருத்து – Contact us / Feedback' : 'தொடர்புக்கு / Contact us'}</h1><p>{cls ? 'பயிற்சி வகுப்புகள் பற்றிய உங்கள் கருத்தைக் கீழே பதிவு செய்யவும். பதிவு, தேர்வு தொடர்பான சந்தேகங்களுக்குக் "கோரிக்கை அனுப்ப" படிவத்தைப் பயன்படுத்தவும்.' : 'பதிவு, தேர்வு தொடர்பான சந்தேகங்களுக்குக் கீழே உள்ள படிவம் மூலம் கோரிக்கை அனுப்பவும்.'}</p></section>
+      <section className="pagehead"><h1>{cls ? 'தொடர்பு / கருத்து – Contact us / Feedback' : 'தொடர்புக்கு / Contact us'}</h1><p>{cls ? 'பயிற்சி வகுப்புகள் பற்றிய உங்கள் கருத்தைக் கீழே பதிவு செய்யவும். பதிவு, தேர்வு தொடர்பான சந்தேகங்களுக்குக் "கோரிக்கை அனுப்ப" படிவத்தைப் பயன்படுத்தவும்.' : 'பதிவு செய்த மாணவர்கள், தேர்வு தொடர்பான சந்தேகங்களுக்குக் கீழே உள்ள படிவம் மூலம் கோரிக்கை அனுப்பலாம்.'}</p></section>
       {cls && <ClassFeedbackForm venue={VENUE_LABEL(me.coaching_venue)} />}
       {myFb.length > 0 && (
         <div className="card" id="myfb" style={{ maxWidth: 640, margin: '0 auto 12px' }}>
@@ -54,18 +52,15 @@ export default async function Contact() {
       )}
       <div className="card" style={{ maxWidth: 640, margin: '0 auto' }}>
         <h2>✉️ கோரிக்கை அனுப்ப / Send an enquiry</h2>
-        {!sid && <p className="small muted" style={{ marginTop: 0 }}>பதில் இணையதளத்திலேயே வேண்டுமென்றால் <a href="/login?next=/contact">உள்நுழைந்து</a> அனுப்பவும்.</p>}
-        <Form action="/api/enquiry" submit="அனுப்பு / Send">
-          <input name="website" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} />
-          <div className="grid2">
-            <div><label>பெயர் / Name <span className="req">*</span></label><input name="name" required maxLength={80} defaultValue={me?.name || ''} /></div>
-            <div><label>கைபேசி / Mobile <span className="req">*</span></label><input name="mobile" type="tel" required inputMode="numeric" pattern="[6-9][0-9]{9}" maxLength={10} defaultValue={me?.mobile || ''} /></div>
-          </div>
-          <label>மாவட்டம் / District</label>
-          <select name="district" defaultValue={me?.district || ''}><option value="">–</option>{districts.map(([ta, en]) => <option key={ta} value={ta}>{ta} – {en}</option>)}</select>
+        {!sid ? <>
+          <p>கோரிக்கை அனுப்ப முதலில் <b>பதிவு செய்து உள்நுழையவும்</b>. பதில் இணையதளத்தில் "என் கோரிக்கைகள்" பகுதியில் தெரியும்.</p>
+          <p className="small muted">Please register and log in to send an enquiry. The reply will appear on this page.</p>
+          <div className="row"><a className="btn" href="/register">புதிய பதிவு / Register</a><a className="btn alt" href="/login?next=/contact">உள்நுழைய / Login</a></div>
+        </> : <Form action="/api/enquiry" submit="அனுப்பு / Send">
+          <p className="small muted" style={{ marginTop: 0 }}>{me?.name} · {me?.mobile}{me?.district ? ` · ${me.district}` : ''}</p>
           <label>உங்கள் கோரிக்கை – விவரமாக / Your request in detail <span className="req">*</span></label>
-          <textarea name="message" required minLength={10} maxLength={1000} rows={5} placeholder="எ.கா. பதிவு எண் மறந்துவிட்டது / தேர்வு 8-இல் வினா 25-இன் விடை சரியா? / புகைப்படம் பதிவேற்ற இயலவில்லை" />
-        </Form>
+          <textarea name="message" required minLength={10} maxLength={1000} rows={5} placeholder="எ.கா. தேர்வு 8-இல் வினா 25-இன் விடை சரியா? / புகைப்படம் பதிவேற்ற இயலவில்லை" />
+        </Form>}
       </div>
     </>
   );
