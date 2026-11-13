@@ -13,6 +13,7 @@ export async function POST(req) {
   const c = await current(id);
   if (c.error) return Response.json({ error: c.error }, { status: c.status });
   if (!c.a) return Response.json({ error: 'தேர்வு தொடங்கப்படவில்லை.' }, { status: 400 });
+  if (c.a.offline) return Response.json({ ok: true }); // paper-test mark – nothing to submit
   const answers = b.answers && typeof b.answers === 'object' ? cleanAnswers(b.answers) : null;
   const tabs = Math.max(c.a.tab_switches, Math.min(9999, Number(b.tabs) || 0));
   const doneAt = Number(b.doneAt) || null;

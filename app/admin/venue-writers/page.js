@@ -24,7 +24,7 @@ export default async function VenueWriters({ searchParams }) {
   const x = await venueWriters(f);
   const today = istDay();
   const monday = addDays(today, -((new Date(`${today}T00:00:00Z`).getUTCDay() + 6) % 7));
-  const keep = Object.entries({ exam: f.exam, tt: f.ttype, sub: f.subject, test: f.test || '', d: f.district, view: f.daily ? 'daily' : '' }).filter(([, v]) => v);
+  const keep = Object.entries({ exam: f.exam, tt: f.ttype, sub: f.subject, test: f.test || '', d: f.district, mode: f.mode, view: f.daily ? 'daily' : '' }).filter(([, v]) => v);
   const link = (from, to) => `/admin/venue-writers?${new URLSearchParams([...keep, ['from', from], ['to', to]])}`;
   const qs = new URLSearchParams([...keep, ['from', f.from], ['to', f.to]]);
   const period = f.from === f.to ? `${dmy(f.from)} (${dayName(f.from)})` : `${dmy(f.from)} – ${dmy(f.to)}`;
@@ -51,6 +51,7 @@ export default async function VenueWriters({ searchParams }) {
             <div><label>தேர்வு வகை / Type</label><select name="tt" defaultValue={f.ttype}><option value="">அனைத்தும்</option>{Object.entries(TT_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
             <div><label>உப தலைப்பு (பாடம்) / Sub-heading</label><select name="sub" defaultValue={f.subject}><option value="">அனைத்தும்</option>{x.options.subjects.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
             <div><label>குறிப்பிட்ட தேர்வு / Test</label><select name="test" defaultValue={f.test || ''}><option value="">அனைத்தும்</option>{x.options.tests.map((t) => <option key={t.id} value={t.id}>{t.unit ? `அலகு ${t.unit} · ` : ''}{t.title}</option>)}</select></div>
+            <div><label>எழுதிய முறை / Mode</label><select name="mode" defaultValue={f.mode}><option value="">இணையவழி + நேரடி (அனைத்தும்)</option><option value="online">இணையவழி மட்டும்</option><option value="offline">அலுவலகத்தில் நேரடியாக மட்டும்</option></select></div>
             <div><label>மாவட்டம் / District</label><select name="d" defaultValue={f.district}><option value="">அனைத்தும்</option>{x.options.districts.map((d) => <option key={d} value={d}>{d}</option>)}</select></div>
           </div>
           <div className="row" style={{ marginTop: 10 }}>

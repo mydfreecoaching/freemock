@@ -32,6 +32,26 @@ export default async function Result({ params, searchParams }) {
     total = rows.length; dtotal = rows.filter((r) => r.district === me?.district).length;
     qs = await sql`SELECT * FROM questions WHERE test_id=${id} ORDER BY qno`;
   }
+  if (a.offline) {
+    // paper test written at the office – only the verified total mark is known
+    return (
+      <div className="card">
+        <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – முடிவு</h1><a className="btn alt" href={`/exam/${t.kind}`}>திரும்பு</a></div>
+        <p><span className="pill off">📝 அலுவலகத்தில் நேரடியாக எழுதியது (சரிபார்க்கப்பட்டது)</span></p>
+        <div className="big" style={{ margin: '10px 0' }}>{Number(a.score)} / {max}</div>
+        <div className="stats">
+          <div className="stat"><b>{a.correct}</b>சரி</div>
+          <div className="stat"><b>{a.wrong}</b>தவறு</div>
+          <div className="stat"><b>{a.unanswered}</b>விடையளிக்காதவை</div>
+          {me && <div className="stat"><b>{me.rank} / {total}</b>{closed ? 'ஒட்டுமொத்தத் தரம்' : 'தற்போதைய தரம்*'}</div>}
+          {me && <div className="stat"><b>{me.drank} / {dtotal}</b>{me.district} தரம்</div>}
+          <div className="stat"><b>{mmss(Math.round((new Date(a.submitted_at) - new Date(a.started_at)) / 1000))}</b>எடுத்த நேரம்</div>
+        </div>
+        <p className="small muted">நேரடித் தேர்வில் சரி / தவறு எண்ணிக்கையும் நேரமும் மட்டுமே பதிவு செய்யப்படுவதால் வினா வாரியான விடைகள் இங்கு இல்லை.{!closed && ' *தேர்வு நேரம் முடியும் வரை தரம் மாறலாம்.'}</p>
+        <div className="row"><a className="btn" href={`/rank/${id}`}>🏅 தரவரிசைப் பட்டியல்</a><a className="btn alt" href="/rankings">ஒட்டுமொத்தத் தரவரிசை</a></div>
+      </div>
+    );
+  }
   const [exw] = await sql`SELECT whatsapp_link FROM exams WHERE code=${t.kind}`;
   const wa = exw?.whatsapp_link || null;
   const [fb] = await sql`SELECT id, status, rating, comment, reply, replied_at FROM feedback WHERE test_id=${id} AND student_id=${sid}`;

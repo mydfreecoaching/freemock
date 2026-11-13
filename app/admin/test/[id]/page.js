@@ -12,6 +12,7 @@ import { getExams } from '@/lib/exams';
 import QText from '@/components/QText';
 import { testVenueBreakdown } from '@/lib/venueParticipation';
 import QImg from '@/components/QImg';
+import OfflinePanel from '@/components/OfflinePanel';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminTest({ params, searchParams }) {
@@ -28,8 +29,9 @@ export default async function AdminTest({ params, searchParams }) {
   const keyStr = qs.map((q) => q.answer).join('');
   // item analysis
   const pct = qs.map((q) => {
-    const c = rows.filter((r) => r.answers?.[q.qno] === q.answer).length;
-    return { qno: q.qno, p: rows.length ? Math.round((c / rows.length) * 100) : null };
+    const on = rows.filter((r) => !r.offline); // paper-test totals have no answers
+    const c = on.filter((r) => r.answers?.[q.qno] === q.answer).length;
+    return { qno: q.qno, p: on.length ? Math.round((c / on.length) * 100) : null };
   });
   const venueRows = t.ttype === 'class' && (t.districts || []).length ? await testVenueBreakdown(id, t.districts) : [];
   const hardest = pct.filter((x) => x.p != null).sort((a, b) => a.p - b.p).slice(0, 15);
@@ -50,6 +52,7 @@ export default async function AdminTest({ params, searchParams }) {
           </table></div>
         </div>
       )}
+      {(t.ttype === 'class' || rows.some((r) => r.offline) || sp?.os) && <OfflinePanel test={t} sp={sp || {}} path={`/admin/test/${id}`} />}
       <div className="grid2">
         <div className="card"><h2>அமைப்புகள்</h2><TestForm subjects={(await getSubjects()).map((x) => x.name)} t={t} exams={await getExams(true)} /></div>
         <div className="card">
@@ -73,13 +76,13 @@ export default async function AdminTest({ params, searchParams }) {
       </div>
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0 }}>முடிவுகள் – சமர்ப்பித்தவை {rows.length} · எழுதிக்கொண்டிருப்போர் {live}</h2>
+          <h2 style={{ margin: 0 }}>முடிவுகள் – சமர்ப்பித்தவை {rows.length}{rows.some((r) => r.offline) ? ` (நேரடி ${rows.filter((r) => r.offline).length})` : ''} · எழுதிக்கொண்டிருப்போர் {live}</h2>
           <a className="btn alt" href={`/api/admin/export?test=${id}`}>CSV பதிவிறக்கு</a>
         </div>
         <div className="tablewrap" style={{ marginTop: 10, maxHeight: 520, overflow: 'auto' }}><table>
           <thead><tr><th>தரம்</th><th>மா.தரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>மதிப்பெண்</th><th>சரி</th><th>தவறு</th><th>E</th><th>விடுபட்டவை</th><th>நேரம்</th><th>Tab மாற்றம்</th></tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b></td><td>{r.correct}</td><td>{r.wrong}</td><td>{r.e_count}</td><td>{r.unanswered}</td><td>{mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: 'var(--bad)', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
+            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b>{r.offline && <span className="pill off" title="அலுவலகத்தில் நேரடியாக எழுதியது"> 📝 நேரடி</span>}</td><td>{r.correct}</td><td>{r.wrong}</td><td>{r.e_count}</td><td>{r.unanswered}</td><td>{mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: 'var(--bad)', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
           ))}</tbody>
         </table></div>
         {hardest.length > 0 && <p className="small" style={{ marginTop: 10 }}><b>அதிகம் தவறிய வினாக்கள் (சரியான %):</b> {hardest.map((h) => `${h.qno} (${h.p}%)`).join(', ')}</p>}

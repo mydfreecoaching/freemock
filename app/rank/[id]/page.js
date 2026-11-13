@@ -34,7 +34,7 @@ export default async function Rank({ params, searchParams }) {
         <thead><tr><th>{d ? 'மாவட்டத் தரம்' : 'தரம்'}</th><th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>மதிப்பெண்</th><th>சரி</th><th>நேரம்</th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.id} style={r.student_id === sid ? { background: 'var(--sel)', fontWeight: 600 } : undefined}>
-            <td>{d ? r.drank : r.rank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td>{r.score}</td><td>{r.correct}</td><td>{mmss(r.secs)}</td>
+            <td>{d ? r.drank : r.rank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td>{r.score}{r.offline && <span className="pill off" title="அலுவலகத்தில் நேரடியாக எழுதியது"> 📝 நேரடி</span>}</td><td>{r.correct}</td><td>{mmss(r.secs)}</td>
           </tr>))}
         </tbody>
       </table></div>
