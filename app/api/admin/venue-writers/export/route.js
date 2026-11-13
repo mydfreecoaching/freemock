@@ -39,11 +39,11 @@ export async function GET(req) {
   wd.views = [{ state: 'frozen', ySplit: 1 }];
 
   const wr = wb.addWorksheet('விவரம்');
-  style(wr.addRow(['நாள்', 'பதிவு எண்', 'பெயர்', 'கைபேசி', 'மாவட்டம்', 'இடம்', 'தேர்வு · வகை · உப தலைப்பு', 'தேர்வுப் பெயர்', 'மதிப்பெண்']));
-  for (const r of x.rows) wr.addRow([dmy(r.day), r.reg_no, r.name, r.mobile, r.district, r.place, r.cat, `${r.unit ? `அலகு ${r.unit} · ` : ''}${r.title}`, r.score]);
+  style(wr.addRow(['நாள்', 'பதிவு எண்', 'பெயர்', 'கைபேசி', 'மாவட்டம்', 'இடம்', 'தேர்வு · வகை · உப தலைப்பு', 'தேர்வுப் பெயர்', 'மதிப்பெண்', 'முறை']));
+  for (const r of x.rows) wr.addRow([dmy(r.day), r.reg_no, r.name, r.mobile, r.district, r.place, r.cat, `${r.unit ? `அலகு ${r.unit} · ` : ''}${r.title}`, r.score, r.offline ? 'நேரடி (அலுவலகம்)' : 'இணையவழி']);
   wr.columns.forEach((c, i) => { c.width = [12, 16, 24, 13, 14, 36, 40, 40, 10][i]; });
   wr.views = [{ state: 'frozen', ySplit: 1 }];
-  wr.autoFilter = { from: 'A1', to: 'I1' };
+  wr.autoFilter = { from: 'A1', to: 'J1' };
 
   const buf = await wb.xlsx.writeBuffer();
   return new Response(buf, { headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-disposition': `attachment; filename="writers_by_place_${f.from}_${f.to}.xlsx"` } });

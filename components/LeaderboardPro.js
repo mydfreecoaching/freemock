@@ -102,6 +102,7 @@ export default function LeaderboardPro({ exams, initial, admin = false }) {
   };
 
   const rows = data?.rows || [];
+  const showT = rows.some((x) => x.secs != null);
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase();
     let l = t ? rows.filter((r) => `${r.label} ${r.sub || ''}`.toLowerCase().includes(t)) : rows.slice();
@@ -187,7 +188,7 @@ export default function LeaderboardPro({ exams, initial, admin = false }) {
             <b className="lbx-pname">{p.label}{p.me && <em> (நீங்கள்)</em>}</b>
             <small>{p.sub}</small>
             <div className="lbx-ppct">{p.pct}%</div>
-            <small>{p.score}/{p.max} · துல்லியம் {p.acc}%</small>
+            <small>{p.score}/{p.max}{p.acc != null ? ` · துல்லியம் ${p.acc}%` : ' · 📝 நேரடி'}</small>
             <div className="lbx-step"><span>{p.rank}</span></div>
           </div>
         ))}
@@ -202,18 +203,18 @@ export default function LeaderboardPro({ exams, initial, admin = false }) {
             <th className="num sortable" onClick={() => sortBy('pct')}>%{arrow('pct')}<small>Percent</small></th>
             <th className="num sortable hide-sm" onClick={() => sortBy('acc')}>துல்லியம்{arrow('acc')}<small>Accuracy</small></th>
             <th className="num hide-sm">தேர்வுகள்<small>Tests</small></th>
-            {rows[0].secs != null && <th className="num sortable hide-sm" onClick={() => sortBy('secs')}>நேரம்{arrow('secs')}<small>Avg time</small></th>}
+            {showT && <th className="num sortable hide-sm" onClick={() => sortBy('secs')}>நேரம்{arrow('secs')}<small>Avg time</small></th>}
           </tr></thead>
           <tbody>{filtered.slice(0, shown).map((r) => (
             <tr key={`${r.rank}-${r.label}-${r.sub}`} className={`${r.me ? 'me' : ''} ${r.rank <= 3 ? `lbx-t lbx-t${r.rank}` : ''}`} ref={r.me ? meRow : null}>
               <td className="lbx-rk"><b>{r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : r.rank}</b><Change c={r.change} hasPrev={data.hasPrev} /></td>
-              <td><b>{r.label}</b>{r.me && <em className="lbx-you"> நீங்கள்</em>}<small>{r.sub}</small>
-                <small className="show-sm">துல்லியம் {r.acc}% · {r.n} தேர்வு{r.secs != null ? ` · ${fmtTime(r.secs)}` : ''}</small></td>
+              <td><b>{r.label}</b>{r.me && <em className="lbx-you"> நீங்கள்</em>}{r.off && <span className="pill off" title="அலுவலகத்தில் நேரடியாக எழுதியது"> 📝 நேரடி</span>}<small>{r.sub}</small>
+                <small className="show-sm">துல்லியம் {r.acc ?? '–'}{r.acc != null ? '%' : ''} · {r.n} தேர்வு{r.secs != null ? ` · ${fmtTime(r.secs)}` : ''}</small></td>
               <td className="num hide-sm">{r.score}<small>/{r.max}</small></td>
               <td className="num"><b>{r.pct}%</b><small className="show-sm">{r.score}/{r.max}</small><span className="lbx-bar"><i style={{ width: `${Math.max(2, Math.min(100, r.pct))}%` }} /></span></td>
-              <td className="num hide-sm">{r.acc}%</td>
+              <td className="num hide-sm">{r.acc != null ? `${r.acc}%` : '–'}</td>
               <td className="num hide-sm">{r.n}</td>
-              {r.secs != null && <td className="num hide-sm">{fmtTime(r.secs)}</td>}
+              {showT && <td className="num hide-sm">{fmtTime(r.secs)}</td>}
             </tr>
           ))}</tbody>
         </table></div>

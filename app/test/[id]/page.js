@@ -18,6 +18,8 @@ import StartButton from './StartButton';
 import ClassOnly from '@/components/ClassOnly';
 import GuidanceWa from '@/components/GuidanceWa';
 import { forDistrict } from '@/lib/access';
+import OfflineChoice from '@/components/OfflineChoice';
+import { offlineEligible, scoreLimits } from '@/lib/offline';
 export const dynamic = 'force-dynamic';
 
 export default async function TestPage({ params, searchParams }) {
@@ -31,6 +33,14 @@ export default async function TestPage({ params, searchParams }) {
   if (isStale(a)) a = await finalize(a.id);
   if (a?.submitted_at) redirect(`/result/${id}`);
   const st = testStatus(t);
+  // class tests written on paper at the office (Mayiladuthurai / Thiruvarur): offer the paper-mark entry
+  const meOff = !a ? (await sql`SELECT district FROM students WHERE id=${sid}`)[0] : null;
+  const offOk = !a && offlineEligible(t, meOff?.district);
+  const [offRow] = offOk ? await sql`SELECT score::float score, status, note FROM offline_scores WHERE test_id=${id} AND student_id=${sid}` : [];
+  const lim = offOk ? await scoreLimits(t) : null;
+  if (st !== 'open' && !a && offOk) {
+    return <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>{t.unit ? <div className="small muted">பொதுத்தமிழ் · அலகு {t.unit}</div> : null}<h1>{t.title}</h1><OfflineChoice testId={id} lim={lim} existing={offRow || null} onlineOpen={false} /></div>;
+  }
   if (st !== 'open' && !a) {
     return <div className="card"><h1>{t.title}</h1><p>{st === 'upcoming' ? `இத்தேர்வு ${fmt(t.start_at)} அன்று தொடங்கும்.` : 'இத்தேர்வு நிறைவடைந்தது.'}</p><a className="btn alt" href="/dashboard">திரும்பு</a></div>;
   }
@@ -40,16 +50,8 @@ export default async function TestPage({ params, searchParams }) {
     if (t.ttype === 'class' && !forDistrict(t, me.district)) return <ClassOnly title={t.title} districts={t.districts} />;
     if (!profileComplete(me)) redirect(`/profile?next=/test/${id}`);
     const mins = Math.min(t.duration_min, Math.floor((new Date(t.end_at) - Date.now()) / 60000));
-    return (
-      <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
-        {PREFIX[me.district] === 'OTH' && !me.district_other ? <OtherDistrictPrompt /> : null}
-        {!(PREFIX[me.district] === 'OTH' && !me.district_other) && hallPrompt(me) ? <G2HallPrompt appNo={me.g2_app_no || ''} mandatory={hallPrompt(me) === 'must'} /> : null}
-        {g4Asking() && me.g4_applied !== true && !hallPrompt(me) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && <G4Prompt lastDate={G4.lastDate} examDate={G4.examDate} />}
-        <PushOptIn gate hideOn />
-        <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!(await searchParams)?.new} />
-        {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
-        {t.unit ? <div className="small muted">பொதுத்தமிழ் · அலகு {t.unit}</div> : null}
-        <h1>{t.title}</h1>
+    const onlineRules = (
+      <>
         <ul>
           <li>மொத்தம் {n} வினாக்கள்; ஒவ்வொரு சரியான விடைக்கும் {Number(t.marks_per_q)} மதிப்பெண். {Number(t.negative_mark) > 0 ? <b>ஒவ்வொரு தவறான விடைக்கும் {Number(t.negative_mark)} மதிப்பெண் குறைக்கப்படும் (Negative marking).</b> : 'தவறான விடைக்குக் குறைப்பு இல்லை.'}</li>
           <li>நேரம்: <b>{mins} நிமிடம்</b>. "தொடங்கு" அழுத்தியவுடன் நேரம் ஓடத் தொடங்கும்; இடையில் நிறுத்த இயலாது.</li>
@@ -67,6 +69,21 @@ export default async function TestPage({ params, searchParams }) {
           <div className="syllabus">{t.syllabus}</div>
         </>}
         <StartButton testId={id} needAck={!!t.syllabus} />
+      </>
+    );
+    return (
+      <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
+        {PREFIX[me.district] === 'OTH' && !me.district_other ? <OtherDistrictPrompt /> : null}
+        {!(PREFIX[me.district] === 'OTH' && !me.district_other) && hallPrompt(me) ? <G2HallPrompt appNo={me.g2_app_no || ''} mandatory={hallPrompt(me) === 'must'} /> : null}
+        {g4Asking() && me.g4_applied !== true && !hallPrompt(me) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && <G4Prompt lastDate={G4.lastDate} examDate={G4.examDate} />}
+        <PushOptIn gate hideOn />
+        <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!(await searchParams)?.new} />
+        {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
+        {t.unit ? <div className="small muted">பொதுத்தமிழ் · அலகு {t.unit}</div> : null}
+        <h1>{t.title}</h1>
+        {offOk ? <OfflineChoice testId={id} lim={lim} existing={offRow || null} onlineOpen>
+          {onlineRules}
+        </OfflineChoice> : onlineRules}
       </div>
     );
   }

@@ -13,7 +13,8 @@ export default async function AdminLayout({ children }) {
       (SELECT count(*) FROM feedback WHERE status='pending')::int "fbPend",
       (SELECT count(*) FROM faculty WHERE status='pending')::int "facPend",
       (SELECT count(*) FROM faculty_session_clashes WHERE NOT seen)::int "clashNew",
-      (SELECT count(*) FROM class_feedback WHERE NOT seen)::int "cfNew"`;
+      (SELECT count(*) FROM class_feedback WHERE NOT seen)::int "cfNew",
+      (SELECT count(*) FROM offline_scores WHERE status='pending')::int "offPend"`;
     badges = b;
   }
   return <>{badges && <AdminNav badges={badges} />}{children}</>;

@@ -61,12 +61,12 @@ export async function GET(req) {
     const id = Number(u.searchParams.get('test'));
     const qs = await sql`SELECT qno FROM questions WHERE test_id=${id} ORDER BY qno`;
     const rk = await ranking(id);
-    const head = ['Rank', 'District Rank', 'Reg No', 'Name', 'Mobile', 'District', 'Gender', 'Community', 'Priority', 'Score', 'Correct', 'Wrong', 'E', 'Unanswered', 'Tamil', 'GS', 'Aptitude', 'Time (min)', 'Tab switches', 'Responses (200, - = blank)'];
+    const head = ['Rank', 'District Rank', 'Reg No', 'Name', 'Mobile', 'District', 'Gender', 'Community', 'Priority', 'Score', 'Correct', 'Wrong', 'E', 'Unanswered', 'Tamil', 'GS', 'Aptitude', 'Time (min)', 'Tab switches', 'Mode', 'Responses (200, - = blank)'];
     rows = [head, ...rk.map((r) => {
       const s = r.section_scores || {};
       return [r.rank, r.drank, r.reg_no, r.name, r.mobile, r.district, genderText(r.gender), r.community || '', priorityText(r), r.score, r.correct, r.wrong, r.e_count, r.unanswered,
-        s['தமிழ்']?.marks ?? '', s.GS?.marks ?? '', s.APT?.marks ?? '', Math.round((r.secs || 0) / 6) / 10, r.tab_switches,
-        qs.map((q) => r.answers?.[q.qno] || '-').join('')];
+        s['தமிழ்']?.marks ?? '', s.GS?.marks ?? '', s.APT?.marks ?? '', r.offline ? '' : Math.round((r.secs || 0) / 6) / 10, r.tab_switches, r.offline ? 'Offline (paper)' : 'Online',
+        r.offline ? '' : qs.map((q) => r.answers?.[q.qno] || '-').join('')];
     })];
     name = `test_${id}_results`;
   }
