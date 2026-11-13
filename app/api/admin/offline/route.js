@@ -25,7 +25,7 @@ export async function POST(req) {
       ON CONFLICT (test_id, student_id) DO UPDATE SET score=EXCLUDED.score, correct=EXCLUDED.correct, wrong=EXCLUDED.wrong, minutes=EXCLUDED.minutes,
         status='verified', by_admin=true, note=NULL, verified_at=now(), updated_at=now() RETURNING *`;
     await applyVerified(o, t);
-    return done(`${s.name} – சரி ${c.correct}, தவறு ${c.wrong}, ${c.minutes} நிமிடம் → ${c.score} மதிப்பெண் சேர்க்கப்பட்டு தரவரிசையில் இணைக்கப்பட்டது.`);
+    return done(`${s.name} – சரி ${c.correct}, தவறு ${c.wrong} → ${c.score} மதிப்பெண் சேர்க்கப்பட்டு தரவரிசையில் இணைக்கப்பட்டது.`);
   }
 
   if (b.action === 'verifyAll') {
@@ -46,7 +46,7 @@ export async function POST(req) {
   if (b.action === 'verify') {
     const [t] = await sql`SELECT * FROM tests WHERE id=${o.test_id}`;
     // the office may correct the counts read from the answer sheet; the mark is recalculated
-    const c = checkCounts({ correct: b.correct ?? o.correct, wrong: b.wrong ?? o.wrong, minutes: b.minutes ?? o.minutes }, await scoreLimits(t));
+    const c = checkCounts({ correct: b.correct ?? o.correct, wrong: b.wrong ?? o.wrong }, await scoreLimits(t));
     if (c.error) return bad(c.error);
     const score = c.score;
     const [a] = await sql`SELECT offline FROM attempts WHERE test_id=${o.test_id} AND student_id=${o.student_id}`;
