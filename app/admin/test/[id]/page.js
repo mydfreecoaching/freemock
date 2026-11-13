@@ -82,7 +82,7 @@ export default async function AdminTest({ params, searchParams }) {
         <div className="tablewrap" style={{ marginTop: 10, maxHeight: 520, overflow: 'auto' }}><table>
           <thead><tr><th>தரம்</th><th>மா.தரம்</th><th>பதிவு எண்</th><th>பெயர்</th><th>மாவட்டம்</th><th>மதிப்பெண்</th><th>சரி</th><th>தவறு</th><th>E</th><th>விடுபட்டவை</th><th>நேரம்</th><th>Tab மாற்றம்</th></tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b>{r.offline && <span className="pill off" title="அலுவலகத்தில் நேரடியாக எழுதியது"> 📝 நேரடி</span>}</td><td>{r.offline ? '–' : r.correct}</td><td>{r.offline ? '–' : r.wrong}</td><td>{r.offline ? '–' : r.e_count}</td><td>{r.offline ? '–' : r.unanswered}</td><td>{r.offline ? '–' : mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: 'var(--bad)', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
+            <tr key={r.id}><td>{r.rank}</td><td>{r.drank}</td><td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td><b>{r.score}</b>{r.offline && <span className="pill off" title="அலுவலகத்தில் நேரடியாக எழுதியது"> 📝 நேரடி</span>}</td><td>{r.correct}</td><td>{r.wrong}</td><td>{r.e_count}</td><td>{r.unanswered}</td><td>{mmss(r.secs)}</td><td style={r.tab_switches > 5 ? { color: 'var(--bad)', fontWeight: 700 } : undefined}>{r.tab_switches}</td></tr>
           ))}</tbody>
         </table></div>
         {hardest.length > 0 && <p className="small" style={{ marginTop: 10 }}><b>அதிகம் தவறிய வினாக்கள் (சரியான %):</b> {hardest.map((h) => `${h.qno} (${h.p}%)`).join(', ')}</p>}

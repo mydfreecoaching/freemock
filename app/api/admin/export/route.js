@@ -65,7 +65,7 @@ export async function GET(req) {
     rows = [head, ...rk.map((r) => {
       const s = r.section_scores || {};
       return [r.rank, r.drank, r.reg_no, r.name, r.mobile, r.district, genderText(r.gender), r.community || '', priorityText(r), r.score, r.correct, r.wrong, r.e_count, r.unanswered,
-        s['தமிழ்']?.marks ?? '', s.GS?.marks ?? '', s.APT?.marks ?? '', r.offline ? '' : Math.round((r.secs || 0) / 6) / 10, r.tab_switches, r.offline ? 'Offline (paper)' : 'Online',
+        s['தமிழ்']?.marks ?? '', s.GS?.marks ?? '', s.APT?.marks ?? '', Math.round((r.secs || 0) / 6) / 10, r.tab_switches, r.offline ? 'Offline (paper)' : 'Online',
         r.offline ? '' : qs.map((q) => r.answers?.[q.qno] || '-').join('')];
     })];
     name = `test_${id}_results`;

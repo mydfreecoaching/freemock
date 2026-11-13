@@ -1,9 +1,10 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { studentId } from '@/lib/auth';
-import { offlineEligible, scoreLimits, checkScore } from '@/lib/offline';
+import { offlineEligible, scoreLimits, checkCounts } from '@/lib/offline';
 
 /**
- * Student: "I wrote this class test on paper at the office" – save / change the total mark (waits for office verification),
+ * Student: "I wrote this class test on paper at the office" – save / change correct, wrong and time taken; the mark is
+ * calculated here (waits for office verification),
  * or cancel it (only while not verified) to write online instead.
  */
 export async function POST(req) {
@@ -23,10 +24,11 @@ export async function POST(req) {
     await sql`DELETE FROM offline_scores WHERE test_id=${id} AND student_id=${sid} AND status <> 'verified'`;
     return Response.json({ ok: true, reload: true });
   }
-  const c = checkScore(b.score, await scoreLimits(t));
+  const c = checkCounts(b, await scoreLimits(t));
   if (c.error) return Response.json({ error: c.error }, { status: 400 });
-  await sql`INSERT INTO offline_scores (test_id, student_id, score) VALUES (${id}, ${sid}, ${c.score})
-    ON CONFLICT (test_id, student_id) DO UPDATE SET score=EXCLUDED.score, status='pending', note=NULL, by_admin=false, updated_at=now()
+  await sql`INSERT INTO offline_scores (test_id, student_id, score, correct, wrong, minutes) VALUES (${id}, ${sid}, ${c.score}, ${c.correct}, ${c.wrong}, ${c.minutes})
+    ON CONFLICT (test_id, student_id) DO UPDATE SET score=EXCLUDED.score, correct=EXCLUDED.correct, wrong=EXCLUDED.wrong, minutes=EXCLUDED.minutes,
+      status='pending', note=NULL, by_admin=false, updated_at=now()
     WHERE offline_scores.status <> 'verified'`;
-  return Response.json({ ok: true, reload: true, message: 'மதிப்பெண் பதிவு செய்யப்பட்டது. அலுவலகம் விடைத்தாளுடன் சரிபார்த்ததும் தரவரிசையில் சேர்க்கப்படும்.' });
+  return Response.json({ ok: true, reload: true, message: `பதிவு செய்யப்பட்டது – கணக்கிட்ட மதிப்பெண் ${c.score}. அலுவலகம் விடைத்தாளுடன் சரிபார்த்ததும் தரவரிசையில் சேர்க்கப்படும்.` });
 }

@@ -47,7 +47,7 @@ export default async function RankList({ params, searchParams }) {
           <tr key={r.id}>
             <td><b>{d ? r.drank : r.rank}</b></td>{d && <td>{r.rank}</td>}
             {photo && <td>{pv[r.student_id] ? <img className="thumb" loading="lazy" src={`/api/photo/${r.student_id}?t=1&v=${pv[r.student_id]}`} alt="" /> : <span className="muted small">—</span>}</td>}
-            <td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td>{genderText(r.gender)}</td><td>{r.community || ''}</td><td className="small">{priorityText(r)}</td><td><b>{r.score}</b>{r.offline ? " (நேரடி)" : ""}</td><td>{r.offline ? "–" : r.correct}</td><td>{r.offline ? "–" : r.wrong}</td><td>{r.offline ? "–" : (r.unanswered || 0) + (r.e_count || 0)}</td>
+            <td>{r.reg_no}</td><td>{r.name}</td><td>{r.district}</td><td>{genderText(r.gender)}</td><td>{r.community || ''}</td><td className="small">{priorityText(r)}</td><td><b>{r.score}</b>{r.offline ? " (நேரடி)" : ""}</td><td>{r.correct}</td><td>{r.wrong}</td><td>{(r.unanswered || 0) + (r.e_count || 0)}</td>
             {secs.map((k) => <td key={k}>{r.section_scores?.[k]?.marks ?? ''}</td>)}
             <td>{mmss(r.secs)}</td>
           </tr>))}

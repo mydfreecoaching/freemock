@@ -1,6 +1,6 @@
 import { guard } from '@/lib/adminGuard';
 import { sql } from '@/lib/db';
-import { scoreLimits, checkScore, applyVerified, dropOfflineAttempt } from '@/lib/offline';
+import { scoreLimits, checkCounts, applyVerified, dropOfflineAttempt } from '@/lib/offline';
 import { clearLbCache } from '@/lib/lb';
 
 /** Admin: verify / correct / reject / delete paper-test marks, add one directly, or verify all pending of a test. */
@@ -16,14 +16,16 @@ export async function POST(req) {
     const reg = String(b.reg_no || '').trim().toUpperCase();
     const [s] = await sql`SELECT id, name FROM students WHERE ${reg} IN (reg_no, old_reg_no) OR mobile=${reg} LIMIT 1`;
     if (!s) return bad('இந்தப் பதிவு எண் / கைபேசி எண்ணில் மாணவர் இல்லை.');
-    const c = checkScore(b.score, await scoreLimits(t));
+    const c = checkCounts(b, await scoreLimits(t));
     if (c.error) return bad(c.error);
     const [a] = await sql`SELECT offline FROM attempts WHERE test_id=${t.id} AND student_id=${s.id}`;
     if (a && !a.offline) return bad(`${s.name} இத்தேர்வை ஏற்கனவே இணையவழியில் எழுதியுள்ளார் – நேரடி மதிப்பெண் சேர்க்க முதலில் அந்த விடைத்தாளை நீக்கவும்.`);
-    const [o] = await sql`INSERT INTO offline_scores (test_id, student_id, score, status, by_admin, verified_at) VALUES (${t.id}, ${s.id}, ${c.score}, 'verified', true, now())
-      ON CONFLICT (test_id, student_id) DO UPDATE SET score=EXCLUDED.score, status='verified', by_admin=true, note=NULL, verified_at=now(), updated_at=now() RETURNING *`;
+    const [o] = await sql`INSERT INTO offline_scores (test_id, student_id, score, correct, wrong, minutes, status, by_admin, verified_at)
+      VALUES (${t.id}, ${s.id}, ${c.score}, ${c.correct}, ${c.wrong}, ${c.minutes}, 'verified', true, now())
+      ON CONFLICT (test_id, student_id) DO UPDATE SET score=EXCLUDED.score, correct=EXCLUDED.correct, wrong=EXCLUDED.wrong, minutes=EXCLUDED.minutes,
+        status='verified', by_admin=true, note=NULL, verified_at=now(), updated_at=now() RETURNING *`;
     await applyVerified(o, t);
-    return done(`${s.name} – ${c.score} மதிப்பெண் சேர்க்கப்பட்டு தரவரிசையில் இணைக்கப்பட்டது.`);
+    return done(`${s.name} – சரி ${c.correct}, தவறு ${c.wrong}, ${c.minutes} நிமிடம் → ${c.score} மதிப்பெண் சேர்க்கப்பட்டு தரவரிசையில் இணைக்கப்பட்டது.`);
   }
 
   if (b.action === 'verifyAll') {
@@ -33,7 +35,8 @@ export async function POST(req) {
       const [a] = await sql`SELECT offline FROM attempts WHERE test_id=${o.test_id} AND student_id=${o.student_id}`;
       if (a && !a.offline) { skip++; continue; }
       await sql`UPDATE offline_scores SET status='verified', verified_at=now(), updated_at=now() WHERE id=${o.id}`;
-      await applyVerified(o, o); n++;
+      const [t] = await sql`SELECT * FROM tests WHERE id=${o.test_id}`;
+      await applyVerified(o, t); n++;
     }
     return done(`${n} மதிப்பெண்கள் சரிபார்க்கப்பட்டன${skip ? ` (${skip} பேர் ஏற்கனவே இணையவழியில் எழுதியதால் தவிர்க்கப்பட்டது)` : ''}.`);
   }
@@ -42,11 +45,13 @@ export async function POST(req) {
   if (!o) return bad('பதிவு இல்லை.');
   if (b.action === 'verify') {
     const [t] = await sql`SELECT * FROM tests WHERE id=${o.test_id}`;
-    let score = Number(o.score);
-    if (b.score !== undefined && String(b.score).trim() !== '') { const c = checkScore(b.score, await scoreLimits(t)); if (c.error) return bad(c.error); score = c.score; }
+    // the office may correct the counts read from the answer sheet; the mark is recalculated
+    const c = checkCounts({ correct: b.correct ?? o.correct, wrong: b.wrong ?? o.wrong, minutes: b.minutes ?? o.minutes }, await scoreLimits(t));
+    if (c.error) return bad(c.error);
+    const score = c.score;
     const [a] = await sql`SELECT offline FROM attempts WHERE test_id=${o.test_id} AND student_id=${o.student_id}`;
     if (a && !a.offline) return bad('இந்த மாணவர் இத்தேர்வை இணையவழியிலும் எழுதியுள்ளார் – இணையவழி மதிப்பெண்ணே கணக்கில் கொள்ளப்படும்.');
-    const [u] = await sql`UPDATE offline_scores SET score=${score}, status='verified', note=NULL, verified_at=now(), updated_at=now() WHERE id=${o.id} RETURNING *`;
+    const [u] = await sql`UPDATE offline_scores SET score=${score}, correct=${c.correct}, wrong=${c.wrong}, minutes=${c.minutes}, status='verified', note=NULL, verified_at=now(), updated_at=now() WHERE id=${o.id} RETURNING *`;
     await applyVerified(u, t);
     return done(`சரிபார்க்கப்பட்டது – ${score} மதிப்பெண் தரவரிசையில் சேர்க்கப்பட்டது.`);
   }

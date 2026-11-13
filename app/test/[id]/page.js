@@ -36,7 +36,7 @@ export default async function TestPage({ params, searchParams }) {
   // class tests written on paper at the office (Mayiladuthurai / Thiruvarur): offer the paper-mark entry
   const meOff = !a ? (await sql`SELECT district FROM students WHERE id=${sid}`)[0] : null;
   const offOk = !a && offlineEligible(t, meOff?.district);
-  const [offRow] = offOk ? await sql`SELECT score::float score, status, note FROM offline_scores WHERE test_id=${id} AND student_id=${sid}` : [];
+  const [offRow] = offOk ? await sql`SELECT score::float score, correct, wrong, minutes, status, note FROM offline_scores WHERE test_id=${id} AND student_id=${sid}` : [];
   const lim = offOk ? await scoreLimits(t) : null;
   if (st !== 'open' && !a && offOk) {
     return <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>{t.unit ? <div className="small muted">பொதுத்தமிழ் · அலகு {t.unit}</div> : null}<h1>{t.title}</h1><OfflineChoice testId={id} lim={lim} existing={offRow || null} onlineOpen={false} /></div>;

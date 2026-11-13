@@ -55,19 +55,22 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
         <input type="hidden" name="action" value="verifyAll" /><input type="hidden" name="test_id" value={test.id} /></Form>}
 
       {list.length > 0 && <div className="tablewrap" style={{ maxHeight: 640, overflow: 'auto', marginTop: 8 }}><table className="small offtable">
-        <thead><tr>{!test && <th>தேர்வு</th>}<th>மாணவர்</th><th>மாவட்டம் / இடம்</th><th className="num">மதிப்பெண்</th><th>நிலை</th><th>உள்ளிட்டது</th><th>செயல்</th></tr></thead>
+        <thead><tr>{!test && <th>தேர்வு</th>}<th>மாணவர்</th><th>மாவட்டம் / இடம்</th><th className="num">சரி / தவறு / நேரம்</th><th className="num">மதிப்பெண்</th><th>நிலை</th><th>உள்ளிட்டது</th><th>செயல்</th></tr></thead>
         <tbody>{list.map((r) => (
           <tr key={r.id} className={`off-${r.status}`}>
             {!test && <td><a href={`/admin/test/${r.test_id}#offline`}>{r.unit ? `அலகு ${r.unit} · ` : ''}{r.title}</a></td>}
             <td><b>{r.name}</b><br /><span className="muted">{r.reg_no} · {r.mobile}</span></td>
             <td>{r.district}<br /><span className="muted">{placeName(r.coaching_venue) || '—'}</span></td>
+            <td className="num">{r.correct ?? '–'} / {r.wrong ?? '–'} / {r.minutes != null ? `${r.minutes} நிமி` : '–'}</td>
             <td className="num"><b>{Number(r.score)}</b><span className="muted">/{Number(r.max)}</span></td>
             <td><span className={`pill ${r.status === 'verified' ? 'open' : r.status === 'rejected' ? 'closed' : 'upcoming'}`}>{STATUS_LABEL[r.status]}</span>{r.by_admin && <div className="muted">அலுவலகம் உள்ளிட்டது</div>}{r.note && <div className="muted">{r.note}</div>}</td>
             <td className="muted">{dmyT(r.created_at)}</td>
             <td className="offact">
               <Form action="/api/admin/offline" submit={r.status === 'verified' ? 'திருத்து' : '✔ சரி'} className="inline-form">
                 <input type="hidden" name="action" value="verify" /><input type="hidden" name="id" value={r.id} />
-                <input name="score" type="number" step="any" defaultValue={Number(r.score)} aria-label="மதிப்பெண்" />
+                <input name="correct" type="number" min={0} step={1} defaultValue={r.correct ?? ''} aria-label="சரி" title="சரி" placeholder="சரி" />
+                <input name="wrong" type="number" min={0} step={1} defaultValue={r.wrong ?? ''} aria-label="தவறு" title="தவறு" placeholder="தவறு" />
+                <input name="minutes" type="number" min={1} step={1} defaultValue={r.minutes ?? ''} aria-label="நிமிடம்" title="நேரம் (நிமிடம்)" placeholder="நிமி" />
               </Form>
               {r.status !== 'rejected' && <Form action="/api/admin/offline" submit="✖ நிராகரி" className="inline-form">
                 <input type="hidden" name="action" value="reject" /><input type="hidden" name="id" value={r.id} />
@@ -82,16 +85,18 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
       {list.length === 0 && <p className="muted small">இந்த வடிகட்டலில் பதிவுகள் இல்லை.</p>}
 
       {test && <details style={{ marginTop: 12 }}>
-        <summary><b>➕ அலுவலகமே மதிப்பெண்ணை உள்ளிட / Add a mark</b></summary>
+        <summary><b>➕ அலுவலகமே விவரத்தை உள்ளிட / Add a paper result</b></summary>
         <Form action="/api/admin/offline" submit="சேர் (உடனே தரவரிசையில்)">
           <input type="hidden" name="action" value="add" /><input type="hidden" name="test_id" value={test.id} />
           <div className="grid3">
             <div><label>பதிவு எண் / கைபேசி எண்</label><input name="reg_no" required placeholder="MYD2026000001" /></div>
-            <div><label>மொத்த மதிப்பெண்</label><input name="score" type="number" step="any" required /></div>
+            <div><label>சரியான விடைகள்</label><input name="correct" type="number" min={0} step={1} required /></div>
+            <div><label>தவறான விடைகள்</label><input name="wrong" type="number" min={0} step={1} required /></div>
+            <div><label>எடுத்த நேரம் (நிமிடம்)</label><input name="minutes" type="number" min={1} max={test.duration_min} step={1} required /></div>
           </div>
         </Form>
       </details>}
-      <p className="small muted" style={{ marginBottom: 0 }}>மயிலாடுதுறை, திருவாரூர் மாணவர்கள் வகுப்புத் தேர்வைத் தொடங்கும் முன் "அலுவலகத்தில் நேரடியாக எழுதினேன்" என்று தேர்வு செய்து மொத்த மதிப்பெண்ணை உள்ளிடுவர். <b>"✔ சரி" அழுத்திய பின்பே</b> தரவரிசை, Leaderboard, அறிக்கைகளில் சேரும் (மதிப்பெண்ணைத் திருத்தியும் சரிபார்க்கலாம்). நிராகரித்தால் மாணவர் மீண்டும் உள்ளிடலாம் அல்லது இணையவழியில் எழுதலாம்.</p>
+      <p className="small muted" style={{ marginBottom: 0 }}>மயிலாடுதுறை, திருவாரூர் மாணவர்கள் வகுப்புத் தேர்வைத் தொடங்கும் முன் "அலுவலகத்தில் நேரடியாக எழுதினேன்" என்று தேர்வு செய்து சரி, தவறு எண்ணிக்கை, எடுத்த நேரத்தை உள்ளிடுவர்; மதிப்பெண் தேர்வின் மதிப்பீட்டு முறைப்படி தானாகக் கணக்கிடப்படும். <b>"✔ சரி" அழுத்திய பின்பே</b> தரவரிசை, Leaderboard, அறிக்கைகளில் சேரும் (விடைத்தாளுடன் ஒப்பிட்டு எண்ணிக்கையைத் திருத்தியும் சரிபார்க்கலாம்). நிராகரித்தால் மாணவர் மீண்டும் உள்ளிடலாம் அல்லது இணையவழியில் எழுதலாம்.</p>
     </div>
   );
 }

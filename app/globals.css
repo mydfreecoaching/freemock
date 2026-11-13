@@ -846,6 +846,8 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .pill.off{background:var(--chip);color:var(--chipink)}
 .offtable td{vertical-align:top}
 .offact{min-width:250px} .offact form{margin:0 4px 4px 0} .offact form>div{margin-top:4px!important;display:inline-block}
-.offact input{width:90px;padding:6px 8px;font-size:13px;display:inline-block;margin:0 4px 0 0} .offact input[name=note]{width:130px}
+.offact input{width:62px;padding:6px 8px;font-size:13px;display:inline-block;margin:0 4px 0 0} .offact input[name=note]{width:130px}
 .offact button{padding:6px 10px;font-size:13px;min-height:0}
 .offtable tr.off-pending td{background:var(--warnbg)}
+.offgrid{display:grid;gap:8px 12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))} .offgrid label{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:4px} .offgrid input{max-width:none}
+.offcalc{margin:10px 0 0;font-size:15px} .offcalc .bad{color:var(--bad)}
