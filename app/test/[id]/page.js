@@ -13,7 +13,7 @@ import G2HallPrompt from '@/components/G2HallPrompt';
 import { hallPrompt } from '@/lib/profile';
 import PushOptIn from '@/components/PushOptIn';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
-import { G4, g4Asking } from '@/lib/venues';
+import { G4, g4AppNoAsking, g4Pending, g4SkipsLeft } from '@/lib/venues';
 import StartButton from './StartButton';
 import ClassOnly from '@/components/ClassOnly';
 import GuidanceWa from '@/components/GuidanceWa';
@@ -75,7 +75,7 @@ export default async function TestPage({ params, searchParams }) {
       <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
         {PREFIX[me.district] === 'OTH' && !me.district_other ? <OtherDistrictPrompt /> : null}
         {!(PREFIX[me.district] === 'OTH' && !me.district_other) && hallPrompt(me) ? <G2HallPrompt appNo={me.g2_app_no || ''} mandatory={hallPrompt(me) === 'must'} /> : null}
-        {g4Asking() && me.g4_applied !== true && !hallPrompt(me) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && <G4Prompt lastDate={G4.lastDate} examDate={G4.examDate} />}
+        {g4AppNoAsking() && g4Pending(me) && !hallPrompt(me) && !(PREFIX[me.district] === 'OTH' && !me.district_other) && <G4Prompt examDate={G4.examDate} applied={me.g4_applied} skipsLeft={g4SkipsLeft(me)} />}
         <PushOptIn gate hideOn />
         <GuidanceWa guidance={me.guidance} venue={me.coaching_venue} fresh={!!(await searchParams)?.new} />
         {(await searchParams)?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{(await searchParams).new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}

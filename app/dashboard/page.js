@@ -23,7 +23,7 @@ import { g4OffAsking, G4_OFF_Q, G4_OFF_EN } from '@/lib/g4Offline';
 import { attendsClass } from '@/lib/classSource';
 import { hallPrompt } from '@/lib/profile';
 import OtherDistrictPrompt from '@/components/OtherDistrictPrompt';
-import { G4, g4Asking, g4ApplyOpen } from '@/lib/venues';
+import { G4, g4ApplyOpen, g4AppNoAsking, g4Pending, g4SkipsLeft } from '@/lib/venues';
 import { openEnded, fmt, fmtDate, testStatus } from '@/lib/util';
 import { getExams, examMap } from '@/lib/exams';
 import { studentTests } from '@/lib/student';
@@ -93,7 +93,7 @@ export default async function Dashboard({ searchParams }) {
     : (dc === 'TVR' || dc === 'MYD') && attendsClass(me.coaching_venue) && !me.class_source?.length ? 'source'
     : needClass && !sp?.new ? 'class'
     : (dc === 'TVR' || dc === 'MYD') && me.g4_offline == null && g4OffAsking() ? 'g4off'
-    : g4Asking() && me.g4_applied !== true && !sp?.new ? 'g4' : null;
+    : g4AppNoAsking() && g4Pending(me) && !sp?.new ? 'g4' : null;
   const [{ enqNew }] = await sql`SELECT count(*)::int "enqNew" FROM enquiries WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const [{ cfNew }] = await sql`SELECT count(*)::int "cfNew" FROM class_feedback WHERE student_id=${sid} AND reply IS NOT NULL AND NOT reply_seen`;
   const notices = [
@@ -117,7 +117,7 @@ export default async function Dashboard({ searchParams }) {
       {prompt === 'source' && <ClassSourcePrompt venue={venueTitle(me.coaching_venue)} />}
       {prompt === 'class' && <ClassInfoPrompt district={me.district} venues={attVenues(PREFIX[me.district])} />}
       {prompt === 'g4off' && <G4OfflinePrompt q={G4_OFF_Q} en={G4_OFF_EN} district={me.district} />}
-      {prompt === 'g4' && <G4Prompt force={!!sp?.login} lastDate={G4.lastDate} examDate={G4.examDate} />}
+      {prompt === 'g4' && <G4Prompt force={!!sp?.login} examDate={G4.examDate} applied={me.g4_applied} skipsLeft={g4SkipsLeft(me)} />}
       {sp?.new && <div className="okmsg">பதிவு வெற்றி! உங்கள் பதிவு எண்: <b>{sp.new}</b> — இதைக் குறித்து வைத்துக்கொள்ளவும்.</div>}
       <RateClassCard sessions={me.coaching_venue ? await sessionsToRate(me.id) : []} />
       {attToday && <AttendanceCard venue={venueTitle(me.coaching_venue)} day={`${fmtDay(attToday)} (${dayName(attToday)})`} inAt={attMark?.in_at || null} outAt={attMark?.out_at || null} />}
