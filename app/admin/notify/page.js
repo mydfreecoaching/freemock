@@ -17,6 +17,7 @@ export default async function AdminNotify() {
   const log = await sql`SELECT * FROM push_log ORDER BY id DESC LIMIT 20`;
   const ready = fcmReady() && !!VAPID_KEY;
   const [{ g4na }] = await sql`SELECT count(DISTINCT p.student_id)::int g4na FROM push_tokens p JOIN students s ON s.id=p.student_id WHERE s.g4_applied IS NOT TRUE`;
+  const [{ g4pend }] = await sql`SELECT count(DISTINCT p.student_id)::int g4pend FROM push_tokens p JOIN students s ON s.id=p.student_id WHERE s.g4_applied IS NULL OR (s.g4_applied AND COALESCE(s.g4_app_no, '') = '')`;
   return (
     <>
       <div className="card row" style={{ justifyContent: 'space-between' }}>
@@ -45,6 +46,7 @@ export default async function AdminNotify() {
             </select></div>
           </div>
           <label className="choice"><input type="checkbox" name="g4na" value="1" /> குரூப் 4-க்கு விண்ணப்பிக்காதவர்களுக்கு மட்டும் ({g4na} பேர் அறிவிப்பு இயக்கியுள்ளனர்)</label>
+          <label className="choice"><input type="checkbox" name="g4pend" value="1" /> குரூப் 4 விண்ணப்ப எண் தராதவர்களுக்கு மட்டும் ({g4pend} பேர் அறிவிப்பு இயக்கியுள்ளனர்)</label>
         </Form>
       </div>
       {log.length > 0 && <div className="card">
