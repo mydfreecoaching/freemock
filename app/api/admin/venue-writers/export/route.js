@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import { guard } from '@/lib/adminGuard';
 import { parseFilters, venueWriters } from '@/lib/venueWriters';
+import { studentInfo, STUDENT_HEAD, studentCells } from '@/lib/studentCols';
 
 const dmy = (k) => `${k.slice(8, 10)}.${k.slice(5, 7)}.${k.slice(0, 4)}`;
 const HEAD = { font: { bold: true, color: { argb: 'FFFFFFFF' } }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B57D0' } } };
@@ -38,12 +39,13 @@ export async function GET(req) {
   wd.columns.forEach((c, i) => { c.width = i === 2 ? 42 : i < 2 ? 14 : 16; });
   wd.views = [{ state: 'frozen', ySplit: 1 }];
 
+  const info = await studentInfo(x.rows.map((r) => r.reg_no));
   const wr = wb.addWorksheet('விவரம்');
-  style(wr.addRow(['நாள்', 'பதிவு எண்', 'பெயர்', 'கைபேசி', 'மாவட்டம்', 'இடம்', 'தேர்வு · வகை · உப தலைப்பு', 'தேர்வுப் பெயர்', 'மதிப்பெண்', 'முறை']));
-  for (const r of x.rows) wr.addRow([dmy(r.day), r.reg_no, r.name, r.mobile, r.district, r.place, r.cat, `${r.unit ? `அலகு ${r.unit} · ` : ''}${r.title}`, r.score, r.offline ? 'நேரடி (அலுவலகம்)' : 'இணையவழி']);
+  style(wr.addRow(['நாள்', 'பதிவு எண்', 'பெயர்', 'கைபேசி', 'மாவட்டம்', 'இடம்', 'தேர்வு · வகை · உப தலைப்பு', 'தேர்வுப் பெயர்', 'மதிப்பெண்', 'முறை', ...STUDENT_HEAD]));
+  for (const r of x.rows) wr.addRow([dmy(r.day), r.reg_no, r.name, r.mobile, r.district, r.place, r.cat, `${r.unit ? `அலகு ${r.unit} · ` : ''}${r.title}`, r.score, r.offline ? 'நேரடி (அலுவலகம்)' : 'இணையவழி', ...studentCells(info[r.reg_no])]);
   wr.columns.forEach((c, i) => { c.width = [12, 16, 24, 13, 14, 36, 40, 40, 10][i]; });
   wr.views = [{ state: 'frozen', ySplit: 1 }];
-  wr.autoFilter = { from: 'A1', to: 'J1' };
+  wr.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: 10 + STUDENT_HEAD.length } };
 
   const buf = await wb.xlsx.writeBuffer();
   return new Response(buf, { headers: { 'content-type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'content-disposition': `attachment; filename="writers_by_place_${f.from}_${f.to}.xlsx"` } });
