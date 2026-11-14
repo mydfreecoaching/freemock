@@ -53,16 +53,16 @@ export default function OfflineChoice({ testId, lim, existing, onlineOpen, child
       </div>}
       {mode === 'offline' && <div className="offbox">
         <h2>🏢 நேரடித் தேர்வு விவரம் / Paper-test details</h2>
-        <p className="small">அலுவலகத்தில் எழுதிய விடைத்தாளைத் திருத்திய பின் கிடைத்த விவரங்களை உள்ளிடவும் ({lim.n} வினாக்கள்; சரியான விடைக்கு {lim.mk} மதிப்பெண்{lim.neg ? `, தவறான விடைக்கு −${lim.neg}` : ''}). மதிப்பெண் தானாகக் கணக்கிடப்படும். அலுவலகம் விடைத்தாளுடன் சரிபார்த்த பின்பே தரவரிசையில் சேர்க்கப்படும்; தவறான விவரம் நிராகரிக்கப்படும்.</p>
+        <p className="small">அலுவலகத்தில் எழுதிய விடைத்தாளைத் திருத்திய பின் கிடைத்த விவரங்களை உள்ளிடவும் ({lim.n} வினாக்கள்; சரியான விடைக்கு {lim.mk} மதிப்பெண்{lim.neg ? `, தவறான விடைக்கு −${lim.neg}` : ''}). மதிப்பெண் தானாகக் கணக்கிடப்பட்டு <b>உடனே தரவரிசையில் சேர்க்கப்படும்</b>. சமர்ப்பித்த பின் மாற்ற இயலாது – விடைத்தாளில் உள்ளபடி சரியாக உள்ளிடவும்.</p>
         <div className="offgrid">
           <label>✅ சரியான விடைகள் / Correct<input type="number" inputMode="numeric" min={0} max={lim.n} step={1} value={v.correct} onChange={(e) => setV({ ...v, correct: e.target.value })} /></label>
           <label>❌ தவறான விடைகள் / Wrong<input type="number" inputMode="numeric" min={0} max={lim.n} step={1} value={v.wrong} onChange={(e) => setV({ ...v, wrong: e.target.value })} /></label>
         </div>
-        <p className="offcalc">{calc != null ? <>விடையளிக்காதவை: {lim.n - c - w} · கணக்கிட்ட மதிப்பெண்: <b>{calc} / {lim.max}</b></> : c != null && w != null && c + w > lim.n ? <span className="bad">சரி + தவறு மொத்த வினாக்களை ({lim.n}) விட அதிகம்</span> : <span className="muted">சரி, தவறு எண்ணிக்கையை உள்ளிட்டால் மதிப்பெண் தெரியும்</span>}</p>
+        <p className="offcalc">{calc != null ? <>விடையளிக்காதவை: {lim.n - c - w} · கணக்கிட்ட மதிப்பெண்: <b>{calc} / {lim.max}</b></> : c != null && w != null && c + w > lim.n ? <span className="bad">⚠️ சரி + தவறு = {c + w}; இத்தேர்வில் மொத்த வினாக்கள் {lim.n} மட்டுமே. எண்ணிக்கையைச் சரிபார்த்து சரியாகப் பூர்த்தி செய்யவும்.</span> : <span className="muted">சரி, தவறு எண்ணிக்கையை உள்ளிட்டால் மதிப்பெண் தெரியும்</span>}</p>
         {err && <div className="err">{err}</div>}
         {msg && <div className="okmsg">{msg}</div>}
         <div className="row" style={{ marginTop: 10 }}>
-          <button type="button" onClick={() => send('save')} disabled={busy || calc == null}>{busy ? 'காத்திருக்கவும்…' : 'சமர்ப்பி / Submit'}</button>
+          <button type="button" onClick={() => confirm(`சரி ${v.correct}, தவறு ${v.wrong} → மதிப்பெண் ${calc}. சமர்ப்பித்த பின் மாற்ற இயலாது. சமர்ப்பிக்கவா?`) && send('save')} disabled={busy || calc == null}>{busy ? 'காத்திருக்கவும்…' : 'சமர்ப்பி / Submit'}</button>
           {existing?.status === 'pending' ? <button type="button" className="alt" onClick={() => setEdit(false)} disabled={busy}>ரத்து</button>
             : <button type="button" className="alt" onClick={() => { setMode(''); setErr(''); }} disabled={busy}>← திரும்பு</button>}
         </div>

@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import Form from '@/components/Form';
-import { offlineList, offlineCounts, STATUS_LABEL } from '@/lib/offline';
+import { offlineList, offlineCounts, STATUS_LABEL, verifyAllPending } from '@/lib/offline';
 import { placeName } from '@/lib/venueWriters';
 
 const dmyT = (d) => new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
@@ -12,6 +12,7 @@ const dmyT = (d) => new Date(d).toLocaleString('en-IN', { timeZone: 'Asia/Kolkat
 export default async function OfflinePanel({ test = null, sp = {}, path, tests = [] }) {
   const f = { test: test?.id || Number(sp.ot) || 0, status: ['pending', 'verified', 'rejected'].includes(sp.os) ? sp.os : '', district: String(sp.od || ''), venue: String(sp.ov || ''), q: String(sp.oq || '').trim().slice(0, 40), from: /^\d{4}-\d{2}-\d{2}$/.test(sp.from || '') ? sp.from : '', to: /^\d{4}-\d{2}-\d{2}$/.test(sp.to || '') ? sp.to : '' };
   const list = await offlineList(f);
+  if (test) await verifyAllPending();
   const c = test ? await offlineCounts(test.id) : null;
   // place-wise: writers online vs at the office (verified) for this test
   const places = test ? await sql`SELECT s.district, s.coaching_venue v,
@@ -27,8 +28,7 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
       <h2 style={{ marginTop: 0 }}>📝 அலுவலகத்தில் நேரடியாக எழுதியவர்கள் / Paper tests at the office</h2>
       {c && <section className="statband vw-stats" style={{ marginBottom: 12 }}>
         <div><b>{c.online}</b><span>இணையவழியில் எழுதியவர்கள்</span></div>
-        <div><b>{c.verified}</b><span>நேரடியாக எழுதியவர்கள் (சரிபார்த்தது)</span></div>
-        <div><b>{c.pending}</b><span>சரிபார்ப்புக்குக் காத்திருப்பவை</span></div>
+        <div><b>{c.verified}</b><span>நேரடியாக எழுதியவர்கள்</span></div>
         <div><b>{c.online + c.verified}</b><span>மொத்தம் தரவரிசையில்</span></div>
       </section>}
       {places.length > 0 && <details className="small" open={!!places.find((p) => p.offline)}>
@@ -94,7 +94,7 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
           </div>
         </Form>
       </details>}
-      <p className="small muted" style={{ marginBottom: 0 }}>மயிலாடுதுறை, திருவாரூர் மாணவர்கள் வகுப்புத் தேர்வைத் தொடங்கும் முன் "அலுவலகத்தில் நேரடியாக எழுதினேன்" என்று தேர்வு செய்து சரி, தவறு விடைகளின் எண்ணிக்கையை உள்ளிடுவர் (நேரம் = தேர்வுக்கான முழு நேரம்); மதிப்பெண் தேர்வின் மதிப்பீட்டு முறைப்படி தானாகக் கணக்கிடப்படும். <b>"✔ சரி" அழுத்திய பின்பே</b> தரவரிசை, Leaderboard, அறிக்கைகளில் சேரும் (விடைத்தாளுடன் ஒப்பிட்டு எண்ணிக்கையைத் திருத்தியும் சரிபார்க்கலாம்). நிராகரித்தால் மாணவர் மீண்டும் உள்ளிடலாம் அல்லது இணையவழியில் எழுதலாம்.</p>
+      <p className="small muted" style={{ marginBottom: 0 }}>மயிலாடுதுறை, திருவாரூர் மாணவர்கள் வகுப்புத் தேர்வைத் தொடங்கும் முன் "அலுவலகத்தில் நேரடியாக எழுதினேன்" என்று தேர்வு செய்து சரி, தவறு விடைகளின் எண்ணிக்கையை உள்ளிடுவர் (நேரம் = தேர்வுக்கான முழு நேரம்); மதிப்பெண் தேர்வின் மதிப்பீட்டு முறைப்படி தானாகக் கணக்கிடப்படும். உள்ளிட்டவுடன் <b>நேரடியாகத் தரவரிசை</b>, Leaderboard, அறிக்கைகளில் சேரும். தேவைப்பட்டால் இங்கே எண்ணிக்கையைத் திருத்தலாம் ("திருத்து"), நிராகரிக்கலாம் அல்லது நீக்கலாம். நிராகரித்தால் மாணவர் மீண்டும் உள்ளிடலாம் அல்லது இணையவழியில் எழுதலாம்.</p>
     </div>
   );
 }
