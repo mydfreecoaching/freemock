@@ -37,7 +37,7 @@ export default async function Result({ params, searchParams }) {
     return (
       <div className="card">
         <div className="row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>{t.title} – முடிவு</h1><a className="btn alt" href={`/exam/${t.kind}`}>திரும்பு</a></div>
-        <p><span className="pill off">📝 அலுவலகத்தில் நேரடியாக எழுதியது (சரிபார்க்கப்பட்டது)</span></p>
+        <p><span className="pill off">📝 அலுவலகத்தில் நேரடியாக எழுதியது</span></p>
         <div className="big" style={{ margin: '10px 0' }}>{Number(a.score)} / {max}</div>
         <div className="stats">
           <div className="stat"><b>{a.correct}</b>சரி</div>
