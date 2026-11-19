@@ -5,7 +5,9 @@ import { fmt } from '@/lib/util';
 import Form from '@/components/Form';
 import CourseForm from '@/components/CourseForm';
 import { attVenues } from '@/lib/attendance';
-import { seedCourses, sessionList, daysText, slotLabel, t12, dmy, hours, DAY_NAMES, dow, istToday } from '@/lib/coaching';
+import { seedCourses, sessionList, daysText, slotLabel, t12, dmy, hours, DAY_NAMES, dow, istToday, activeCourses, isoDay } from '@/lib/coaching';
+import { getSubjects } from '@/lib/subjects';
+import FacultyClassForm from '@/components/FacultyClassForm';
 export const dynamic = 'force-dynamic';
 
 const shift = (d, n) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
@@ -26,6 +28,11 @@ export default async function AdminCoaching({ searchParams }) {
   const f = { course: sp?.course || '', faculty: sp?.faculty || '', from: sp?.from || '', to: sp?.to || '' };
   const courses = await sql`SELECT c.*, (SELECT count(*) FROM faculty_sessions s WHERE s.course_id=c.id)::int n FROM coaching_courses c ORDER BY c.active DESC, c.start_date DESC, c.id DESC`;
   const faculty = await sql`SELECT id, name FROM faculty ORDER BY name`;
+  // admin can record a class on behalf of a faculty member (same rules as the faculty form)
+  const facList = await sql`SELECT id, name, mobile, designation, office, subjects, course_ids FROM faculty WHERE status='approved' AND active ORDER BY name`;
+  const formCourses = (await activeCourses()).filter((c) => !c.end_date || isoDay(c.end_date) >= isoDay(new Date(Date.now() - 30 * 864e5)))
+    .map((c) => ({ id: c.id, name: c.name, exam: c.exam || '', place: c.place, days: c.days, slots: c.slots, start: isoDay(c.start_date), end: c.end_date ? isoDay(c.end_date) : '' }));
+  const subjectNames = (await getSubjects()).map((x) => x.name);
   const rows = await sessionList(f);
   const clashes = await sql`SELECT x.*, to_char(x.day,'YYYY-MM-DD') d, f.name, c.name course, e.t_from e_from, e.t_to e_to, ef.name e_name, ec.name e_course
     FROM faculty_session_clashes x LEFT JOIN faculty f ON f.id=x.faculty_id LEFT JOIN coaching_courses c ON c.id=x.course_id
@@ -58,6 +65,15 @@ export default async function AdminCoaching({ searchParams }) {
       )}
 
       <div className="card">
+        <details>
+          <summary><b>➕ பயிற்றுநர் சார்பாக வருகை பதிவு செய் / Record a class for a faculty member</b></summary>
+          <p className="small muted">பயிற்றுநர், பயிற்சி வகுப்பு, தேதி, நேரம், பாடம், பாடப்பகுதியைத் தேர்வு செய்யவும். பயிற்றுநர்கள் தாங்களாகவே பதிவிடும் முறையும் தொடர்ந்து இருக்கும். ஒரே நேரத்துக்கு இரட்டைப் பதிவு அனுமதிக்கப்படாது.</p>
+          {facList.length && formCourses.length ? <FacultyClassForm faculty={facList.map((x) => ({ ...x, course_ids: x.course_ids || [] }))} courses={formCourses} subjects={subjectNames} today={istToday()} action="/api/admin/coaching" />
+            : <p className="muted">செயலிலுள்ள பயிற்றுநர்கள் / பயிற்சி வகுப்புகள் இல்லை.</p>}
+        </details>
+      </div>
+
+      <div className="card">
         <h2 style={{ marginTop: 0 }}>📋 பயிற்றுநர் வருகை / Faculty attendance</h2>
         <form className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div><label>பயிற்சி வகுப்பு</label><select name="course" defaultValue={f.course}><option value="">அனைத்தும்</option>{courses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
@@ -72,7 +88,7 @@ export default async function AdminCoaching({ searchParams }) {
         {rows.length > 0 && <div className="tablewrap"><table className="small">
           <thead><tr><th>தேதி</th><th>வகுப்பு</th><th>பயிற்றுநர்</th><th>பாடம்</th><th>பாடப்பகுதி</th><th>நேரம்</th><th className="num">மணி</th><th></th></tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id}><td>{dmy(r.d)} <span className="muted">{DAY_NAMES[dow(r.d)]}</span></td><td>{r.course}</td><td><b>{r.faculty}</b></td><td>{r.subject}</td><td>{r.topic}</td>
+            <tr key={r.id}><td>{dmy(r.d)} <span className="muted">{DAY_NAMES[dow(r.d)]}</span></td><td>{r.course}</td><td><b>{r.faculty}</b>{r.by_admin && <span className="pill" title="Admin பதிவு செய்தது"> Admin</span>}</td><td>{r.subject}</td><td>{r.topic}</td>
               <td>{t12(r.t_from)} – {t12(r.t_to)}</td><td className="num">{hours(r.t_from, r.t_to)}</td>
               <td><Form action="/api/admin/coaching" submit="நீக்கு" confirm="இந்த வருகைப் பதிவை நீக்கவா?" className="inline-form"><input type="hidden" name="action" value="del_session" /><input type="hidden" name="id" value={r.id} /></Form></td></tr>
           ))}</tbody>

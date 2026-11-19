@@ -13,8 +13,8 @@ export async function GET(req) {
   const a = wb.addWorksheet('Attendance', { views: [{ state: 'frozen', ySplit: 1 }] });
   a.columns = [{ header: 'S.No', width: 6 }, { header: 'Date', width: 12 }, { header: 'Day', width: 6 }, { header: 'Course', width: 30 }, { header: 'Exam', width: 22 }, { header: 'Place', width: 30 },
     { header: 'Faculty', width: 24 }, { header: 'Mobile', width: 13 }, { header: 'Subject', width: 26 }, { header: 'Topic taught', width: 40 },
-    { header: 'From', width: 10 }, { header: 'To', width: 10 }, { header: 'Hours', width: 8 }, { header: 'Entered at', width: 17 }];
-  rows.forEach((r, i) => a.addRow([i + 1, dmy(r.d), DAY_EN[dow(r.d)], r.course, r.exam || '', r.place, r.faculty, r.mobile, r.subject, r.topic || '', t12(r.t_from), t12(r.t_to), hours(r.t_from, r.t_to), r.entered_at]));
+    { header: 'From', width: 10 }, { header: 'To', width: 10 }, { header: 'Hours', width: 8 }, { header: 'Entered at', width: 17 }, { header: 'Recorded by', width: 12 }];
+  rows.forEach((r, i) => a.addRow([i + 1, dmy(r.d), DAY_EN[dow(r.d)], r.course, r.exam || '', r.place, r.faculty, r.mobile, r.subject, r.topic || '', t12(r.t_from), t12(r.t_to), hours(r.t_from, r.t_to), r.entered_at, r.by_admin ? 'Admin' : 'Faculty']));
   const total = rows.reduce((t, r) => t + hours(r.t_from, r.t_to), 0);
   const tr = a.addRow(['', '', '', '', '', '', '', '', '', 'Total', '', '', Math.round(total * 100) / 100, '']); tr.font = { bold: true };
   head(a);

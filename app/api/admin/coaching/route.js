@@ -1,6 +1,6 @@
 import { sql } from '@/lib/db';
 import { guard } from '@/lib/adminGuard';
-import { courseFields } from '@/lib/coaching';
+import { courseFields, recordSession } from '@/lib/coaching';
 
 /** Admin: course create / update / toggle / delete; delete a faculty class entry; mark clashes seen. */
 export async function POST(req) {
@@ -21,6 +21,14 @@ export async function POST(req) {
     if (n) return Response.json({ error: `இந்த வகுப்பில் ${n} வருகைப் பதிவுகள் உள்ளன – நீக்குவதற்குப் பதில் "நிறுத்து" அழுத்தவும்.` }, { status: 400 });
     await sql`DELETE FROM coaching_courses WHERE id=${id}`;
     return Response.json({ reload: true });
+  }
+  if (b.action === 'record') {
+    // admin records a class on behalf of a faculty member (faculty can still record their own)
+    const [fac] = await sql`SELECT id, name FROM faculty WHERE id=${Number(b.faculty_id)} AND status='approved'`;
+    if (!fac) return Response.json({ error: 'பயிற்றுநரைத் தேர்வு செய்யவும்.' }, { status: 400 });
+    const r = await recordSession(fac.id, b, { byAdmin: true });
+    if (r.error) return Response.json({ error: r.error }, { status: r.clash ? 409 : 400 });
+    return Response.json({ message: `✅ ${fac.name} – வருகை பதிவு செய்யப்பட்டது.`, reload: true });
   }
   if (b.action === 'del_session') { await sql`DELETE FROM faculty_sessions WHERE id=${id}`; return Response.json({ message: 'நீக்கப்பட்டது.', reload: true }); }
   if (b.action === 'clash_seen') { await sql`UPDATE faculty_session_clashes SET seen=true WHERE NOT seen`; return Response.json({ reload: true }); }
