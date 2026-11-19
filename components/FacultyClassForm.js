@@ -7,15 +7,30 @@ const t12 = (t) => { const [h, m] = t.split(':').map(Number); return `${((h + 11
 const hrs = (a, b) => { const m = (x) => { const [h, mm] = x.split(':').map(Number); return h * 60 + mm; }; return Math.round(((m(b) - m(a)) / 60) * 100) / 100; };
 const dowOf = (d) => new Date(`${d}T00:00:00Z`).getUTCDay();
 
-/** Faculty: record a class taken – course → date (class days only, not future) → admin-defined time slot → subject & topic. */
-export default function FacultyClassForm({ courses, subjects, today }) {
-  const [cid, setCid] = useState(courses.length === 1 ? String(courses[0].id) : '');
+/**
+ * Record a class taken – course → date (class days only, not future) → admin-defined time slot → subject & topic.
+ * Faculty use it for themselves; the admin passes `faculty` (list with course_ids) to record on a faculty member's behalf.
+ */
+export default function FacultyClassForm({ courses: allCourses, subjects, today, faculty = null, action = '/api/faculty/class' }) {
+  const [fid, setFid] = useState('');
+  const fm = faculty?.find((x) => String(x.id) === fid);
+  const courses = faculty ? (fm?.course_ids?.length ? allCourses.filter((x) => fm.course_ids.includes(x.id)) : allCourses) : allCourses;
+  const [cid, setCid] = useState(!faculty && courses.length === 1 ? String(courses[0].id) : '');
   const [day, setDay] = useState(today);
   const c = courses.find((x) => String(x.id) === cid);
   const okDay = c && c.days.includes(dowOf(day)) && day >= c.start && (!c.end || day <= c.end);
   const [subj, setSubj] = useState('');
   return (
-    <Form action="/api/faculty/class" submit="✅ வருகையைப் பதிவு செய்">
+    <Form action={action} submit="✅ வருகையைப் பதிவு செய்">
+      {faculty && <>
+        <input type="hidden" name="action" value="record" />
+        <label>பயிற்றுநர் / Faculty <span className="req">*</span></label>
+        <select name="faculty_id" required value={fid} onChange={(e) => { setFid(e.target.value); setCid(''); }}>
+          <option value="" disabled>தேர்வு செய்யவும்</option>
+          {faculty.map((x) => <option key={x.id} value={x.id}>{x.name} · {x.mobile}{x.subjects ? ` · ${x.subjects}` : ''}</option>)}
+        </select>
+        {fm && <p className="small muted" style={{ margin: '2px 0 0' }}>{[fm.designation, fm.office].filter(Boolean).join(' · ')}{fm.subjects ? ` · 📚 ${fm.subjects}` : ''}</p>}
+      </>}
       <label>பயிற்சி வகுப்பு (தேர்வு – இடம்) / Course <span className="req">*</span></label>
       <select name="course" required value={cid} onChange={(e) => setCid(e.target.value)}>
         <option value="" disabled>தேர்வு செய்யவும்</option>
