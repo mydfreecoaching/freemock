@@ -3,6 +3,7 @@ import { sql, ensureSchema } from '@/lib/db';
 import { isAdmin } from '@/lib/auth';
 import { fmt } from '@/lib/util';
 import Form from '@/components/Form';
+import { facultyPhotoUrl } from '@/lib/facultyProfile';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminFaculty() {
@@ -10,7 +11,8 @@ export default async function AdminFaculty() {
   if (!(await isAdmin())) redirect('/admin');
   const all = await sql`SELECT f.*, (SELECT count(*) FROM submissions s WHERE s.faculty_id=f.id)::int n,
     (SELECT count(*) FROM submissions s WHERE s.faculty_id=f.id AND s.status='approved')::int ok,
-    (SELECT count(*) FROM faculty_sessions c WHERE c.faculty_id=f.id)::int cls FROM faculty f ORDER BY f.created_at`;
+    (SELECT count(*) FROM faculty_sessions c WHERE c.faculty_id=f.id)::int cls,
+    EXTRACT(EPOCH FROM p.updated_at)::bigint photo_v FROM faculty f LEFT JOIN faculty_photos p ON p.faculty_id=f.id ORDER BY f.created_at`;
   const pending = all.filter((f) => f.status === 'pending'), list = all.filter((f) => f.status === 'approved'), rejected = all.filter((f) => f.status === 'rejected');
   const CN = Object.fromEntries((await sql`SELECT id, name FROM coaching_courses`).map((c) => [c.id, c.name]));
   const DN = { MYD: 'மயிலாடுதுறை', NGP: 'நாகப்பட்டினம்', TVR: 'திருவாரூர்', OTH: 'இதர' };
@@ -18,13 +20,31 @@ export default async function AdminFaculty() {
   const crs = (f) => (f.course_ids || []).map((id) => CN[id]).filter(Boolean).join(' · ');
   return (
     <>
-      <div className="card row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>ஆசிரியர்கள் / Faculty</h1><a className="btn alt" href="/admin">← Admin</a></div>
+      <div className="card row" style={{ justifyContent: 'space-between' }}><h1 style={{ margin: 0 }}>ஆசிரியர்கள் / Faculty</h1><a className="btn" href="/api/admin/faculty/export">⬇ Excel (புகைப்படத்துடன்)</a></div>
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>பயிற்றுநர் விவரங்கள் ({list.length}){list.filter((f) => !f.photo_v || f.exp_years == null).length > 0 && <span className="small muted"> · விவரம் / புகைப்படம் இன்னும் தராதவர்கள்: {list.filter((f) => !f.photo_v || f.exp_years == null).length} (அடுத்த முறை உள்நுழையும்போது கேட்கப்படும்)</span>}</h2>
+        <div className="tablewrap"><table className="small factable">
+          <thead><tr><th>புகைப்படம்</th><th>பெயர் / கைபேசி</th><th>பதவி / பணியிடம்</th><th>மாவட்டம்</th><th className="num">அனுபவம் (ஆண்டு)</th><th>பயிற்சி நடத்திய / கற்பித்த இடங்கள்</th><th>பாடங்கள்</th><th>பயிற்சி வகுப்புகள்</th><th className="num">வகுப்புகள்</th></tr></thead>
+          <tbody>{list.map((f) => (
+            <tr key={f.id}>
+              <td>{f.photo_v ? <a href={facultyPhotoUrl(f.id, f.photo_v)} target="_blank" rel="noopener"><img src={facultyPhotoUrl(f.id, f.photo_v, true)} alt={f.name} width={56} height={72} className="facphoto" /></a> : <span className="muted">இல்லை</span>}</td>
+              <td><b>{f.name}</b>{!f.active && <span className="pill closed"> முடக்கம்</span>}<br />{f.mobile}{f.email && <><br /><span className="muted">{f.email}</span></>}</td>
+              <td>{f.designation}<br /><span className="muted">{f.office}</span></td>
+              <td>{DN[f.district] || ''}</td>
+              <td className="num">{f.exp_years != null ? Number(f.exp_years) : <span className="muted">–</span>}</td>
+              <td style={{ minWidth: 200, whiteSpace: 'pre-wrap' }}>{f.exp_places || <span className="muted">–</span>}</td>
+              <td>{f.subjects}</td><td>{crs(f)}</td><td className="num">{f.cls}</td>
+            </tr>))}</tbody>
+        </table></div>
+      </div>
       <div className="card" style={pending.length ? { borderColor: 'var(--brand)' } : null}>
         <h2 style={{ marginTop: 0 }}>⏳ ஒப்புதலுக்காகக் காத்திருக்கும் பதிவுகள் ({pending.length})</h2>
         {pending.length === 0 && <p className="muted" style={{ margin: 0 }}>இல்லை. பயிற்றுநர்கள் /faculty பக்கத்தில் தாங்களே பதிவு செய்யலாம்.</p>}
         {pending.map((f) => (
           <div key={f.id} className="enq">
+            {f.photo_v && <img src={facultyPhotoUrl(f.id, f.photo_v, true)} alt="" width={56} height={72} className="facphoto" style={{ float: 'right' }} />}
             <b>{f.name}</b> · {f.mobile} <span className="small muted">· பதிவு {fmt(f.created_at)}</span>
+            {f.exp_years != null && <div className="small">🎓 அனுபவம் {Number(f.exp_years)} ஆண்டுகள் · {f.exp_places}</div>}
             <div className="small">{info(f)}</div>
             <div className="small">📚 {f.subjects}</div>
             {crs(f) && <div className="small">📍 {crs(f)}</div>}

@@ -1,6 +1,7 @@
 import { sql, ensureSchema } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
 import { activeCourses } from '@/lib/coaching';
+import { parseFacultyProfile, saveFacultyProfile } from '@/lib/facultyProfile';
 
 const clean = (v, n) => String(v || '').replace(/\s+/g, ' ').trim().slice(0, n);
 /** Faculty self-registration → status 'pending' until the admin approves (then they can log in). */
@@ -20,13 +21,17 @@ export async function POST(req) {
   const open = (await activeCourses()).map((c) => c.id);
   const courseIds = [...new Set([].concat(b.courses || []).map(Number))].filter((id) => open.includes(id));
   if (open.length && !courseIds.length) return Response.json({ error: 'நீங்கள் பாடம் நடத்தும் பயிற்சி வகுப்புகளைத் (ஒன்று அல்லது அதற்கு மேல்) தேர்வு செய்யவும்.' }, { status: 400 });
+  const prof = parseFacultyProfile(b); // passport photo + experience
+  if (prof.error) return Response.json({ error: prof.error }, { status: 400 });
   const pw = String(b.password || '');
   if (pw.length < 6) return Response.json({ error: 'கடவுச்சொல் குறைந்தது 6 எழுத்துகள்.' }, { status: 400 });
   if (pw !== String(b.password2 || '')) return Response.json({ error: 'இரண்டு கடவுச்சொற்களும் ஒன்றாக இல்லை.' }, { status: 400 });
   const subj = [...subjects, ...(other ? [other] : [])].join('; ');
   const [ex] = await sql`SELECT status FROM faculty WHERE mobile=${mobile}`;
   if (ex && ex.status !== 'rejected') return Response.json({ error: ex.status === 'pending' ? 'இந்தக் கைபேசி எண்ணில் ஏற்கனவே பதிவு செய்யப்பட்டு ஒப்புதலுக்காகக் காத்திருக்கிறது.' : 'இந்தக் கைபேசி எண்ணுக்கு ஏற்கனவே கணக்கு உள்ளது – உள்நுழையவும்.' }, { status: 409 });
-  if (ex) await sql`UPDATE faculty SET name=${name}, pass_hash=${hashPassword(pw)}, designation=${designation}, office=${office}, district=${district}, subjects=${subj}, email=${email || null}, course_ids=${courseIds}, status='pending', self_reg=true, reject_note=null, decided_at=null, created_at=now() WHERE mobile=${mobile}`;
-  else await sql`INSERT INTO faculty (name, mobile, pass_hash, designation, office, district, subjects, email, course_ids, status, self_reg) VALUES (${name}, ${mobile}, ${hashPassword(pw)}, ${designation}, ${office}, ${district}, ${subj}, ${email || null}, ${courseIds}, 'pending', true)`;
+  let id;
+  if (ex) [{ id }] = await sql`UPDATE faculty SET name=${name}, pass_hash=${hashPassword(pw)}, designation=${designation}, office=${office}, district=${district}, subjects=${subj}, email=${email || null}, course_ids=${courseIds}, status='pending', self_reg=true, reject_note=null, decided_at=null, created_at=now() WHERE mobile=${mobile} RETURNING id`;
+  else [{ id }] = await sql`INSERT INTO faculty (name, mobile, pass_hash, designation, office, district, subjects, email, course_ids, status, self_reg) VALUES (${name}, ${mobile}, ${hashPassword(pw)}, ${designation}, ${office}, ${district}, ${subj}, ${email || null}, ${courseIds}, 'pending', true) RETURNING id`;
+  await saveFacultyProfile(id, prof);
   return Response.json({ message: '✅ பதிவு பெறப்பட்டது. Admin ஒப்புதல் அளித்த பின் இதே கைபேசி எண், கடவுச்சொல்லுடன் உள்நுழையலாம்.', reset: true });
 }
