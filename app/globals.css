@@ -851,3 +851,5 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .offtable tr.off-pending td{background:var(--warnbg)}
 .offgrid{display:grid;gap:8px 12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))} .offgrid label{font-size:13px;font-weight:600;display:flex;flex-direction:column;gap:4px} .offgrid input{max-width:none}
 .offcalc{margin:10px 0 0;font-size:15px} .offcalc .bad{color:var(--bad)}
+.facphoto{border-radius:6px;object-fit:cover;border:1px solid var(--line);display:block}
+.factable td{vertical-align:top}

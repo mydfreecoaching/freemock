@@ -6,6 +6,8 @@ import SubjectUnit from '@/components/SubjectUnit';
 import { getExams, examMap } from '@/lib/exams';
 import Form from '@/components/Form';
 import FacultyClassForm from '@/components/FacultyClassForm';
+import PhotoInput from '@/components/PhotoInput';
+import { facultyWithProfile, facultyProfileMissing, facultyPhotoUrl } from '@/lib/facultyProfile';
 import { activeCourses, seedCourses, istToday, isoDay, dmy, t12, hours, DAY_NAMES, dow } from '@/lib/coaching';
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +45,8 @@ export default async function Faculty() {
               <label>பாடம் நடத்த விரும்பும் பயிற்சி வகுப்புகள் <span className="req">*</span> <span className="small muted">(ஒன்று அல்லது அதற்கு மேல் தேர்வு செய்யலாம்)</span></label>
               <div className="src-list">{regCourses.map((c) => <label key={c.id} className="choice"><input type="checkbox" name="courses" value={c.id} /> {c.name}</label>)}</div>
             </>}
+            <ExpFields />
+            <PhotoInput />
             <label>நீங்கள் நடத்தும் பாடங்கள் <span className="req">*</span></label>
             <div className="src-list">{(await getSubjects()).map((s) => <label key={s.id} className="choice"><input type="checkbox" name="subjects" value={s.name} /> {s.name}</label>)}</div>
             <input name="subjects_other" maxLength={200} placeholder="பிற பாடங்கள் (இருந்தால்)" />
@@ -54,6 +58,29 @@ export default async function Faculty() {
           <p className="small muted">பதிவு Admin ஒப்புதலுக்காகக் காத்திருக்கும்.</p>
         </div>
       </div>
+    );
+  }
+  // passport photo + experience: compulsory for everyone (faculty registered earlier fill it in here first)
+  const me = await facultyWithProfile(f.id);
+  const missing = facultyProfileMissing(me);
+  const profileForm = (
+    <Form action="/api/faculty/profile" submit="சேமி / Save">
+      <ExpFields years={me.exp_years ?? ''} places={me.exp_places || ''} />
+      <PhotoInput current={me.has_photo ? facultyPhotoUrl(f.id, me.photo_v) : null} required={!me.has_photo} />
+    </Form>
+  );
+  if (missing) {
+    return (
+      <>
+        <div className="card row" style={{ justifyContent: 'space-between' }}>
+          <h1 style={{ margin: 0 }}>வணக்கம், {f.name}</h1><a className="btn alt" href="/api/faculty/logout">வெளியேறு</a>
+        </div>
+        <div className="card" style={{ maxWidth: 720, margin: '0 auto', borderColor: 'var(--brand)' }}>
+          <h2 style={{ marginTop: 0 }}>📋 உங்கள் விவரங்களைப் பூர்த்தி செய்யவும்</h2>
+          <p className="small">தொடர, உங்கள் <b>பாஸ்போர்ட் அளவு புகைப்படம்</b>, <b>கற்பித்தல் / பயிற்சி அனுபவம் (ஆண்டுகள்)</b>, <b>பயிற்சி நடத்திய / பாடம் கற்பித்த இடங்கள்</b> ஆகியவற்றை உள்ளிடவும்.</p>
+          {profileForm}
+        </div>
+      </>
     );
   }
   await seedCourses();
@@ -128,6 +155,14 @@ export default async function Faculty() {
             <label>புதிய கடவுச்சொல் (6+ எழுத்துகள்)</label><input name="new" type="password" required minLength={6} />
           </Form>
         </div>
+        <div className="card">
+          <h2>என் விவரங்கள் / My details</h2>
+          <div className="row" style={{ gap: 12, alignItems: 'flex-start' }}>
+            <img src={facultyPhotoUrl(f.id, me.photo_v, true)} alt="" width={70} height={90} style={{ borderRadius: 8, objectFit: 'cover', border: '1px solid var(--line)' }} />
+            <div className="small">அனுபவம்: <b>{Number(me.exp_years)} ஆண்டுகள்</b><br />இடங்கள்: {me.exp_places}</div>
+          </div>
+          <details style={{ marginTop: 8 }}><summary className="small">திருத்து / Edit</summary>{profileForm}</details>
+        </div>
       </div>
       <div className="card">
         <h2>நான் அனுப்பியவை</h2>
@@ -139,6 +174,18 @@ export default async function Faculty() {
           </table></div>
         )}
       </div>
+    </>
+  );
+}
+
+/** Teaching experience fields (registration + profile). */
+function ExpFields({ years = '', places = '' }) {
+  return (
+    <>
+      <label>கற்பித்தல் / பயிற்சி அனுபவம் (ஆண்டுகள்) <span className="req">*</span></label>
+      <input name="exp_years" type="number" min={0} max={60} step="0.5" required defaultValue={years} inputMode="decimal" style={{ maxWidth: 160 }} placeholder="எ.கா. 5" />
+      <label>பயிற்சி நடத்திய / பாடம் கற்பித்த இடங்கள் <span className="req">*</span></label>
+      <textarea name="exp_places" required minLength={3} maxLength={1000} rows={3} defaultValue={places} placeholder="எ.கா. அரசு மேல்நிலைப் பள்ளி, குத்தாலம் (10 ஆண்டுகள்); மாவட்ட வேலைவாய்ப்பு அலுவலக இலவசப் பயிற்சி வகுப்பு, மயிலாடுதுறை (2 ஆண்டுகள்)" />
     </>
   );
 }
