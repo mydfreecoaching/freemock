@@ -41,7 +41,20 @@ export default async function AdminTests({ searchParams }) {
       <div className="card" id="tests">
         <div className="row" style={{ justifyContent: 'space-between' }}><h2 style={{ margin: 0 }}>கிடைக்கும் தேர்வுகள் / Available exams</h2><a className="small" href="/admin/exams">+ சேர் / திருத்து</a></div>
         <div style={{ marginTop: 10 }}><ExamSelect value={cat} exams={exams.map((e) => ({ code: e.code, name: e.name, active: e.active, count: ec[e.code]?.all || 0, open: ec[e.code]?.open || 0 }))} /></div>
-        {EX[cat] && <p style={{ margin: '8px 0 0' }}><a className="btn alt" href={`/api/admin/export?type=combined&e=${cat}`}>📥 ஒருங்கிணைந்த தரவரிசை + மதிப்பெண்கள் (Excel)</a> <a className="btn" href={`/combined/${cat}`}>🏆 ஒருங்கிணைந்த தரவரிசை (அனைத்துத் தேர்வுகளும்) / PDF</a></p>}
+        {EX[cat] && <p style={{ margin: '8px 0 0' }}><a className="btn" href={`/combined/${cat}`}>🏆 ஒருங்கிணைந்த தரவரிசை (அனைத்துத் தேர்வுகளும்) / PDF</a></p>}
+        {EX[cat] && catT.length > 0 && (
+          <form method="get" action="/api/admin/export" className="combo-dl">
+            <input type="hidden" name="type" value="combined" /><input type="hidden" name="e" value={cat} />
+            <b className="small">📥 ஒருங்கிணைந்த மதிப்பெண் பட்டியல் (CSV) – தேர்வுத் தொடரில் எழுதிய அனைத்துத் தேர்வுகளின் மொத்த மதிப்பெண் அடிப்படையில் தரவரிசை</b>
+            <div className="row" style={{ gap: 8, alignItems: 'flex-end', marginTop: 6 }}>
+              <div><label>தேர்வு வகை</label><select name="tt" defaultValue="" style={{ width: 'auto' }}><option value="">அனைத்தும் ({catT.length})</option>{Object.entries(TT).filter(([k]) => catT.some((t) => t.ttype === k)).map(([k, l]) => <option key={k} value={k}>{l} ({catT.filter((t) => t.ttype === k).length})</option>)}</select></div>
+              {subjList.length > 0 && <div><label>பாடம்</label><select name="s" defaultValue={subj} style={{ width: 'auto', maxWidth: 240 }}><option value="">அனைத்தும்</option>{subjList.map((x) => <option key={x} value={x}>{x}</option>)}</select></div>}
+              <div><label>முதல் (விருப்பம்)</label><input type="date" name="from" /></div>
+              <div><label>வரை (விருப்பம்)</label><input type="date" name="to" /></div>
+              <button>📥 பதிவிறக்கு</button>
+            </div>
+          </form>
+        )}
         {EX[cat]?.description && <p className="small muted" style={{ marginBottom: 0 }}>{EX[cat].description}</p>}
       </div>
       {(subjList.length > 0) && (
