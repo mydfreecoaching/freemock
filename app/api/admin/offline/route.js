@@ -16,7 +16,10 @@ export async function POST(req) {
     const reg = String(b.reg_no || '').trim().toUpperCase();
     const [s] = await sql`SELECT id, name FROM students WHERE ${reg} IN (reg_no, old_reg_no) OR mobile=${reg} LIMIT 1`;
     if (!s) return bad('இந்தப் பதிவு எண் / கைபேசி எண்ணில் மாணவர் இல்லை.');
-    const c = checkCounts(b, await scoreLimits(t));
+    const lim = await scoreLimits(t);
+    const cn = Number(b.correct);
+    // wrong left blank → every other question counts as wrong (paper score sheet records only correct answers)
+    const c = checkCounts({ correct: b.correct, wrong: String(b.wrong ?? '').trim() !== '' ? b.wrong : Number.isInteger(cn) && cn >= 0 && cn <= lim.n ? lim.n - cn : '' }, lim);
     if (c.error) return bad(c.error);
     const [a] = await sql`SELECT offline FROM attempts WHERE test_id=${t.id} AND student_id=${s.id}`;
     if (a && !a.offline) return bad(`${s.name} இத்தேர்வை ஏற்கனவே இணையவழியில் எழுதியுள்ளார் – நேரடி மதிப்பெண் சேர்க்க முதலில் அந்த விடைத்தாளை நீக்கவும்.`);

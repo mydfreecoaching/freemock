@@ -85,7 +85,7 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
 
       {test && <details style={{ marginTop: 12 }} open>
         <summary><b>📥 Excel மூலம் பலரின் விவரங்களைப் பதிவேற்ற / Upload many from Excel</b></summary>
-        <p className="small">1) <a href={`/api/admin/offline/template?test=${test.id}`}><b>⬇ Excel மாதிரிக் கோப்பைப் பதிவிறக்கவும்</b></a> 2) ஒவ்வொரு மாணவருக்கும் ஒரு வரி: பதிவு எண் (அல்லது கைபேசி எண்), சரியான விடைகள், தவறான விடைகள் 3) கீழே பதிவேற்றவும் – மதிப்பெண் தானாகக் கணக்கிடப்பட்டு உடனே தரவரிசையில் சேரும்; தவறான வரிகள் காரணத்துடன் பட்டியலிடப்படும்.</p>
+        <p className="small">1) <a href={`/api/admin/offline/template?test=${test.id}`}><b>⬇ Excel மாதிரிக் கோப்பைப் பதிவிறக்கவும்</b></a> 2) "மதிப்பெண் பதிவுத் தாள்" படிவத்தில் உள்ளபடி ஒவ்வொரு மாணவருக்கும் பதிவு எண் (அல்லது கைபேசி எண்), சரியாக விடையளித்த வினாக்களின் எண்ணிக்கை – மீதமுள்ள வினாக்கள் தவறான விடைகளாகக் கணக்கிடப்படும் 3) கீழே பதிவேற்றவும் – மதிப்பெண் தானாகக் கணக்கிடப்பட்டு உடனே தரவரிசையில் சேரும்; தவறான வரிகள் காரணத்துடன் பட்டியலிடப்படும்.</p>
         <Form action="/api/admin/offline/upload" submit="பதிவேற்று / Upload">
           <input type="hidden" name="test_id" value={test.id} />
           <input type="file" name="file" accept=".xlsx" required />
@@ -98,7 +98,7 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
           <div className="grid3">
             <div><label>பதிவு எண் / கைபேசி எண்</label><input name="reg_no" required placeholder="MYD2026000001" /></div>
             <div><label>சரியான விடைகள்</label><input name="correct" type="number" min={0} step={1} required /></div>
-            <div><label>தவறான விடைகள்</label><input name="wrong" type="number" min={0} step={1} required /></div>
+            <div><label>தவறான விடைகள் (காலியாக விட்டால்: மீதமுள்ளவை அனைத்தும்)</label><input name="wrong" type="number" min={0} step={1} /></div>
           </div>
         </Form>
       </details>}
