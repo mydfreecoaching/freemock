@@ -83,6 +83,14 @@ export default async function OfflinePanel({ test = null, sp = {}, path, tests =
       </table></div>}
       {list.length === 0 && <p className="muted small">இந்த வடிகட்டலில் பதிவுகள் இல்லை.</p>}
 
+      {test && <details style={{ marginTop: 12 }} open>
+        <summary><b>📥 Excel மூலம் பலரின் விவரங்களைப் பதிவேற்ற / Upload many from Excel</b></summary>
+        <p className="small">1) <a href={`/api/admin/offline/template?test=${test.id}`}><b>⬇ Excel மாதிரிக் கோப்பைப் பதிவிறக்கவும்</b></a> 2) ஒவ்வொரு மாணவருக்கும் ஒரு வரி: பதிவு எண் (அல்லது கைபேசி எண்), சரியான விடைகள், தவறான விடைகள் 3) கீழே பதிவேற்றவும் – மதிப்பெண் தானாகக் கணக்கிடப்பட்டு உடனே தரவரிசையில் சேரும்; தவறான வரிகள் காரணத்துடன் பட்டியலிடப்படும்.</p>
+        <Form action="/api/admin/offline/upload" submit="பதிவேற்று / Upload">
+          <input type="hidden" name="test_id" value={test.id} />
+          <input type="file" name="file" accept=".xlsx" required />
+        </Form>
+      </details>}
       {test && <details style={{ marginTop: 12 }}>
         <summary><b>➕ அலுவலகமே விவரத்தை உள்ளிட / Add a paper result</b></summary>
         <Form action="/api/admin/offline" submit="சேர் (உடனே தரவரிசையில்)">
