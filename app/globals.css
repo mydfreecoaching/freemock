@@ -854,3 +854,4 @@ tfoot tr.tot td{border-top:2px solid var(--line);background:color-mix(in srgb,va
 .facphoto{border-radius:6px;object-fit:cover;border:1px solid var(--line);display:block}
 .factable td{vertical-align:top}
 .combo-dl{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft)} .combo-dl label{font-size:12px;margin:0 0 2px}
+.okmsg,.err{white-space:pre-line}
